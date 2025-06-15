@@ -1,0 +1,32 @@
+@font-face {
+    font-family: 'Agrandir';
+    src: url('../public/fonts/Agrandir-Regular.otf');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Agrandir';
+    src: url('../public/fonts/Agrandir-Bold.otf');
+    font-weight: bold;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Agrandir';
+    src: url('../public/fonts/Agrandir-SemiBold.otf');
+    font-weight: 600;
+    font-style: normal;
+  }
+  
+  body {
+    font-family: 'Agrandir', sans-serif;
+    background-color: #aa9c90;
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none; /* Firefox */
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
