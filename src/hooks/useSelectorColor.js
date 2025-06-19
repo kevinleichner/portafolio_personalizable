@@ -1,0 +1,58 @@
+import { useState, useRef } from "react";
+
+export const useSelectorColor = () => {
+  const [mostrarSelectorColor, setMostrarSelectorColor] = useState(false);
+  const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
+  const [colorInicial, setColorInicial] = useState("#ffffff");
+  const cambiarColorRef = useRef(() => {});
+  const botonRef = useRef(null);
+
+  const abrirSelectorColor = (evento, color, onColorChange, opciones = { vertical: "abajo", horizontal: "derecha" }) => {
+    const boton = evento.currentTarget;
+
+    if (botonRef.current === boton && mostrarSelectorColor) {
+      cerrarSelectorColor();
+      return;
+    }
+
+    const rect = boton.getBoundingClientRect();
+    const margin = 8;
+
+    const top =
+      opciones.vertical === "abajo"
+        ? rect.bottom + window.scrollY - 20 + margin
+        : rect.top + window.scrollY - 230 - margin;
+
+    const left =
+      opciones.horizontal === "derecha"
+        ? rect.left + window.scrollX + 20 + margin
+        : rect.left + window.scrollX - 210 - margin;
+
+    setPosicionSelectorColor({ top, left });
+    setColorInicial(color);
+    cambiarColorRef.current = onColorChange;
+    botonRef.current = boton;
+    setMostrarSelectorColor(true);
+  };
+
+  const cerrarSelectorColor = () => {
+    setMostrarSelectorColor(false);
+    botonRef.current = null;
+  };
+
+  const manejarCambioColor = (nuevoColor) => {
+    if (typeof cambiarColorRef.current === "function") {
+      cambiarColorRef.current(nuevoColor);
+    }
+  };
+
+  return {
+    mostrarSelectorColor,
+    posicionSelectorColor,
+    colorInicial,
+    botonRef,
+    abrirSelectorColor,
+    cerrarSelectorColor,
+    manejarCambioColor,
+  };
+};

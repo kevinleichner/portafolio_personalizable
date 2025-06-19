@@ -1,92 +1,28 @@
-import {useState, useRef, useEffect} from "react";
+import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
+import { useSelectorColor } from '../../hooks';
 
 export const Experiencia = ({config, editar}) => {
+
+    const {
+      mostrarSelectorColor,
+      posicionSelectorColor,
+      colorInicial,
+      botonRef,
+      abrirSelectorColor,
+      cerrarSelectorColor,
+      manejarCambioColor,
+    } = useSelectorColor();
+
     const [titulo, setTitulo] = useState(config.titulo);
     const [tarjetas, setTarjetas] = useState(config.tarjetas);
-
-    const [mostrarSelectorColor, setMostrarSelectorColor] = useState(false);
-    const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
     const [configLocal, setConfigLocal] = useState(config);
-    const [colorPaleta, setColorPaleta] = useState(config.colorFondo);
-  
-    const ultimaActualizacionRef = useRef(0);
-    const cambiarColorRef = useRef(() => {});
-    const selectorColorRef = useRef(null);
-    const botonActivoRef = useRef(null);
 
   useEffect(() => {
     setTitulo(config.titulo);
     setTarjetas(config.tarjetas);
     setConfigLocal(config);
   }, [config]);
-
-  useEffect(() => {
-    const clickFueraSelectorColor = (e) => {
-      if (
-        mostrarSelectorColor && //Se muestra el selector
-        selectorColorRef.current && //Verificar que selectorColorRef no es null
-        !selectorColorRef.current.contains(e.target) &&  //Si el click fue fuera del selector
-        !botonActivoRef.current.contains(e.target) //El click no fue dentro del botón activo
-      ) {
-        setMostrarSelectorColor(false);
-        botonActivoRef.current = null;
-      }
-    };
-
-    document.addEventListener("mousedown", clickFueraSelectorColor);
-      return () => {
-        document.removeEventListener("mousedown", clickFueraSelectorColor);
-      };     
-  }, [mostrarSelectorColor]);
-
-  const abrirSelectorColor = (e, colorInicial, cambiarColor, opciones = {  vertical: "abajo", // "arriba" | "abajo"
-                                                                          horizontal: "derecha", // "izquierda" | "derecha"
-                                                                          ajusteVertical: 0 // Ajuste adicional en píxeles
-                                                                        } 
-  ) => {    
-    const boton = e.currentTarget;
-    if (botonActivoRef.current === boton) {
-      setMostrarSelectorColor(false);
-      botonActivoRef.current = null;
-      return;
-    }
-
-    const rect = boton.getBoundingClientRect();
-    const margin = 5;
-    let top, left;
-
-    // Posición vertical
-    if (opciones.vertical === "abajo") {
-      top = rect.top + window.scrollY + rect.height + margin + (opciones.ajusteVertical || 0);
-    } else { // "arriba"
-      top = rect.top + window.scrollY - 320 - margin + (opciones.ajusteVertical || 0);
-    }
-
-    // Posición horizontal
-    if (opciones.horizontal === "derecha") {
-      left = rect.left + window.scrollX + rect.width + margin;
-    } else { // "izquierda"
-      left = rect.left + window.scrollX - 215 - margin;
-    }
-
-    setPosicionSelectorColor({ top, left });
-    setColorPaleta(colorInicial);
-    cambiarColorRef.current = cambiarColor;
-    botonActivoRef.current = boton;
-    setMostrarSelectorColor(true);
-  };
-
-  const manejarCambioColor = (nuevoColor) => {
-    const now = Date.now();
-    if (now - ultimaActualizacionRef.current > 100) {
-      setColorPaleta(nuevoColor);
-      if (typeof cambiarColorRef.current === "function") {
-        cambiarColorRef.current(nuevoColor);
-      }
-      ultimaActualizacionRef.current = now;
-    }
-  };
 
    const manejarCambioOrientacionTitulo = () => {
     configLocal.orientacionTitulo === 'center' 
@@ -165,8 +101,7 @@ const agregarTarjeta = () => {
                       setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
                     }, {
                       vertical: "abajo",
-                      horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha',     
-                      ajusteVertical: window.innerWidth < 768 ? -745 : -490,
+                      horizontal: 'derecha'
                     })
                   }
                   className="flex items-center justify-center cursor-pointer
@@ -242,8 +177,7 @@ const agregarTarjeta = () => {
                             actualizarColorTarjeta(indice, nuevoColor, "colorFondo");
                             }, {
                             vertical: "abajo",
-                            horizontal: "izquierda",
-                            ajusteVertical: -875 
+                            horizontal: "izquierda"
                           })
                         }
 
@@ -263,8 +197,7 @@ const agregarTarjeta = () => {
                             actualizarColorTarjeta(indice, nuevoColor, "colorTexto");
                             }, {
                             vertical: "abajo",
-                            horizontal: "izquierda",
-                            ajusteVertical: -875 
+                            horizontal: "izquierda"
                           })
                         }
 
@@ -295,8 +228,7 @@ const agregarTarjeta = () => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
                       }, {
                         vertical: "abajo",
-                        horizontal: "izquierda",
-                        ajusteVertical: window.innerWidth < 768 ? -730 : window.innerWidth < 1024 ? -560 : -490,
+                        horizontal: "izquierda"
                       })
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center
@@ -323,17 +255,15 @@ const agregarTarjeta = () => {
       )}
 
 
-        {mostrarSelectorColor && editar == true && (
-          <div
-            ref={selectorColorRef}
-            className="absolute z-40"
-            style={{ top: posicionSelectorColor.top, left: posicionSelectorColor.left }}
-          >
-            <SelectorColor
-              colorInicial={colorPaleta}
-              onChange={manejarCambioColor}
-            />
-          </div>
+        {mostrarSelectorColor && editar && (
+          <SelectorColor
+            colorInicial={colorInicial}
+            onChange={manejarCambioColor}
+            top={posicionSelectorColor.top}
+            left={posicionSelectorColor.left}
+            onClickFuera={cerrarSelectorColor}
+            botonRef={botonRef.current}
+          />
         )}
 
     </div>

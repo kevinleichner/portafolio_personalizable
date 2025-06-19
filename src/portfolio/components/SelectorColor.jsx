@@ -1,8 +1,35 @@
 import { HexColorPicker } from "react-colorful";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Portal from "./Portal";
 
-export const SelectorColor = ({ colorInicial = "#ffffff", onChange }) => {
+export const SelectorColor = ({
+  colorInicial = "#ffffff",
+  onChange,
+  top,
+  left,
+  onClickFuera,
+  botonRef
+}) => {
   const [color, setColor] = useState(colorInicial);
+  const contenedorRef = useRef();
+
+  useEffect(() => {
+    const handleClickFuera = (e) => {
+      if (
+        contenedorRef.current &&
+        !contenedorRef.current.contains(e.target) &&
+        botonRef &&
+        !botonRef.contains(e.target)
+      ) {
+        onClickFuera?.();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickFuera);
+    return () => {
+      document.removeEventListener("mousedown", handleClickFuera);
+    };
+  }, [onClickFuera, botonRef]);
 
   useEffect(() => {
     setColor(colorInicial);
@@ -14,14 +41,20 @@ export const SelectorColor = ({ colorInicial = "#ffffff", onChange }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 p-2 rounded-md bg-white shadow">
-      <HexColorPicker color={color} onChange={handleChange} />
-      <input
-        type="text"
-        value={color}
-        onChange={(e) => handleChange(e.target.value)}
-        className="border rounded px-2 py-1 text-center w-[120px]"
-      />
-    </div>
+    <Portal>
+      <div
+        ref={contenedorRef}
+        className="flex flex-col items-center gap-2 p-2 rounded-md bg-white shadow z-[9999]"
+        style={{ position: "absolute", top, left }}
+      >
+        <HexColorPicker color={color} onChange={handleChange} />
+        <input
+          type="text"
+          value={color}
+          onChange={(e) => handleChange(e.target.value)}
+          className="border rounded px-2 py-1 text-center w-[120px]"
+        />
+      </div>
+    </Portal>
   );
 };

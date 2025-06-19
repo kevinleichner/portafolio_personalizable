@@ -1,21 +1,24 @@
-import {useState, useRef, useEffect} from "react";
+import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
+import { useSelectorColor } from '../../hooks';
 import { Carrusel } from "./Carrusel";
 
 export const VistaProyecto = ({ cerrar, contenido, editar }) => {
+  const {
+      mostrarSelectorColor,
+      posicionSelectorColor,
+      colorInicial,
+      botonRef,
+      abrirSelectorColor,
+      cerrarSelectorColor,
+      manejarCambioColor,
+    } = useSelectorColor();
+
   const [descripcion, setDescripcion] = useState(contenido.descripcion);
   const [etiquetas, setEtiquetas] = useState(contenido.etiquetas);
   const [botones, setBotones] = useState(contenido.botones);
 
-  const [mostrarSelectorColor, setMostrarSelectorColor] = useState(false);
-  const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
   const [contenidoLocal, setContenidoLocal] = useState(contenido);
-  const [colorPaleta, setColorPaleta] = useState(contenido.colorFondo);
-
-  const ultimaActualizacionRef = useRef(0);
-  const cambiarColorRef = useRef(() => {});
-  const selectorColorRef = useRef(null);
-  const botonActivoRef = useRef(null);
 
   useEffect(() => {
     setDescripcion(contenido.descripcion);
@@ -23,73 +26,6 @@ export const VistaProyecto = ({ cerrar, contenido, editar }) => {
     setBotones(contenido.botones);
     setContenidoLocal(contenido);
   }, [contenido]);
-
-  useEffect(() => {
-    const clickFueraSelectorColor = (e) => {
-      if (
-        mostrarSelectorColor && //Se muestra el selector
-        selectorColorRef.current && //Verificar que selectorColorRef no es null
-        !selectorColorRef.current.contains(e.target) &&  //Si el click fue fuera del selector
-        !botonActivoRef.current.contains(e.target) //El click no fue dentro del botón activo
-      ) {
-        setMostrarSelectorColor(false);
-        botonActivoRef.current = null;
-      }
-    };
-
-    document.addEventListener("mousedown", clickFueraSelectorColor);
-      return () => {
-        document.removeEventListener("mousedown", clickFueraSelectorColor);
-      };     
-  }, [mostrarSelectorColor]);
-
-  const abrirSelectorColor = (e, colorInicial, cambiarColor, opciones = {  vertical: "abajo", // "arriba" | "abajo"
-                                                                          horizontal: "derecha", // "izquierda" | "derecha"
-                                                                          ajusteVertical: 0 // Ajuste adicional en píxeles
-                                                                        } 
-  ) => {    
-    const boton = e.currentTarget;
-    if (botonActivoRef.current === boton) {
-      setMostrarSelectorColor(false);
-      botonActivoRef.current = null;
-      return;
-    }
-
-    const rect = boton.getBoundingClientRect();
-    const margin = 5;
-    let top, left;
-
-    // Posición vertical
-    if (opciones.vertical === "abajo") {
-      top = rect.top + window.scrollY + rect.height + margin + (opciones.ajusteVertical || 0);
-    } else { // "arriba"
-      top = rect.top + window.scrollY - 320 - margin + (opciones.ajusteVertical || 0);
-    }
-
-    // Posición horizontal
-    if (opciones.horizontal === "derecha") {
-      left = rect.left + window.scrollX + rect.width + margin;
-    } else { // "izquierda"
-      left = rect.left + window.scrollX - 215 - margin;
-    }
-
-    setPosicionSelectorColor({ top, left });
-    setColorPaleta(colorInicial);
-    cambiarColorRef.current = cambiarColor;
-    botonActivoRef.current = boton;
-    setMostrarSelectorColor(true);
-  };
-
-  const manejarCambioColor = (nuevoColor) => {
-    const now = Date.now();
-    if (now - ultimaActualizacionRef.current > 100) {
-      setColorPaleta(nuevoColor);
-      if (typeof cambiarColorRef.current === "function") {
-        cambiarColorRef.current(nuevoColor);
-      }
-      ultimaActualizacionRef.current = now;
-    }
-  };
 
   const cambiarValorEtiquetas = (indice, campo, valor) => {
     const nuevasEtiquetas = etiquetas.map((t, i) =>
@@ -262,8 +198,7 @@ const agregarImagenCarrusel = () => {
                                     actualizarColorBoton(indice, nuevoColor);
                                   }, {
                                     vertical: "abajo",
-                                    horizontal: "izquierda",
-                                    ajusteVertical: -1400,
+                                    horizontal: "izquierda"
                                   })
                                 }
                             className={`absolute -top-3 right-1 cursor-pointer flex items-center
@@ -282,8 +217,7 @@ const agregarImagenCarrusel = () => {
                             setContenidoLocal({ ...contenidoLocal, colorFondoImagenes: nuevoColor });
                           }, {
                             vertical: "abajo",
-                            horizontal: "izquierda",
-                            ajusteVertical: -1400,
+                            horizontal: "izquierda"
                           })
                         }
                     className={`absolute -left-10 top-0 cursor-pointer flex items-center
@@ -300,8 +234,7 @@ const agregarImagenCarrusel = () => {
                             setContenidoLocal({ ...contenidoLocal, colorFondoTexto: nuevoColor });
                           }, {
                             vertical: "abajo",
-                            horizontal: "derecha",
-                            ajusteVertical: -1500,
+                            horizontal: "derecha"
                           })
                         }
                     className={`absolute -right-10 bottom-30 cursor-pointer flex items-center
@@ -314,17 +247,15 @@ const agregarImagenCarrusel = () => {
                    
         </div>        
 
-        {mostrarSelectorColor && editar == true && (
-          <div
-            ref={selectorColorRef}
-            className="absolute z-40"
-            style={{ top: posicionSelectorColor.top, left: posicionSelectorColor.left }}
-          >
-            <SelectorColor
-              colorInicial={colorPaleta}
-              onChange={manejarCambioColor}
-            />
-          </div>
+        {mostrarSelectorColor && editar && (
+          <SelectorColor
+            colorInicial={colorInicial}
+            onChange={manejarCambioColor}
+            top={posicionSelectorColor.top}
+            left={posicionSelectorColor.left}
+            onClickFuera={cerrarSelectorColor}
+            botonRef={botonRef.current}
+          />
         )}
       </div>
     );

@@ -1,23 +1,26 @@
 
-import {useState, useRef, useEffect} from "react";
+import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
+import { useSelectorColor } from '../../hooks';
 import { VistaProyecto } from "./VistaProyecto";
 
 export const Proyectos = ({config, editar}) => {
+
+    const {
+      mostrarSelectorColor,
+      posicionSelectorColor,
+      colorInicial,
+      botonRef,
+      abrirSelectorColor,
+      cerrarSelectorColor,
+      manejarCambioColor,
+    } = useSelectorColor();
 
     const [proyectoActivo, setProyectoActivo] = useState(null);
     const [titulo, setTitulo] = useState(config.titulo);
     const [proyectos, setProyectos] = useState(config.proyectos);
 
-    const [mostrarSelectorColor, setMostrarSelectorColor] = useState(false);
-    const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
     const [configLocal, setConfigLocal] = useState(config);
-    const [colorPaleta, setColorPaleta] = useState(config.colorFondo);
-  
-    const ultimaActualizacionRef = useRef(0);
-    const cambiarColorRef = useRef(() => {});
-    const selectorColorRef = useRef(null);
-    const botonActivoRef = useRef(null);
 
     const cerrarVista = () => {
         setProyectoActivo(null)
@@ -28,73 +31,6 @@ export const Proyectos = ({config, editar}) => {
         setProyectos(config.proyectos);
         setConfigLocal(config);
     }, [config]);
-
-    useEffect(() => {
-    const clickFueraSelectorColor = (e) => {
-      if (
-        mostrarSelectorColor && //Se muestra el selector
-        selectorColorRef.current && //Verificar que selectorColorRef no es null
-        !selectorColorRef.current.contains(e.target) &&  //Si el click fue fuera del selector
-        !botonActivoRef.current.contains(e.target) //El click no fue dentro del botón activo
-      ) {
-        setMostrarSelectorColor(false);
-        botonActivoRef.current = null;
-      }
-    };
-
-    document.addEventListener("mousedown", clickFueraSelectorColor);
-      return () => {
-        document.removeEventListener("mousedown", clickFueraSelectorColor);
-      };     
-  }, [mostrarSelectorColor]);
-
-  const abrirSelectorColor = (e, colorInicial, cambiarColor, opciones = {  vertical: "abajo", // "arriba" | "abajo"
-                                                                          horizontal: "derecha", // "izquierda" | "derecha"
-                                                                          ajusteVertical: 0 // Ajuste adicional en píxeles
-                                                                        } 
-  ) => {    
-    const boton = e.currentTarget;
-    if (botonActivoRef.current === boton) {
-      setMostrarSelectorColor(false);
-      botonActivoRef.current = null;
-      return;
-    }
-
-    const rect = boton.getBoundingClientRect();
-    const margin = 5;
-    let top, left;
-
-    // Posición vertical
-    if (opciones.vertical === "abajo") {
-      top = rect.top + window.scrollY + rect.height + margin + (opciones.ajusteVertical || 0);
-    } else { // "arriba"
-      top = rect.top + window.scrollY - 320 - margin + (opciones.ajusteVertical || 0);
-    }
-
-    // Posición horizontal
-    if (opciones.horizontal === "derecha") {
-      left = rect.left + window.scrollX + rect.width + margin;
-    } else { // "izquierda"
-      left = rect.left + window.scrollX - 215 - margin;
-    }
-
-    setPosicionSelectorColor({ top, left });
-    setColorPaleta(colorInicial);
-    cambiarColorRef.current = cambiarColor;
-    botonActivoRef.current = boton;
-    setMostrarSelectorColor(true);
-  };
-
-  const manejarCambioColor = (nuevoColor) => {
-    const now = Date.now();
-    if (now - ultimaActualizacionRef.current > 100) {
-      setColorPaleta(nuevoColor);
-      if (typeof cambiarColorRef.current === "function") {
-        cambiarColorRef.current(nuevoColor);
-      }
-      ultimaActualizacionRef.current = now;
-    }
-  };
 
   const manejarCambioImagen = (e, indice) => {
     const file = e.target.files[0];
@@ -264,8 +200,7 @@ export const Proyectos = ({config, editar}) => {
                         setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
                         }, {
                         vertical: "abajo",
-                        horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha',     
-                        ajusteVertical: -1380,
+                        horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'
                         })
                     }
                     className="flex items-center justify-center cursor-pointer
@@ -363,8 +298,7 @@ export const Proyectos = ({config, editar}) => {
                                   actualizarColorProyecto(indice, nuevoColor, "colorTexto");
                                   }, {
                                   vertical: "abajo",
-                                  horizontal: "derecha",
-                                  ajusteVertical: -1380 
+                                  horizontal: "derecha"
                               })
                               }
 
@@ -383,8 +317,7 @@ export const Proyectos = ({config, editar}) => {
                                   actualizarColorProyecto(indice, nuevoColor, 'colorFondoEtiqueta');
                                   }, {
                                   vertical: "abajo",
-                                  horizontal: "derecha",
-                                  ajusteVertical: -1380
+                                  horizontal: "derecha"
                               })
                               }
 
@@ -403,8 +336,7 @@ export const Proyectos = ({config, editar}) => {
                                   actualizarColorProyecto(indice, nuevoColor, "colorBoton");
                                   }, {
                                   vertical: "abajo",
-                                  horizontal: "derecha",
-                                  ajusteVertical: -1380 
+                                  horizontal: "derecha"
                               })
                               }
 
@@ -465,8 +397,7 @@ export const Proyectos = ({config, editar}) => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
                       }, {
                         vertical: "abajo",
-                        horizontal: "izquierda",
-                        ajusteVertical: -1400,
+                        horizontal: "izquierda"
                       })
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center
@@ -478,17 +409,15 @@ export const Proyectos = ({config, editar}) => {
         </button>
       )}
 
-        {mostrarSelectorColor && editar == true && (
-          <div
-            ref={selectorColorRef}
-            className="absolute z-40"
-            style={{ top: posicionSelectorColor.top, left: posicionSelectorColor.left }}
-          >
-            <SelectorColor
-              colorInicial={colorPaleta}
-              onChange={manejarCambioColor}
-            />
-          </div>
+        {mostrarSelectorColor && editar && (
+          <SelectorColor
+            colorInicial={colorInicial}
+            onChange={manejarCambioColor}
+            top={posicionSelectorColor.top}
+            left={posicionSelectorColor.left}
+            onClickFuera={cerrarSelectorColor}
+            botonRef={botonRef.current}
+          />
         )}
 
     </div>

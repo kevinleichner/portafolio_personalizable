@@ -1,93 +1,28 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { SelectorColor } from "./SelectorColor";
+import { useSelectorColor } from '../../hooks';
 
 export const Contacto = ({config, editar}) => {
+  const {
+      mostrarSelectorColor,
+      posicionSelectorColor,
+      colorInicial,
+      botonRef,
+      abrirSelectorColor,
+      cerrarSelectorColor,
+      manejarCambioColor,
+    } = useSelectorColor();
+
   const [titulo, setTitulo] = useState(config.titulo);
 
-  const [mostrarSelectorColor, setMostrarSelectorColor] = useState(false);
-  const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
-
-  const [colorPaleta, setColorPaleta] = useState(config.colorFondo);
   const [configLocal, setConfigLocal] = useState(config);
-
-  const ultimaActualizacionRef = useRef(0);
-  const cambiarColorRef = useRef(() => {});
-  const selectorColorRef = useRef(null);
-  const botonActivoRef = useRef(null);
 
   useEffect(() => {
     setTitulo(config.titulo);
     setConfigLocal(config);
   }, [config]);
 
-  useEffect(() => {
-    const clickFueraSelectorColor = (e) => {
-      if (
-        mostrarSelectorColor && //Se muestra el selector
-        selectorColorRef.current && //Verificar que selectorColorRef no es null
-        !selectorColorRef.current.contains(e.target) &&  //Si el click fue fuera del selector
-        !botonActivoRef.current.contains(e.target) //El click no fue dentro del botón activo
-      ) {
-        setMostrarSelectorColor(false);
-        botonActivoRef.current = null;
-      }
-    };
-
-    document.addEventListener("mousedown", clickFueraSelectorColor);
-      return () => {
-        document.removeEventListener("mousedown", clickFueraSelectorColor);
-      };     
-  }, [mostrarSelectorColor]);
-
-  const abrirSelectorColor = (e, colorInicial, cambiarColor, opciones = {  vertical: "abajo", // "arriba" | "abajo"
-                                                                          horizontal: "derecha", // "izquierda" | "derecha"
-                                                                          ajusteVertical: 0 // Ajuste adicional en píxeles
-                                                                        } 
-  ) => {    
-    const boton = e.currentTarget;
-    if (botonActivoRef.current === boton) {
-      setMostrarSelectorColor(false);
-      botonActivoRef.current = null;
-      return;
-    }
-
-    const rect = boton.getBoundingClientRect();
-    const margin = 5;
-    let top, left;
-
-    // Posición vertical
-    if (opciones.vertical === "abajo") {
-      top = rect.top + window.scrollY + rect.height + margin + (opciones.ajusteVertical || 0);
-    } else { // "arriba"
-      top = rect.top + window.scrollY - 320 - margin + (opciones.ajusteVertical || 0);
-    }
-
-    // Posición horizontal
-    if (opciones.horizontal === "derecha") {
-      left = rect.left + window.scrollX + rect.width + margin;
-    } else { // "izquierda"
-      left = rect.left + window.scrollX - 215 - margin;
-    }
-
-    setPosicionSelectorColor({ top, left });
-    setColorPaleta(colorInicial);
-    cambiarColorRef.current = cambiarColor;
-    botonActivoRef.current = boton;
-    setMostrarSelectorColor(true);
-  };
-
-  const manejarCambioColor = (nuevoColor) => {
-    const now = Date.now();
-    if (now - ultimaActualizacionRef.current > 100) {
-      setColorPaleta(nuevoColor);
-      if (typeof cambiarColorRef.current === "function") {
-        cambiarColorRef.current(nuevoColor);
-      }
-      ultimaActualizacionRef.current = now;
-    }
-  };
-
-   const manejarCambioOrientacionTitulo = () => {
+  const manejarCambioOrientacionTitulo = () => {
     configLocal.orientacionTitulo === 'center' 
     ? setConfigLocal({ ...configLocal, orientacionTitulo: 'start' }) 
     : setConfigLocal({ ...configLocal, orientacionTitulo: 'center' });
@@ -120,8 +55,7 @@ export const Contacto = ({config, editar}) => {
                       setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
                     }, {
                       vertical: "abajo",
-                      horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha',     
-                      ajusteVertical: -1900,
+                      horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'
                     })
                   }
                   className="flex items-center justify-center cursor-pointer
@@ -182,8 +116,7 @@ export const Contacto = ({config, editar}) => {
                   setConfigLocal({ ...configLocal, colorBordes: nuevoColor });
                   }, {
                   vertical: "abajo",
-                  horizontal: "derecha",
-                  ajusteVertical: -1900
+                  horizontal: "derecha"
                 })
               }
 
@@ -202,8 +135,7 @@ export const Contacto = ({config, editar}) => {
                   setConfigLocal({ ...configLocal, colorTextoBoton: nuevoColor });
                   }, {
                   vertical: "abajo",
-                  horizontal: "derecha",
-                  ajusteVertical: -1900
+                  horizontal: "derecha"
                 })
               }
 
@@ -222,8 +154,7 @@ export const Contacto = ({config, editar}) => {
                   setConfigLocal({ ...configLocal, colorBoton: nuevoColor });
                   }, {
                   vertical: "abajo",
-                  horizontal: "derecha",
-                  ajusteVertical: -1900
+                  horizontal: "derecha"
                 })
               }
 
@@ -243,8 +174,7 @@ export const Contacto = ({config, editar}) => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
                       }, {
                         vertical: "abajo",
-                        horizontal: "izquierda",
-                        ajusteVertical: -1900,
+                        horizontal: "izquierda"
                       })
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center
@@ -256,17 +186,15 @@ export const Contacto = ({config, editar}) => {
         </button>
       )}
 
-        {mostrarSelectorColor && editar == true && (
-          <div
-            ref={selectorColorRef}
-            className="absolute z-40"
-            style={{ top: posicionSelectorColor.top, left: posicionSelectorColor.left }}
-          >
-            <SelectorColor
-              colorInicial={colorPaleta}
-              onChange={manejarCambioColor}
-            />
-          </div>
+        {mostrarSelectorColor && editar && (
+          <SelectorColor
+            colorInicial={colorInicial}
+            onChange={manejarCambioColor}
+            top={posicionSelectorColor.top}
+            left={posicionSelectorColor.left}
+            onClickFuera={cerrarSelectorColor}
+            botonRef={botonRef.current}
+          />
         )}
 
     </div>

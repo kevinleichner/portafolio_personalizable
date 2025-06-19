@@ -1,18 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 import { SelectorColor } from "./SelectorColor";
 import { SelectorIcono } from "./SelectorIcono";
+import { useSelectorColor } from '../../hooks';
 import { Icon } from '@iconify/react';
 
 export const Perfil = ({ config, editar }) => {
+
+  const {
+      mostrarSelectorColor,
+      posicionSelectorColor,
+      colorInicial,
+      botonRef,
+      abrirSelectorColor,
+      cerrarSelectorColor,
+      manejarCambioColor,
+    } = useSelectorColor();
 
   const [titulo, setTitulo] = useState(config.titulo); 
   const [descripcion, setDescripcion] = useState(config.descripcion); 
   const [imagenPerfil, setImagenPerfil] = useState(config.imagen);
 
-  const [mostrarSelectorColor, setMostrarSelectorColor] = useState(false);
-  const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
 
-  const [colorPaleta, setColorPaleta] = useState(config.colorFondo);
   const [configLocal, setConfigLocal] = useState(config);
   const [mostrarUrls, setMostrarUrls] = useState(config.redesSociales.map(() => false));
 
@@ -20,9 +28,6 @@ export const Perfil = ({ config, editar }) => {
   const [posicionSelectorIcono, setPosicionSelectorIcono] = useState({ top: 0, left: 0 });
   const [indiceRedSocialSeleccionada, setIndiceRedSocialSeleccionada] = useState(null);
 
-  const ultimaActualizacionRef = useRef(0);
-  const cambiarColorRef = useRef(() => {});
-  const selectorColorRef = useRef(null);
   const selectorIconoRef = useRef(null);
   const botonActivoRef = useRef(null);
   const urlRefs = useRef({});
@@ -54,26 +59,6 @@ export const Perfil = ({ config, editar }) => {
       document.removeEventListener("mousedown", clickFueraSelectorIcono);
     };
   }, [mostrarSelectorIcono]);
-
-
-  useEffect(() => {
-    const clickFueraSelectorColor = (e) => {
-      if (
-        mostrarSelectorColor && //Se muestra el selector
-        selectorColorRef.current && //Verificar que selectorColorRef no es null
-        !selectorColorRef.current.contains(e.target) &&  //Si el click fue fuera del selector
-        !botonActivoRef.current.contains(e.target) //El click no fue dentro del botón activo
-      ) {
-        setMostrarSelectorColor(false);
-        botonActivoRef.current = null;
-      }
-    };
-
-    document.addEventListener("mousedown", clickFueraSelectorColor);
-      return () => {
-        document.removeEventListener("mousedown", clickFueraSelectorColor);
-      };     
-  }, [mostrarSelectorColor]);
 
   const abrirSelectorIcono = (e, indice, opciones = { 
     vertical: "abajo", // "arriba" o "abajo"
@@ -125,54 +110,6 @@ export const Perfil = ({ config, editar }) => {
       };
       return { ...prevConfig, redesSociales: nuevasRedes };
     });
-  };
-
- const abrirSelectorColor = (e, colorInicial, cambiarColor, opciones = {  vertical: "abajo", // "arriba" | "abajo"
-                                                                          horizontal: "derecha", // "izquierda" | "derecha"
-                                                                          ajusteVertical: 0 // Ajuste adicional en píxeles
-                                                                        } 
-  ) => {    
-    const boton = e.currentTarget;
-    if (botonActivoRef.current === boton) {
-      setMostrarSelectorColor(false);
-      botonActivoRef.current = null;
-      return;
-    }
-
-    const rect = boton.getBoundingClientRect();
-    const margin = 5;
-    let top, left;
-
-    // Posición vertical
-    if (opciones.vertical === "abajo") {
-      top = rect.top + window.scrollY + rect.height + margin + (opciones.ajusteVertical || 0);
-    } else { // "arriba"
-      top = rect.top + window.scrollY - 320 - margin + (opciones.ajusteVertical || 0);
-    }
-
-    // Posición horizontal
-    if (opciones.horizontal === "derecha") {
-      left = rect.left + window.scrollX + rect.width + margin;
-    } else { // "izquierda"
-      left = rect.left + window.scrollX - 215 - margin;
-    }
-
-    setPosicionSelectorColor({ top, left });
-    setColorPaleta(colorInicial);
-    cambiarColorRef.current = cambiarColor;
-    botonActivoRef.current = boton;
-    setMostrarSelectorColor(true);
-  };
-
-  const manejarCambioColor = (nuevoColor) => {
-    const now = Date.now();
-    if (now - ultimaActualizacionRef.current > 100) {
-      setColorPaleta(nuevoColor);
-      if (typeof cambiarColorRef.current === "function") {
-        cambiarColorRef.current(nuevoColor);
-      }
-      ultimaActualizacionRef.current = now;
-    }
   };
 
   const manejarCambioAnchoBorde = () => {
@@ -270,8 +207,7 @@ export const Perfil = ({ config, editar }) => {
                                 setConfigLocal({ ...configLocal, colorBorde: nuevoColor });
                               }, {
                                 vertical: "abajo",
-                                horizontal: "derecha",
-                                ajusteVertical: -175 
+                                horizontal: "derecha"
                               })
                             }
                             className="flex items-center absolute -top-8 z-10 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
@@ -316,8 +252,7 @@ export const Perfil = ({ config, editar }) => {
                         setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
                       }, {
                         vertical: "abajo",
-                        horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha',     
-                        ajusteVertical: window.innerWidth < 768 ? -140 : -175,
+                        horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'     
                       })
                     }
                     className="flex items-center justify-center cursor-pointer
@@ -373,8 +308,7 @@ export const Perfil = ({ config, editar }) => {
                         setConfigLocal({ ...configLocal, colorTexto: nuevoColor });
                         }, {
                         vertical: "abajo",
-                        horizontal: "derecha",
-                        ajusteVertical: -175 
+                        horizontal: "derecha"
                       })
                     }
 
@@ -401,8 +335,8 @@ export const Perfil = ({ config, editar }) => {
                             actualizarColorRedSocial(indice, nuevoColor);
                           }, 
                           indice < 2
-                          ? { vertical: "arriba", horizontal: "derecha", ajusteVertical: -65 } 
-                          : { vertical: "arriba", horizontal: "izquierda", ajusteVertical: -65 } )
+                          ? { vertical: "arriba", horizontal: "derecha" } 
+                          : { vertical: "arriba", horizontal: "izquierda" } )
                         }
                         className="flex items-center absolute -top-6 left-1/2 -translate-x-[120%] cursor-pointer
                                   bg-white p-1 rounded-full hover:bg-pink-400
@@ -417,8 +351,8 @@ export const Perfil = ({ config, editar }) => {
                             actualizarColorRedSocial(indice, nuevoColor, "colorFondo");
                           }, 
                           indice < 2 
-                          ? { vertical: "arriba", horizontal: "derecha", ajusteVertical: -65 } 
-                          : { vertical: "arriba", horizontal: "izquierda", ajusteVertical: -65 } )
+                          ? { vertical: "arriba", horizontal: "derecha" } 
+                          : { vertical: "arriba", horizontal: "izquierda" } )
                         }
                         className="flex items-center absolute -top-6 left-1/2 -translate-x-[-20%] cursor-pointer
                                   bg-white p-1 rounded-full hover:bg-pink-400
@@ -563,8 +497,7 @@ export const Perfil = ({ config, editar }) => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
                       }, {
                         vertical: "abajo",
-                        horizontal: "izquierda",
-                        ajusteVertical: -175 
+                        horizontal: "izquierda"
                       })
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center
@@ -576,17 +509,15 @@ export const Perfil = ({ config, editar }) => {
         </button>
       )}  
 
-      {mostrarSelectorColor && editar == true && (
-        <div
-          ref={selectorColorRef}
-          className="absolute z-40"
-          style={{ top: posicionSelectorColor.top, left: posicionSelectorColor.left }}
-        >
-          <SelectorColor
-            colorInicial={colorPaleta}
-            onChange={manejarCambioColor}
-          />
-        </div>
+      {mostrarSelectorColor && editar && (
+        <SelectorColor
+          colorInicial={colorInicial}
+          onChange={manejarCambioColor}
+          top={posicionSelectorColor.top}
+          left={posicionSelectorColor.left}
+          onClickFuera={cerrarSelectorColor}
+          botonRef={botonRef.current}
+        />
       )}
 
       {mostrarSelectorIcono && editar && (
