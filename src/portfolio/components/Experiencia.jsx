@@ -8,7 +8,7 @@ export const Experiencia = ({config, editar}) => {
       mostrarSelectorColor,
       posicionSelectorColor,
       colorInicial,
-      botonRef,
+      botonColorRef,
       abrirSelectorColor,
       cerrarSelectorColor,
       manejarCambioColor,
@@ -258,11 +258,11 @@ const agregarTarjeta = () => {
         {mostrarSelectorColor && editar && (
           <SelectorColor
             colorInicial={colorInicial}
-            onChange={manejarCambioColor}
+            manejarCambioColor={manejarCambioColor}
             top={posicionSelectorColor.top}
             left={posicionSelectorColor.left}
-            onClickFuera={cerrarSelectorColor}
-            botonRef={botonRef.current}
+            manejarClickAfuera={cerrarSelectorColor}
+            botonColorRef={botonColorRef.current}
           />
         )}
 

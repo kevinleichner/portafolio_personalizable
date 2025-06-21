@@ -7,7 +7,7 @@ export const Contacto = ({config, editar}) => {
       mostrarSelectorColor,
       posicionSelectorColor,
       colorInicial,
-      botonRef,
+      botonColorRef,
       abrirSelectorColor,
       cerrarSelectorColor,
       manejarCambioColor,
@@ -189,11 +189,11 @@ export const Contacto = ({config, editar}) => {
         {mostrarSelectorColor && editar && (
           <SelectorColor
             colorInicial={colorInicial}
-            onChange={manejarCambioColor}
+            manejarCambioColor={manejarCambioColor}
             top={posicionSelectorColor.top}
             left={posicionSelectorColor.left}
-            onClickFuera={cerrarSelectorColor}
-            botonRef={botonRef.current}
+            manejarClickAfuera={cerrarSelectorColor}
+            botonColorRef={botonColorRef.current}
           />
         )}
 

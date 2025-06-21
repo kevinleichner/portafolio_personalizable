@@ -343,23 +343,6 @@ export const Perfil = ({ config, editar }) => {
                       }
                     }}
                   >
-                    {/* {editar && (
-                      <button
-                        onClick={(e) =>
-                          abrirSelectorIcono(
-                            e,
-                            indice,
-                            indice < 2
-                              ? { vertical: "arriba", horizontal: "derecha", ajusteVertical: -27 }
-                              : { vertical: "arriba", horizontal: "izquierda", ajusteVertical: -27 }
-                          )
-                        }
-                        className="flex items-center justify-center absolute top-0 right-0 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
-                      >
-                        <i className="fa-solid fa-image text-sm" />
-                      </button>
-                    )} */}
-
                     {editar && (
                       <button
                         onClick={(e) =>
