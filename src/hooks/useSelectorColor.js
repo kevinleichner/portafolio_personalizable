@@ -5,12 +5,12 @@ export const useSelectorColor = () => {
   const [posicionSelectorColor, setPosicionSelectorColor] = useState({ top: 0, left: 0 });
   const [colorInicial, setColorInicial] = useState("#ffffff");
   const cambiarColorRef = useRef(() => {});
-  const botonRef = useRef(null);
+  const botonColorRef = useRef(null);
 
   const abrirSelectorColor = (evento, color, onColorChange, opciones = { vertical: "abajo", horizontal: "derecha" }) => {
     const boton = evento.currentTarget;
 
-    if (botonRef.current === boton && mostrarSelectorColor) {
+    if (botonColorRef.current === boton && mostrarSelectorColor) {
       cerrarSelectorColor();
       return;
     }
@@ -31,13 +31,13 @@ export const useSelectorColor = () => {
     setPosicionSelectorColor({ top, left });
     setColorInicial(color);
     cambiarColorRef.current = onColorChange;
-    botonRef.current = boton;
+    botonColorRef.current = boton;
     setMostrarSelectorColor(true);
   };
 
   const cerrarSelectorColor = () => {
     setMostrarSelectorColor(false);
-    botonRef.current = null;
+    botonColorRef.current = null;
   };
 
   const manejarCambioColor = (nuevoColor) => {
@@ -50,7 +50,7 @@ export const useSelectorColor = () => {
     mostrarSelectorColor,
     posicionSelectorColor,
     colorInicial,
-    botonRef,
+    botonColorRef,
     abrirSelectorColor,
     cerrarSelectorColor,
     manejarCambioColor,

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 
-export const SelectorIcono = ({ onSeleccionar }) => {
+export const SelectorIcono = ({ manejarSeleccionIcono }) => {
   const [valorInput, setValorInput] = useState("");
   const [iconoBusqueda, setIconoBusqueda] = useState("facebook");
   const [resultados, setResultados] = useState([]);
@@ -59,7 +59,7 @@ export const SelectorIcono = ({ onSeleccionar }) => {
         {resultados.map((icono) => (
           <button
             key={icono}
-            onClick={() => onSeleccionar(icono)}
+            onClick={() => manejarSeleccionIcono(icono)}
             className="p-1 border border-gray-200 rounded cursor-pointer hover:bg-gray-200"
           >
             <Icon icon={icono} width="24" height="24" />

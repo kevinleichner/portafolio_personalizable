@@ -1,116 +1,45 @@
 import { useState, useEffect, useRef } from "react";
 import { SelectorColor } from "./SelectorColor";
 import { SelectorIcono } from "./SelectorIcono";
-import { useSelectorColor } from '../../hooks';
+import { useSelectorColor, useSelectorIcono } from '../../hooks';
 import { Icon } from '@iconify/react';
 
 export const Perfil = ({ config, editar }) => {
 
   const {
-      mostrarSelectorColor,
-      posicionSelectorColor,
-      colorInicial,
-      botonRef,
-      abrirSelectorColor,
-      cerrarSelectorColor,
-      manejarCambioColor,
-    } = useSelectorColor();
+    mostrarSelectorColor,
+    posicionSelectorColor,
+    colorInicial,
+    botonColorRef,
+    abrirSelectorColor,
+    cerrarSelectorColor,
+    manejarCambioColor,
+  } = useSelectorColor();
+
+  const {
+    mostrarSelectorIcono,
+    posicionSelectorIcono,
+    selectorIconoRef,
+    abrirSelectorIcono,
+    manejarSeleccionIcono
+  } = useSelectorIcono();
 
   const [titulo, setTitulo] = useState(config.titulo); 
   const [descripcion, setDescripcion] = useState(config.descripcion); 
-  const [imagenPerfil, setImagenPerfil] = useState(config.imagen);
 
+  const [imagenPerfil, setImagenPerfil] = useState(config.imagen);
 
   const [configLocal, setConfigLocal] = useState(config);
   const [mostrarUrls, setMostrarUrls] = useState(config.redesSociales.map(() => false));
 
-  const [mostrarSelectorIcono, setMostrarSelectorIcono] = useState(false);
-  const [posicionSelectorIcono, setPosicionSelectorIcono] = useState({ top: 0, left: 0 });
-  const [indiceRedSocialSeleccionada, setIndiceRedSocialSeleccionada] = useState(null);
-
-  const selectorIconoRef = useRef(null);
-  const botonActivoRef = useRef(null);
   const urlRefs = useRef({});
 
-  //Ver si voy a necesitar esto
   useEffect(() => {
     setConfigLocal(config);
     setTitulo(config.titulo);
     setDescripcion(config.descripcion);
     setImagenPerfil(config.imagen);
   }, [config]);
-
-  useEffect(() => {
-    const clickFueraSelectorIcono = (e) => {
-      if (
-        mostrarSelectorIcono &&
-        selectorIconoRef.current &&
-        !selectorIconoRef.current.contains(e.target) &&
-        !botonActivoRef.current.contains(e.target)
-      ) {
-        setMostrarSelectorIcono(false);
-        setIndiceRedSocialSeleccionada(null);
-         botonActivoRef.current = null;
-      }
-    };
-
-    document.addEventListener("mousedown", clickFueraSelectorIcono);
-    return () => {
-      document.removeEventListener("mousedown", clickFueraSelectorIcono);
-    };
-  }, [mostrarSelectorIcono]);
-
-  const abrirSelectorIcono = (e, indice, opciones = { 
-    vertical: "abajo", // "arriba" o "abajo"
-    horizontal: "derecha", // "izquierda" o "derecha"
-    ajusteVertical: 0 // Ajuste adicional
-  }) => {
-    const boton = e.currentTarget;
-
-    if (botonActivoRef.current === boton) {
-      setMostrarSelectorIcono(false);
-      setIndiceRedSocialSeleccionada(null);
-      botonActivoRef.current = null;
-      return;
-    }
-
-    const rect = boton.getBoundingClientRect();
-    const margin = 3;
-    let top, left;
-
-    // Posición vertical
-    if (opciones.vertical === "abajo") {
-      top = rect.top + window.scrollY + rect.height + margin + (opciones.ajusteVertical || 0);
-    } else {
-      top = rect.top + window.scrollY - 320 - margin + (opciones.ajusteVertical || 0); // alto aprox del selector
-    }
-
-    // Posición horizontal
-    if (opciones.horizontal === "derecha") {
-      left = rect.left + window.scrollX + rect.width + margin;
-    } else {
-      left = rect.left + window.scrollX -197 - margin; // ancho aprox del selector
-    }
-
-    setPosicionSelectorIcono({ top, left });
-    setIndiceRedSocialSeleccionada(indice);
-     botonActivoRef.current = boton;
-    setMostrarSelectorIcono(true);
-  };
-
-
-  const manejarSeleccionIcono = (icono) => {
-    if (indiceRedSocialSeleccionada === null) return;
-
-    setConfigLocal((prevConfig) => {
-      const nuevasRedes = [...prevConfig.redesSociales];
-      nuevasRedes[indiceRedSocialSeleccionada] = {
-        ...nuevasRedes[indiceRedSocialSeleccionada],
-        icono: icono,
-      };
-      return { ...prevConfig, redesSociales: nuevasRedes };
-    });
-  };
 
   const manejarCambioAnchoBorde = () => {
     const anchoActual = parseInt(configLocal.anchoBorde, 10);
@@ -414,7 +343,7 @@ export const Perfil = ({ config, editar }) => {
                       }
                     }}
                   >
-                    {editar && (
+                    {/* {editar && (
                       <button
                         onClick={(e) =>
                           abrirSelectorIcono(
@@ -423,6 +352,33 @@ export const Perfil = ({ config, editar }) => {
                             indice < 2
                               ? { vertical: "arriba", horizontal: "derecha", ajusteVertical: -27 }
                               : { vertical: "arriba", horizontal: "izquierda", ajusteVertical: -27 }
+                          )
+                        }
+                        className="flex items-center justify-center absolute top-0 right-0 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
+                      >
+                        <i className="fa-solid fa-image text-sm" />
+                      </button>
+                    )} */}
+
+                    {editar && (
+                      <button
+                        onClick={(e) =>
+                          abrirSelectorIcono(
+                            e,
+                            indice,
+                            (nuevoIcono) => {
+                              setConfigLocal((prevConfig) => {
+                                const nuevasRedes = [...prevConfig.redesSociales];
+                                nuevasRedes[indice] = {
+                                  ...nuevasRedes[indice],
+                                  icono: nuevoIcono,
+                                };
+                                return { ...prevConfig, redesSociales: nuevasRedes };
+                              });
+                            },
+                            indice < 2
+                              ? { vertical: "arriba", horizontal: "derecha" }
+                              : { vertical: "arriba", horizontal: "izquierda" }
                           )
                         }
                         className="flex items-center justify-center absolute top-0 right-0 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
@@ -512,23 +468,25 @@ export const Perfil = ({ config, editar }) => {
       {mostrarSelectorColor && editar && (
         <SelectorColor
           colorInicial={colorInicial}
-          onChange={manejarCambioColor}
+          manejarCambioColor={manejarCambioColor}
           top={posicionSelectorColor.top}
           left={posicionSelectorColor.left}
-          onClickFuera={cerrarSelectorColor}
-          botonRef={botonRef.current}
+          manejarClickAfuera={cerrarSelectorColor}
+          botonColorRef={botonColorRef.current}
         />
       )}
 
       {mostrarSelectorIcono && editar && (
         <div
           ref={selectorIconoRef}
-          className="absolute z-40"
-          style={{ top: posicionSelectorIcono.top, left: posicionSelectorIcono.left }}
+          style={{
+            position: "absolute",
+            top: posicionSelectorIcono.top,
+            left: posicionSelectorIcono.left,
+            zIndex: 1000
+          }}
         >
-          <SelectorIcono
-            onSeleccionar={manejarSeleccionIcono}
-          />
+          <SelectorIcono manejarSeleccionIcono={manejarSeleccionIcono} />
         </div>
       )}
 

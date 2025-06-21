@@ -4,11 +4,11 @@ import Portal from "./Portal";
 
 export const SelectorColor = ({
   colorInicial = "#ffffff",
-  onChange,
+  manejarCambioColor,
   top,
   left,
-  onClickFuera,
-  botonRef
+  manejarClickAfuera,
+  botonColorRef
 }) => {
   const [color, setColor] = useState(colorInicial);
   const contenedorRef = useRef();
@@ -18,10 +18,10 @@ export const SelectorColor = ({
       if (
         contenedorRef.current &&
         !contenedorRef.current.contains(e.target) &&
-        botonRef &&
-        !botonRef.contains(e.target)
+        botonColorRef &&
+        !botonColorRef.contains(e.target)
       ) {
-        onClickFuera?.();
+        manejarClickAfuera?.();
       }
     };
 
@@ -29,7 +29,7 @@ export const SelectorColor = ({
     return () => {
       document.removeEventListener("mousedown", handleClickFuera);
     };
-  }, [onClickFuera, botonRef]);
+  }, [manejarClickAfuera, botonColorRef]);
 
   useEffect(() => {
     setColor(colorInicial);
@@ -37,7 +37,7 @@ export const SelectorColor = ({
 
   const handleChange = (nuevoColor) => {
     setColor(nuevoColor);
-    onChange(nuevoColor);
+    manejarCambioColor(nuevoColor);
   };
 
   return (
