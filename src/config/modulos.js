@@ -37,6 +37,8 @@ export const MODULOS_CONFIG = {
     },
     conocimientos: {
         id: "1",
+        orden: 1,
+        activo: true,
         titulo: "Titulo",
         orientacionTitulo: "center",
         colorTitulo: "#000",
@@ -52,6 +54,8 @@ export const MODULOS_CONFIG = {
     },
     experiencia: {
         id: "2",
+        orden: 2,
+        activo: false,
         titulo: "Titulo",
         orientacionTitulo: "center",
         colorTitulo: "#000",
@@ -69,6 +73,8 @@ export const MODULOS_CONFIG = {
     },
     proyectos: {
         id: "3",
+        activo: false,
+        orden: 3,
         titulo: "Titulo",
         orientacionTitulo: "center",
         colorTitulo: "#000",
@@ -138,6 +144,8 @@ export const MODULOS_CONFIG = {
     },
     contacto: {
         id: "4",
+        activo: false,
+        orden: 4,
         titulo: "Contacto",
         orientacionTitulo: "center",
         colorTitulo: "#000",

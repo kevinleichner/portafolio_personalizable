@@ -10,5 +10,6 @@ export * from './components/SelectorColor';
 export * from './components/SelectorIcono';
 export * from './components/Contacto';
 export * from './components/Footer';
+export * from './components/AgregarModulo';
 export * from './components/Portal';
 export * from './pages/PortfolioPage';

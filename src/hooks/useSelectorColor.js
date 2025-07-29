@@ -14,7 +14,7 @@ export const useSelectorColor = () => {
       cerrarSelectorColor();
       return;
     }
-
+    
     const rect = boton.getBoundingClientRect();
     const margin = 8;
 
