@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Perfil, AdminNavbar, Navbar, Conocimientos, Experiencia, Contacto, Proyectos, Footer, AgregarModulo } from '..';
 import { useAuthStore, usePortfolioStore } from '../../hooks';
 import { MODULOS_CONFIG } from '../../config/modulos';
@@ -9,12 +8,13 @@ export const PortfolioPage = () => {
 
   const modulosParaMostrar = modulosOrden.filter(key => modulosActivos[key]);
 
-  const modulosNoEnOrden = Object.entries(MODULOS_CONFIG)
-    .filter(([key]) => modulosActivos[key] && !modulosOrden.includes(key))
-    .sort((a, b) => (a[1].orden ?? 0) - (b[1].orden ?? 0))
-    .map(([key]) => key);
+  const modulosInactivos = Object.entries(MODULOS_CONFIG)
+  .filter(([key]) => 
+    ['conocimientos', 'experiencia', 'proyectos', 'contacto'].includes(key) &&
+    !modulosActivos[key]
+  );
 
-  const finalOrden = [...modulosParaMostrar, ...modulosNoEnOrden];
+  const finalOrden = [...modulosParaMostrar];
 
   const COMPONENTES = {
     conocimientos: <Conocimientos config={MODULOS_CONFIG.conocimientos} editar={edicion} />,
@@ -31,7 +31,7 @@ export const PortfolioPage = () => {
       {finalOrden.map(moduloKey => (
         <div key={moduloKey}>{COMPONENTES[moduloKey]}</div>
       ))}
-      {edicion && <AgregarModulo config={MODULOS_CONFIG} />}
+      {edicion  && modulosInactivos.length > 0 && (<AgregarModulo config={MODULOS_CONFIG} />)}
       <Footer />
     </>
   );
