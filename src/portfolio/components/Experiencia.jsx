@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
-import { useSelectorColor } from '../../hooks';
+import { useSelectorColor, usePortfolioStore } from '../../hooks';
 
 export const Experiencia = ({config, editar}) => {
 
@@ -13,6 +13,8 @@ export const Experiencia = ({config, editar}) => {
       cerrarSelectorColor,
       manejarCambioColor,
     } = useSelectorColor();
+
+    const {desactivarModuloPorKey} = usePortfolioStore();
 
     const [titulo, setTitulo] = useState(config.titulo);
     const [tarjetas, setTarjetas] = useState(config.tarjetas);
@@ -213,16 +215,6 @@ const agregarTarjeta = () => {
         </div>
 
         {editar === true && (
-          <button className={`absolute right-2 top-3 cursor-pointer flex items-center
-                                bg-white rounded-full p-2 
-                                hover:bg-pink-400
-                                xl:right-10`}>
-                <i className="fa-solid fa-paint-roller text-sm
-                              xl:text-xl"/>
-          </button>
-        )} 
-
-        {editar === true && (
         <button onClick={(e) =>
                       abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
@@ -231,10 +223,10 @@ const agregarTarjeta = () => {
                         horizontal: "izquierda"
                       })
                     }
-                className={`absolute right-2 top-3 cursor-pointer flex items-center
+                className={`absolute right-10 top-3 cursor-pointer flex items-center
                               bg-white rounded-full p-2 
                               hover:bg-pink-400
-                              xl:right-10`}>
+                              xl:right-14`}>
               <i className="fa-solid fa-paint-roller text-sm
                             xl:text-xl"/>
         </button>
@@ -252,6 +244,19 @@ const agregarTarjeta = () => {
             <i className="fa-solid fa-plus text-3xl text-gray-600" />
           </button>
         </div>
+      )}
+
+      {editar === true && (
+        <button onClick={(e) =>
+                      desactivarModuloPorKey('experiencia')
+                    }
+                className={`absolute right-2 top-3 cursor-pointer flex items-center
+                              bg-white rounded-full p-2 
+                              hover:bg-red-500
+                              xl:right-5`}>
+              <i className="fa-solid fa-trash text-sm
+                            xl:text-xl"/>
+        </button>
       )}
 
 

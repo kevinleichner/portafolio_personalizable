@@ -2,36 +2,49 @@ import { Perfil, AdminNavbar, Navbar, Conocimientos, Experiencia, Contacto, Proy
 import { useAuthStore, usePortfolioStore } from '../../hooks';
 import { MODULOS_CONFIG } from '../../config/modulos';
 
+const MODULOS_PERMITIDOS = ['conocimientos', 'experiencia', 'proyectos', 'contacto'];
+
 export const PortfolioPage = () => {
   const { estado } = useAuthStore();
   const { edicion, modulosOrden, modulosActivos } = usePortfolioStore();
 
-  const modulosParaMostrar = modulosOrden.filter(key => modulosActivos[key]);
+  const finalOrden = modulosOrden.filter(key => modulosActivos[key]);
 
-  const modulosInactivos = Object.entries(MODULOS_CONFIG)
-  .filter(([key]) => 
-    ['conocimientos', 'experiencia', 'proyectos', 'contacto'].includes(key) &&
-    !modulosActivos[key]
-  );
+  const modulosInactivos = MODULOS_PERMITIDOS.filter(key => !modulosActivos[key]);
 
-  const finalOrden = [...modulosParaMostrar];
-
-  const COMPONENTES = {
-    conocimientos: <Conocimientos config={MODULOS_CONFIG.conocimientos} editar={edicion} />,
-    experiencia: <Experiencia config={MODULOS_CONFIG.experiencia} editar={edicion} />,
-    proyectos: <Proyectos config={MODULOS_CONFIG.proyectos} editar={edicion} />,
-    contacto: <Contacto config={MODULOS_CONFIG.contacto} editar={edicion} />,
+  const COMPONENTES_MAP = {
+    conocimientos: Conocimientos,
+    experiencia: Experiencia,
+    proyectos: Proyectos,
+    contacto: Contacto,
   };
 
   return (
     <>
       {estado === 'logeado' && <AdminNavbar />}
-      <Navbar config={MODULOS_CONFIG.navbar} modulosConfig={MODULOS_CONFIG} editar={edicion} />
-      <Perfil config={MODULOS_CONFIG.perfil} editar={edicion} />
-      {finalOrden.map(moduloKey => (
-        <div key={moduloKey}>{COMPONENTES[moduloKey]}</div>
-      ))}
-      {edicion  && modulosInactivos.length > 0 && (<AgregarModulo config={MODULOS_CONFIG} />)}
+
+      <Navbar 
+        config={MODULOS_CONFIG.navbar} 
+        modulosConfig={MODULOS_CONFIG} 
+        editar={edicion} 
+      />
+
+      <Perfil 
+        config={MODULOS_CONFIG.perfil} 
+        editar={edicion} 
+      />
+
+      {finalOrden.map((key) => {
+        const Componente = COMPONENTES_MAP[key];
+        return Componente ? (
+          <Componente key={key} config={MODULOS_CONFIG[key]} editar={edicion} />
+        ) : null;
+      })}
+
+      {edicion && modulosInactivos.length > 0 && (
+        <AgregarModulo config={MODULOS_CONFIG} />
+      )}
+
       <Footer />
     </>
   );

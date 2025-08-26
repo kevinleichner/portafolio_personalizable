@@ -1,7 +1,7 @@
 
 import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
-import { useSelectorColor } from '../../hooks';
+import { useSelectorColor, usePortfolioStore } from '../../hooks';
 import { VistaProyecto } from "./VistaProyecto";
 
 export const Proyectos = ({config, editar}) => {
@@ -15,6 +15,8 @@ export const Proyectos = ({config, editar}) => {
       cerrarSelectorColor,
       manejarCambioColor,
     } = useSelectorColor();
+
+    const {desactivarModuloPorKey} = usePortfolioStore();
 
     const [proyectoActivo, setProyectoActivo] = useState(null);
     const [titulo, setTitulo] = useState(config.titulo);
@@ -382,16 +384,6 @@ export const Proyectos = ({config, editar}) => {
         )}
 
         {editar === true && (
-            <button className={`absolute right-2 top-3 cursor-pointer flex items-center
-                                bg-white rounded-full p-2 
-                                hover:bg-pink-400
-                                xl:right-10`}>
-                <i className="fa-solid fa-paint-roller text-sm
-                                xl:text-xl"/>
-            </button>
-        )} 
-
-        {editar === true && (
         <button onClick={(e) =>
                       abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
@@ -400,11 +392,24 @@ export const Proyectos = ({config, editar}) => {
                         horizontal: "izquierda"
                       })
                     }
-                className={`absolute right-2 top-3 cursor-pointer flex items-center
+                className={`absolute right-10 top-3 cursor-pointer flex items-center
                               bg-white rounded-full p-2 
                               hover:bg-pink-400
-                              xl:right-10`}>
+                              xl:right-14`}>
               <i className="fa-solid fa-paint-roller text-sm
+                            xl:text-xl"/>
+        </button>
+      )}
+
+      {editar === true && (
+        <button onClick={(e) =>
+                      desactivarModuloPorKey('proyectos')
+                    }
+                className={`absolute right-2 top-3 cursor-pointer flex items-center
+                              bg-white rounded-full p-2 
+                              hover:bg-red-500
+                              xl:right-5`}>
+              <i className="fa-solid fa-trash text-sm
                             xl:text-xl"/>
         </button>
       )}

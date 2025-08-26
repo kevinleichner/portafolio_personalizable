@@ -1,6 +1,6 @@
 import {useState, useRef, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
-import { useSelectorColor } from '../../hooks';
+import { useSelectorColor, usePortfolioStore } from '../../hooks';
 
 export const Conocimientos = ({config, editar}) => { 
   const {
@@ -12,6 +12,8 @@ export const Conocimientos = ({config, editar}) => {
       cerrarSelectorColor,
       manejarCambioColor,
     } = useSelectorColor();
+
+    const {desactivarModuloPorKey} = usePortfolioStore();
 
   const [titulo, setTitulo] = useState(config.titulo);
   const [conocimientos, setConocimientos] = useState(config.conocimientos);
@@ -236,16 +238,6 @@ const agregarConocimiento = () => {
         </div>
 
         {editar === true && (
-          <button className={`absolute right-2 top-3 cursor-pointer flex items-center
-                                bg-white rounded-full p-2 
-                                hover:bg-pink-400
-                                xl:right-10`}>
-                <i className="fa-solid fa-paint-roller text-sm
-                              xl:text-xl"/>
-          </button>
-        )} 
-
-        {editar === true && (
         <button onClick={(e) =>
                       abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
                         setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
@@ -254,11 +246,24 @@ const agregarConocimiento = () => {
                         horizontal: "izquierda"
                       })
                     }
-                className={`absolute right-2 top-3 cursor-pointer flex items-center
+                className={`absolute right-10 top-3 cursor-pointer flex items-center
                               bg-white rounded-full p-2 
                               hover:bg-pink-400
-                              xl:right-10`}>
+                              xl:right-14`}>
               <i className="fa-solid fa-paint-roller text-sm
+                            xl:text-xl"/>
+        </button>
+      )}
+
+      {editar === true && (
+        <button onClick={(e) =>
+                      desactivarModuloPorKey('conocimientos')
+                    }
+                className={`absolute right-2 top-3 cursor-pointer flex items-center
+                              bg-white rounded-full p-2 
+                              hover:bg-red-500
+                              xl:right-5`}>
+              <i className="fa-solid fa-trash text-sm
                             xl:text-xl"/>
         </button>
       )}
