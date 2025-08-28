@@ -1,8 +1,9 @@
-import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
 import { useSelectorColor, usePortfolioStore } from '../../hooks';
 
 export const Experiencia = ({config, editar}) => {
+
+    const componente = 'experiencia';
 
     const {
       mostrarSelectorColor,
@@ -14,52 +15,66 @@ export const Experiencia = ({config, editar}) => {
       manejarCambioColor,
     } = useSelectorColor();
 
-    const {desactivarModuloPorKey} = usePortfolioStore();
+    const {desactivarModuloPorKey, actualizarConfigLocal} = usePortfolioStore();
 
-    const [titulo, setTitulo] = useState(config.titulo);
-    const [tarjetas, setTarjetas] = useState(config.tarjetas);
-    const [configLocal, setConfigLocal] = useState(config);
-
-  useEffect(() => {
-    setTitulo(config.titulo);
-    setTarjetas(config.tarjetas);
-    setConfigLocal(config);
-  }, [config]);
+    const actualizarTitulo = (nuevoTitulo) => {
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'titulo',
+        valor: nuevoTitulo
+      })
+    }
 
    const manejarCambioOrientacionTitulo = () => {
-    configLocal.orientacionTitulo === 'center' 
-    ? setConfigLocal({ ...configLocal, orientacionTitulo: 'start' }) 
-    : setConfigLocal({ ...configLocal, orientacionTitulo: 'center' });
+    const orientacion = config.orientacionTitulo === 'center' 
+    ? 'start' 
+    : 'center';
+
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'orientacionTitulo',
+      valor: orientacion
+    });
   };
 
   const actualizarColorTarjeta = (indice, nuevoColor, propiedad = 'colorFondo') => {
-    setConfigLocal(prevConfig => {
-      const nuevasTarjetas = [...prevConfig.tarjetas];
+      const nuevasTarjetas = [...config.tarjetas];
       nuevasTarjetas[indice] = {
         ...nuevasTarjetas[indice],
         [propiedad]: nuevoColor,
       };
-      return { ...prevConfig, tarjetas: nuevasTarjetas };
-    });
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'tarjetas',
+        valor: nuevasTarjetas,
+      });
   };
 
   const cambiarValorTarjetas = (indice, campo, valor) => {
-    const nuevasTarjetas = tarjetas.map((t, i) =>
-      i === indice ? { ...t, [campo]: valor } : t
-    );
-    setTarjetas(nuevasTarjetas);
+    const nuevasTarjetas = [...config.tarjetas];
+    nuevasTarjetas[indice] = { ...nuevasTarjetas[indice], [campo]: valor };  
+    
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'tarjetas',
+      valor: nuevasTarjetas,
+    });
   };
 
   const eliminarTarjeta = (indice) => {
-  setConfigLocal((prev) => {
-    const nuevasTarjetas = prev.tarjetas.filter((_, i) => i !== indice);
-    return { ...prev, tarjetas: nuevasTarjetas };
-  });
+    const nuevasTarjetas = config.tarjetas.filter((_, i) => i !== indice);
+    
+     actualizarConfigLocal({
+      key: componente,
+      propiedad: 'tarjetas',
+      valor: nuevasTarjetas,
+    });
 };
 
 const agregarTarjeta = () => {
-    setConfigLocal(prev => {
-      const nuevaTarjeta = { 
+      
+  const nuevaTarjeta = { 
         puesto: "Rol o puesto",
         empresa: "Nombre de empresa",
         tiempo: "Enero 2020 - Febrero 2021",
@@ -67,40 +82,46 @@ const agregarTarjeta = () => {
         colorTexto: "#000",
         colorFondo: "#ffff"
       };
-      return {
-        ...prev,
-        tarjetas: [...prev.tarjetas, nuevaTarjeta]
-      };
-    });
+
+      const nuevasTarjetas = [...config.tarjetas, nuevaTarjeta]
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'tarjetas',
+        valor: nuevasTarjetas,
+      });
   };
 
   return (
     <div className={`text-center relative
-                    bg-[${configLocal.colorFondo}]
+                    bg-[${config.colorFondo}]
                     py-10 
                     sm:py-20 ]`} 
         id={config.id}>
 
         <div className="w-[85%] mx-auto">
 
-          <div className={`flex items-start gap-2 justify-${configLocal.orientacionTitulo} relative`}>
+          <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
 
-            <h2 className={`select-none outline-none text-[${configLocal.colorTitulo}]
+            <h2 className={`select-none outline-none text-[${config.colorTitulo}]
                             mb-10 
                             text-4xl font-semibold
                             sm:text-5xl`}
                 contentEditable={editar}
                 suppressContentEditableWarning={true}
-                onBlur={(e) => setTitulo(e.currentTarget.textContent)}>
-                {titulo}
+                onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                {config.titulo}
             </h2>
 
             {editar && (
               <div className="flex gap-1">
                 <button
                   onClick={(e) =>
-                    abrirSelectorColor(e, configLocal.colorTitulo, (nuevoColor) => {
-                      setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
+                    abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
+                       actualizarConfigLocal({ 
+                        key: componente,
+                        propiedad: 'colorTitulo', 
+                        valor: nuevoColor });
                     }, {
                       vertical: "abajo",
                       horizontal: 'derecha'
@@ -117,14 +138,14 @@ const agregarTarjeta = () => {
                   className="flex items-center justify-center cursor-pointer
                             bg-white p-1 rounded-full hover:bg-pink-400"
                 >
-                  <i className={`fa-solid ${configLocal.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                  <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                 </button>
               </div>
               )}
 
             </div>
 
-            {configLocal.tarjetas.map((t, indice) => (
+            {config.tarjetas.map((t, indice) => (
                 <div key={indice} className={`flex justify-between relative
                                 shadow-md bg-[${t.colorFondo}]
                                 border-t-2
@@ -175,7 +196,7 @@ const agregarTarjeta = () => {
                     {editar && (
                         <button
                         onClick={(e) =>
-                          abrirSelectorColor(e, configLocal.tarjetas[indice].colorFondo, (nuevoColor) => {
+                          abrirSelectorColor(e, config.tarjetas[indice].colorFondo, (nuevoColor) => {
                             actualizarColorTarjeta(indice, nuevoColor, "colorFondo");
                             }, {
                             vertical: "abajo",
@@ -195,7 +216,7 @@ const agregarTarjeta = () => {
                     {editar && (
                         <button
                         onClick={(e) =>
-                          abrirSelectorColor(e, configLocal.tarjetas[indice].colorTexto, (nuevoColor) => {
+                          abrirSelectorColor(e, config.tarjetas[indice].colorTexto, (nuevoColor) => {
                             actualizarColorTarjeta(indice, nuevoColor, "colorTexto");
                             }, {
                             vertical: "abajo",
@@ -216,8 +237,11 @@ const agregarTarjeta = () => {
 
         {editar === true && (
         <button onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
+                      abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
+                         actualizarConfigLocal({ 
+                          key: componente,
+                          propiedad: 'colorFondo', 
+                          valor: nuevoColor });
                       }, {
                         vertical: "abajo",
                         horizontal: "izquierda"

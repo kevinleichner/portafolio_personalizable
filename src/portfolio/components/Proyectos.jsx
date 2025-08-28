@@ -1,109 +1,138 @@
-
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import { SelectorColor } from "./SelectorColor";
 import { useSelectorColor, usePortfolioStore } from '../../hooks';
 import { VistaProyecto } from "./VistaProyecto";
 
 export const Proyectos = ({config, editar}) => {
 
-    const {
-      mostrarSelectorColor,
-      posicionSelectorColor,
-      colorInicial,
-      botonColorRef,
-      abrirSelectorColor,
-      cerrarSelectorColor,
-      manejarCambioColor,
-    } = useSelectorColor();
+  const componente = 'proyectos';
 
-    const {desactivarModuloPorKey} = usePortfolioStore();
+  const {
+    mostrarSelectorColor,
+    posicionSelectorColor,
+    colorInicial,
+    botonColorRef,
+    abrirSelectorColor,
+    cerrarSelectorColor,
+    manejarCambioColor,
+  } = useSelectorColor();
 
-    const [proyectoActivo, setProyectoActivo] = useState(null);
-    const [titulo, setTitulo] = useState(config.titulo);
-    const [proyectos, setProyectos] = useState(config.proyectos);
+  const {desactivarModuloPorKey, actualizarConfigLocal} = usePortfolioStore();
 
-    const [configLocal, setConfigLocal] = useState(config);
+  const [indiceProyectoActivo, setIndiceProyectoActivo] = useState(null);
 
-    const cerrarVista = () => {
-        setProyectoActivo(null)
-    }    
+  const cerrarVista = () => {
+      setIndiceProyectoActivo(null)
+  }    
 
-    useEffect(() => {
-        setTitulo(config.titulo);
-        setProyectos(config.proyectos);
-        setConfigLocal(config);
-    }, [config]);
+  const actualizarTitulo = (nuevoTitulo) => {
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'titulo',
+      valor: nuevoTitulo
+    })
+  }
 
-  const manejarCambioImagen = (e, indice) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProyectos((prev) => {
-          const nuevos = [...prev];
-          nuevos[indice] = { ...nuevos[indice], imagenFondo: reader.result };
-          return nuevos;
-        });
+  const manejarCambioOrientacionTitulo = () => {
+    const orientacion = config.orientacionTitulo === 'center' 
+    ? 'start' 
+    : 'center';
 
-        setConfigLocal((prev) => {
-          const nuevos = [...prev.proyectos];
-          nuevos[indice] = { ...nuevos[indice], imagenFondo: reader.result };
-          return { ...prev, proyectos: nuevos };
-        });
-      };
-      reader.readAsDataURL(file);
-    }
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'orientacionTitulo',
+      valor: orientacion
+    });
   };
 
-   const manejarCambioOrientacionTitulo = () => {
-    configLocal.orientacionTitulo === 'center' 
-    ? setConfigLocal({ ...configLocal, orientacionTitulo: 'start' }) 
-    : setConfigLocal({ ...configLocal, orientacionTitulo: 'center' });
+  const manejarCambioImagen = (e, indice) => {
+    
+    const file = e.target.files[0];
+
+    if (!file || !file.type.startsWith("image/")) return; //Verifico que sea una imagen
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+
+        const nuevosProyectos = [...config.proyectos];
+        
+        nuevosProyectos[indice] = { 
+          ...nuevosProyectos[indice], 
+          imagenFondo: reader.result 
+        };
+
+        actualizarConfigLocal({
+          key: componente,
+          propiedad: 'proyectos',
+          valor: nuevosProyectos,
+        });
+
+    };
+      
+      reader.readAsDataURL(file);
   };
 
   const actualizarColorProyecto = (indice, nuevoColor, propiedad = 'colorFondo') => {
-    setConfigLocal(prevConfig => {
-      const nuevosProyectos = [...prevConfig.proyectos];
+      
+      const nuevosProyectos = [...config.proyectos];
       nuevosProyectos[indice] = {
         ...nuevosProyectos[indice],
         [propiedad]: nuevoColor,
       };
-      return { ...prevConfig, proyectos: nuevosProyectos };
-    });
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'proyectos',
+        valor: nuevosProyectos,
+      });
+
   };
 
     const cambiarValorProyectos = (indice, campo, valor) => {
-        const nuevosProyectos = proyectos.map((t, i) =>
-        i === indice ? { ...t, [campo]: valor } : t
-        );
-        setProyectos(nuevosProyectos);
-    };
+
+    const nuevosProyectos = [...config.proyectos];
+    nuevosProyectos[indice] = { ...nuevosProyectos[indice], [campo]: valor };  
+    
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'proyectos',
+      valor: nuevosProyectos,
+    });
+  };
 
     const cambiarTextoEtiqueta = (indiceProyecto, indiceEtiqueta, nuevoTexto) => {
-      setConfigLocal(prevConfig => {
-        const nuevosProyectos = [...prevConfig.proyectos];
-        const etiquetas = [...nuevosProyectos[indiceProyecto].etiquetas];
-        etiquetas[indiceEtiqueta] = {
-          ...etiquetas[indiceEtiqueta],
-          texto: nuevoTexto,
-        };
-        nuevosProyectos[indiceProyecto] = {
-          ...nuevosProyectos[indiceProyecto],
-          etiquetas: etiquetas,
-        };
-        return { ...prevConfig, proyectos: nuevosProyectos };
+      const nuevosProyectos = [...config.proyectos];
+
+      const nuevasEtiquetas = [...nuevosProyectos[indiceProyecto].etiquetas];
+
+      nuevasEtiquetas[indiceEtiqueta] = {
+        ...nuevasEtiquetas[indiceEtiqueta],
+        texto: nuevoTexto,
+      };
+
+      nuevosProyectos[indiceProyecto] = {
+        ...nuevosProyectos[indiceProyecto],
+        etiquetas: nuevasEtiquetas,
+      };
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'proyectos',
+        valor: nuevosProyectos,
       });
     };
 
     const eliminarProyecto = (indice) => {
-      setConfigLocal((prev) => {
-        const nuevosProyectos = prev.proyectos.filter((_, i) => i !== indice);
-        return { ...prev, proyectos: nuevosProyectos };
-      });
+        const nuevosProyectos = config.proyectos.filter((_, i) => i !== indice);
+
+        actualizarConfigLocal({
+          key: componente,
+          propiedad: 'proyectos',
+          valor: nuevosProyectos,
+        });
     };
 
     const agregarProyecto = () => {
-      setConfigLocal(prev => {
         const nuevoProyecto = { 
           titulo: "Titulo",
           colorBoton: "#1a5fad",  
@@ -164,17 +193,31 @@ export const Proyectos = ({config, editar}) => {
               }
           ]
         };
-        return {
-          ...prev,
-          proyectos: [...prev.proyectos, nuevoProyecto]
-        };
-      });
+
+        const nuevosProyectos = [...config.proyectos, nuevoProyecto]
+
+        actualizarConfigLocal({
+          key: componente,
+          propiedad: 'proyectos',
+          valor: nuevosProyectos,
+        });
     };
+
+    const actualizarProyecto = (nuevoProyecto) => {
+    const nuevosProyectos = [...config.proyectos];
+    nuevosProyectos[indiceProyectoActivo] = nuevoProyecto;
+
+    actualizarConfigLocal({
+      key: 'proyectos',
+      propiedad: 'proyectos',
+      valor: nuevosProyectos,
+    });
+  }
 
 
   return (
     <div className={`relative
-                    bg-[${configLocal.colorFondo}]
+                    bg-[${config.colorFondo}]
                     py-10 
                     sm:py-20`} 
         id={config.id}>       
@@ -182,24 +225,27 @@ export const Proyectos = ({config, editar}) => {
         <div className="select-none
                         w-[85%] mx-auto ">
 
-            <div className={`flex items-start gap-2 justify-${configLocal.orientacionTitulo} relative`}>
+            <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
 
-                <h2 className={`select-none text-[${configLocal.colorTitulo}] outline-none
+                <h2 className={`select-none text-[${config.colorTitulo}] outline-none
                                 text-4xl font-semibold
                                 mb-10 
                                 sm:text-5xl`}
                     contentEditable={editar}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => setTitulo(e.currentTarget.textContent)}>
-                    {titulo}
+                    onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                    {config.titulo}
                 </h2>
 
                 {editar && (
                 <div className="flex gap-1">
                     <button
                     onClick={(e) =>
-                        abrirSelectorColor(e, configLocal.colorTitulo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
+                        abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
+                         actualizarConfigLocal({ 
+                          key: componente,
+                          propiedad: 'colorTitulo', 
+                          valor: nuevoColor });
                         }, {
                         vertical: "abajo",
                         horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'
@@ -216,7 +262,7 @@ export const Proyectos = ({config, editar}) => {
                     className="flex items-center justify-center cursor-pointer
                                 bg-white p-1 rounded-full hover:bg-pink-400"
                     >
-                    <i className={`fa-solid ${configLocal.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                    <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                     </button>
                 </div>
                 )}
@@ -224,7 +270,7 @@ export const Proyectos = ({config, editar}) => {
             </div>
 
             <div className={`flex flex-wrap justify-center gap-6`}>   
-                {configLocal.proyectos.map((p, indice) => (
+                {config.proyectos.map((p, indice) => (
                     <div key={indice} className={`relative
                                     shadow-md 
                                     mt-3
@@ -281,7 +327,7 @@ export const Proyectos = ({config, editar}) => {
                                     ))}                                  
                                 </div>
                             </div>
-                            <button onClick={() => setProyectoActivo(configLocal.proyectos[indice])}
+                            <button onClick={() => setIndiceProyectoActivo(indice)}
                                     className={`font-sans font-semibold text-xl text-[${p.colorTexto}]
                                                 border-2
                                                 px-5 py-1
@@ -296,7 +342,7 @@ export const Proyectos = ({config, editar}) => {
                             {editar && (
                               <button
                               onClick={(e) =>
-                              abrirSelectorColor(e, configLocal.proyectos[indice].colorTexto, (nuevoColor) => {
+                              abrirSelectorColor(e, config.proyectos[indice].colorTexto, (nuevoColor) => {
                                   actualizarColorProyecto(indice, nuevoColor, "colorTexto");
                                   }, {
                                   vertical: "abajo",
@@ -315,7 +361,7 @@ export const Proyectos = ({config, editar}) => {
                             {editar && (
                               <button
                               onClick={(e) =>
-                              abrirSelectorColor(e, configLocal.proyectos[indice].colorFondoEtiqueta || "#1a5fad", (nuevoColor) => {
+                              abrirSelectorColor(e, config.proyectos[indice].colorFondoEtiqueta || "#1a5fad", (nuevoColor) => {
                                   actualizarColorProyecto(indice, nuevoColor, 'colorFondoEtiqueta');
                                   }, {
                                   vertical: "abajo",
@@ -334,7 +380,7 @@ export const Proyectos = ({config, editar}) => {
                             {editar && (
                               <button
                               onClick={(e) =>
-                              abrirSelectorColor(e, configLocal.proyectos[indice].colorBoton, (nuevoColor) => {
+                              abrirSelectorColor(e, config.proyectos[indice].colorBoton, (nuevoColor) => {
                                   actualizarColorProyecto(indice, nuevoColor, "colorBoton");
                                   }, {
                                   vertical: "abajo",
@@ -379,14 +425,21 @@ export const Proyectos = ({config, editar}) => {
             </div>
         </div>
 
-        {proyectoActivo && (
-            <VistaProyecto cerrar={cerrarVista} contenido={proyectoActivo} editar={editar} />
+        {indiceProyectoActivo !== null && (            
+            <VistaProyecto 
+              cerrar={cerrarVista} 
+              contenido={config.proyectos[indiceProyectoActivo]} 
+              editar={editar} 
+              actualizarProyecto={actualizarProyecto}/>
         )}
 
         {editar === true && (
         <button onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
+                      abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
+                         actualizarConfigLocal({ 
+                          key: componente,
+                          propiedad: 'colorFondo', 
+                          valor: nuevoColor });
                       }, {
                         vertical: "abajo",
                         horizontal: "izquierda"

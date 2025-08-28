@@ -1,9 +1,9 @@
-
-import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
 import { useSelectorColor } from '../../hooks';
 
-export const Navbar = ({config, modulosConfig, editar}) => {
+export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
+
+  const componente = 'navbar';
 
   const {
       mostrarSelectorColor,
@@ -15,32 +15,26 @@ export const Navbar = ({config, modulosConfig, editar}) => {
       manejarCambioColor,
     } = useSelectorColor();
 
-  const [configLocal, setConfigLocal] = useState(config);
-
-  useEffect(() => {
-    setConfigLocal(config);
-  }, [config]);
-
-  const modulos = Object.entries(modulosConfig)
-  .filter(([key]) => key !== "perfil") // Ignorar el modulo perfil
-  .map(([_, value]) => ({
-    id: value.id,
-    titulo: value.titulo,
-  }))
-  .filter(modulo => modulo.titulo); // Para evitar objetos con título undefined
+  const modulos = modulosOrden
+  .map((key) => {
+    const mod = modulosConfig[key];
+    if (!mod || !mod.titulo) return null; // Ignorar si no existe o sin título
+    return { id: mod.id, titulo: mod.titulo };
+  })
+  .filter(Boolean); // Para evitar objetos con título undefined
 
   return (
     <nav className={`${editar == true ? 'pt-13' : ''} flex justify-center flex-col text-center relative
                     font-semibold uppercase text-lg
                     py-4 gap-2 
-                    sm:py-8 bg-[${configLocal.colorFondo}]
+                    sm:py-8 bg-[${config.colorFondo}]
                     sm:text-sm sm:flex-row sm:text-left sm:text-lg sm:gap-5
                     md:gap-10 
                     lg:gap-20`}>    
 
       {modulos.map((m, indice, list) => (
         <div key={indice} className="sm:inline-flex flex items-center justify-center gap-2">
-          <a className={`text-sm text-[${configLocal.colorTexto}]
+          <a className={`text-sm text-[${config.colorTexto}]
                         hover:underline hover:underline-offset-8 hover:decoration-4
                         lg:text-md`}                        
               href={`#${m.id}`}>
@@ -49,8 +43,8 @@ export const Navbar = ({config, modulosConfig, editar}) => {
           {editar && indice === list.length - 1 &&(
             <button 
               onClick={(e) =>
-                abrirSelectorColor(e, configLocal.colorTexto, (nuevoColor) => {
-                  setConfigLocal({ ...configLocal, colorTexto: nuevoColor });
+                abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
+                  setConfigLocal({ ...config, colorTexto: nuevoColor });
                 }, {
                   vertical: "abajo",
                   horizontal: "izquierda"
@@ -68,8 +62,8 @@ export const Navbar = ({config, modulosConfig, editar}) => {
       {editar === true && (
         <button 
           onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
+                      abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
+                        setConfigLocal({ ...config, colorFondo: nuevoColor });
                       }, {
                         vertical: "abajo",
                         horizontal: "izquierda"

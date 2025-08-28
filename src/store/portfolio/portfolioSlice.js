@@ -8,6 +8,7 @@ export const portfolioSlice = createSlice({
     mensajeError: undefined,
     modulosActivos: {},
     modulosOrden: [],
+    configLocal: {},
   },
   reducers: {
     habilitarEdicion: (state) => {
@@ -37,10 +38,19 @@ export const portfolioSlice = createSlice({
       state.hayCambios = true;
       state.mensajeError = undefined;
     },
+    actualizarConfigLocal: (state, {payload}) => {
+      
+      payload.propiedad != null 
+      ? state.configLocal[payload.key][payload.propiedad] = payload.valor 
+      : state.configLocal[payload.key] = payload.valor
+
+      state.hayCambios = true;
+      state.mensajeError = undefined;
+    },
     limpiarMensajeErrorPortafolio: (state) => {
       state.mensajeError = undefined;
     },
   },
 });
 
-export const { habilitarEdicion, deshabilitarEdicion, limpiarMensajeErrorPortafolio, activarModulo, desactivarModulo, actualizarOrden } = portfolioSlice.actions;
+export const { habilitarEdicion, deshabilitarEdicion, limpiarMensajeErrorPortafolio, activarModulo, desactivarModulo, actualizarOrden, actualizarConfigLocal } = portfolioSlice.actions;

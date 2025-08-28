@@ -1,9 +1,8 @@
-import {useState, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
 import { useSelectorColor } from '../../hooks';
 import { Carrusel } from "./Carrusel";
 
-export const VistaProyecto = ({ cerrar, contenido, editar }) => {
+export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto }) => {
   const {
       mostrarSelectorColor,
       posicionSelectorColor,
@@ -14,104 +13,114 @@ export const VistaProyecto = ({ cerrar, contenido, editar }) => {
       manejarCambioColor,
     } = useSelectorColor();
 
-  const [descripcion, setDescripcion] = useState(contenido.descripcion);
-  const [etiquetas, setEtiquetas] = useState(contenido.etiquetas);
-  const [botones, setBotones] = useState(contenido.botones);
+  const actualizarDescripcion = (nuevaDescripcion) => {
+    actualizarProyecto({
+      ...contenido,
+      descripcion: nuevaDescripcion
+    });
+  }
+  const cambiarValorEtiquetas = (indiceEtiqueta, campo, valor) => {
+    const nuevasEtiquetas = [...contenido.etiquetas];
+    nuevasEtiquetas[indiceEtiqueta] = {
+      ...nuevasEtiquetas[indiceEtiqueta],
+      [campo]: valor
+    };
 
-  const [contenidoLocal, setContenidoLocal] = useState(contenido);
-
-  useEffect(() => {
-    setDescripcion(contenido.descripcion);
-    setEtiquetas(contenido.etiquetas);
-    setBotones(contenido.botones);
-    setContenidoLocal(contenido);
-  }, [contenido]);
-
-  const cambiarValorEtiquetas = (indice, campo, valor) => {
-    const nuevasEtiquetas = etiquetas.map((t, i) =>
-      i === indice ? { ...t, [campo]: valor } : t
-    );
-    setEtiquetas(nuevasEtiquetas);
+    actualizarProyecto({
+      ...contenido,
+      etiquetas: nuevasEtiquetas
+    });
   };
 
   const manejarCambioImagen = (e, indice) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBotones((prev) => {
-          const nuevos = [...prev];
-          nuevos[indice] = { ...nuevos[indice], imagen: reader.result };
-          return nuevos;
-        });
+    if (!file || !file.type.startsWith("image/")) return; // validación
 
-        setContenidoLocal((prev) => {
-          const nuevos = [...prev.botones];
-          nuevos[indice] = { ...nuevos[indice], imagen: reader.result };
-          return { ...prev, botones: nuevos };
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const cambiarValorBotones = (indice, campo, valor) => {
-    const nuevosBotones = botones.map((t, i) =>
-      i === indice ? { ...t, [campo]: valor } : t
-    );
-    setEtiquetas(nuevosBotones);
-  };
-
-    const actualizarColorBoton = (indice, nuevoColor) => {
-    setContenidoLocal(prevConfig => {
-      const nuevosBotones = [...prevConfig.botones];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const nuevosBotones = [...contenido.botones];
       nuevosBotones[indice] = {
         ...nuevosBotones[indice],
-        color: nuevoColor,
+        imagen: reader.result,
       };
-      return { ...prevConfig, botones: nuevosBotones };
+
+      actualizarProyecto({
+        ...contenido,
+        botones: nuevosBotones,
+      });
+    };
+    
+    reader.readAsDataURL(file);
+  };
+
+  const cambiarValorBotones = (indiceBoton, campo, valor) => {
+    const nuevosBotones = [...contenido.botones];
+    nuevosBotones[indiceBoton] = {
+      ...nuevosBotones[indiceBoton],
+      [campo]: valor
+    };
+
+    actualizarProyecto({
+      ...contenido,
+      botones: nuevosBotones
     });
   };
 
-  const cambiarImagenCarrusel = (e, indice) => {
-  const file = e.target.files[0];
-  if (file) {
+  const actualizarColorBoton = (indiceBoton, nuevoColor) => {
+    const nuevosBotones = [...contenido.botones];
+    nuevosBotones[indiceBoton] = {
+      ...nuevosBotones[indiceBoton],
+      color: nuevoColor
+    };
+
+    actualizarProyecto({
+      ...contenido,
+      botones: nuevosBotones
+    });
+  };
+
+
+  const cambiarImagenCarrusel = (e, indiceImagen) => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
     const reader = new FileReader();
     reader.onloadend = () => {
-      setContenidoLocal((prev) => {
-        const nuevasImagenes = [...prev.imagenes];
-        nuevasImagenes[indice] = { ...nuevasImagenes[indice], url: reader.result };
-        return { ...prev, imagenes: nuevasImagenes };
+      const nuevasImagenes = [...contenido.imagenes];
+      nuevasImagenes[indiceImagen] = { ...nuevasImagenes[indiceImagen], url: reader.result };
+
+      actualizarProyecto({
+        ...contenido,
+        imagenes: nuevasImagenes
       });
     };
     reader.readAsDataURL(file);
-  }
-};
+  };
 
-const eliminarImagenCarrusel = (indice) => {
-  setContenidoLocal((prev) => {
-    const nuevasImagenes = prev.imagenes.filter((_, i) => i !== indice);
-    return { ...prev, imagenes: nuevasImagenes };
-  });
-};
+  const eliminarImagenCarrusel = (indiceImagen) => {
+    const nuevasImagenes = contenido.imagenes.filter((_, i) => i !== indiceImagen);
 
-const agregarImagenCarrusel = () => {
-    setContenidoLocal(prev => {
-      const nuevaImagen = { 
-        url: "../img-proyectos/banco.jpg"
-      };
-      return {
-        ...prev,
-        imagenes: [...prev.imagenes, nuevaImagen]
-      };
+    actualizarProyecto({
+      ...contenido,
+      imagenes: nuevasImagenes
     });
   };
+
+  const agregarImagenCarrusel = () => {
+    const nuevasImagenes = [...contenido.imagenes, { url: "../img-proyectos/banco.jpg" }];
+
+    actualizarProyecto({
+      ...contenido,
+      imagenes: nuevasImagenes
+    });
+  };
+
 
     return (
       <div className="fixed inset-0 flex text-center justify-center items-center z-50
                       bg-black/70">      
 
-        <div className={`relative gap-3 flex justify-center flex-col items-center bg-[${contenidoLocal.colorFondoTexto}]
+        <div className={`relative gap-3 flex justify-center flex-col items-center bg-[${contenido.colorFondoTexto}]
                         rounded-sm w-[50%] max-h-[95%]
                         shadow-xl`}>         
         
@@ -126,10 +135,10 @@ const agregarImagenCarrusel = () => {
               <i className="fa-solid fa-xmark"></i>
             </button>
 
-          {contenidoLocal?.imagenes?.length > 0 && (
+          {contenido?.imagenes?.length > 0 && (
             <Carrusel 
-              imagenes={contenidoLocal.imagenes}
-              colorFondo={contenidoLocal.colorFondoImagenes}
+              imagenes={contenido.imagenes}
+              colorFondo={contenido.colorFondoImagenes}
               editar={editar}
               cambiarImagenCarrusel={cambiarImagenCarrusel}
               eliminarImagenCarrusel={eliminarImagenCarrusel}
@@ -141,8 +150,8 @@ const agregarImagenCarrusel = () => {
           <div className="flex gap-1 flex-wrap
                         text-sm 
                         p-1">
-            {contenidoLocal.etiquetas.map((e, indice) => (
-                <h6 key={indice} className={`p-1 outline-none bg-[${contenidoLocal.colorFondoEtiqueta}] text-[${contenidoLocal.colorTexto}]
+            {contenido.etiquetas.map((e, indice) => (
+                <h6 key={indice} className={`p-1 outline-none bg-[${contenido.colorFondoEtiqueta}] text-[${contenido.colorTexto}]
                                 rounded-sm 
                                 2xl:p-2`}
                     contentEditable={editar}
@@ -152,15 +161,15 @@ const agregarImagenCarrusel = () => {
                 </h6>
             ))}    
           </div>
-          <p className={`w-[90%] outline-none text-[${contenidoLocal.colorTexto}]`}
+          <p className={`w-[90%] outline-none text-[${contenido.colorTexto}]`}
               contentEditable={editar}
               suppressContentEditableWarning={true}
-              onBlur={(e) => setDescripcion(e.currentTarget.textContent)}>
-            {descripcion}
+              onBlur={(e) => actualizarDescripcion(e.currentTarget.textContent)}>
+            {contenido.descripcion}
           </p>
           <div className="flex justify-center gap-6 
                           w-full p-1">
-            {contenidoLocal.botones.map((b, indice) => (
+            {contenido.botones.map((b, indice) => (
                 <a key={indice} 
                    target="_blank"
                    rel="noopener noreferrer"
@@ -185,7 +194,7 @@ const agregarImagenCarrusel = () => {
                     className="hidden"
                     id={'imgBoton-' + indice}
                   />
-                  <p className={`${editar == true ? 'cursor-text' : ''} outline-none text-[${contenidoLocal.colorTexto}]`}
+                  <p className={`${editar == true ? 'cursor-text' : ''} outline-none text-[${contenido.colorTexto}]`}
                     contentEditable={editar}
                     suppressContentEditableWarning={true}
                     onBlur={(e) => cambiarValorBotones(indice, "texto", e.currentTarget.textContent)}>
@@ -194,7 +203,7 @@ const agregarImagenCarrusel = () => {
 
                   {editar === true && (
                     <button onClick={(e) =>
-                                  abrirSelectorColor(e, contenidoLocal.botones[indice].color, (nuevoColor) => {
+                                  abrirSelectorColor(e, contenido.botones[indice].color, (nuevoColor) => {
                                     actualizarColorBoton(indice, nuevoColor);
                                   }, {
                                     vertical: "abajo",
@@ -213,8 +222,11 @@ const agregarImagenCarrusel = () => {
 
           {editar === true && (
             <button onClick={(e) =>
-                          abrirSelectorColor(e, contenidoLocal.colorFondoImagenes, (nuevoColor) => {
-                            setContenidoLocal({ ...contenidoLocal, colorFondoImagenes: nuevoColor });
+                          abrirSelectorColor(e, contenido.colorFondoImagenes, (nuevoColor) => {
+                            actualizarProyecto({
+                              ...contenido,
+                              colorFondoImagenes: nuevoColor
+                            });
                           }, {
                             vertical: "abajo",
                             horizontal: "izquierda"
@@ -230,8 +242,11 @@ const agregarImagenCarrusel = () => {
 
           {editar === true && (
             <button onClick={(e) =>
-                          abrirSelectorColor(e, contenidoLocal.colorFondoTexto, (nuevoColor) => {
-                            setContenidoLocal({ ...contenidoLocal, colorFondoTexto: nuevoColor });
+                          abrirSelectorColor(e, contenido.colorFondoTexto, (nuevoColor) => {
+                            actualizarProyecto({ 
+                              ...contenido, 
+                              colorFondoTexto: nuevoColor 
+                            });
                           }, {
                             vertical: "abajo",
                             horizontal: "derecha"

@@ -1,8 +1,9 @@
-import {useState, useRef, useEffect} from "react";
 import { SelectorColor } from "./SelectorColor";
 import { useSelectorColor, usePortfolioStore } from '../../hooks';
 
 export const Conocimientos = ({config, editar}) => { 
+  const componente = 'conocimientos';
+
   const {
       mostrarSelectorColor,
       posicionSelectorColor,
@@ -13,111 +14,139 @@ export const Conocimientos = ({config, editar}) => {
       manejarCambioColor,
     } = useSelectorColor();
 
-    const {desactivarModuloPorKey} = usePortfolioStore();
+  const {desactivarModuloPorKey, actualizarConfigLocal} = usePortfolioStore();
 
-  const [titulo, setTitulo] = useState(config.titulo);
-  const [conocimientos, setConocimientos] = useState(config.conocimientos);
-
-  const [configLocal, setConfigLocal] = useState(config);
-
-  useEffect(() => {
-    setTitulo(config.titulo);
-    setConocimientos(config.conocimientos);
-    setConfigLocal(config);
-  }, [config]);
+  const actualizarTitulo = (nuevoTitulo) => {
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'titulo',
+      valor: nuevoTitulo
+    })
+  }
 
   const actualizarColorConocimiento = (indice, nuevoColor, propiedad = 'colorFondo') => {
-    setConfigLocal(prevConfig => {
-      const nuevosConocimientos = [...prevConfig.conocimientos];
+      const nuevosConocimientos = [...config.conocimientos];
       nuevosConocimientos[indice] = {
         ...nuevosConocimientos[indice],
         [propiedad]: nuevoColor,
       };
-      return { ...prevConfig, conocimientos: nuevosConocimientos };
-    });
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'conocimientos',
+        valor: nuevosConocimientos,
+      });
   };
 
   const manejarCambioImagen = (e, indice) => {
+    
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setConocimientos((prev) => {
-          const nuevos = [...prev];
-          nuevos[indice] = { ...nuevos[indice], imagen: reader.result };
-          return nuevos;
+
+    if (!file || !file.type.startsWith("image/")) return; //Verifico que sea una imagen
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+
+        const nuevosConocimientos = [...config.conocimientos];
+        
+        nuevosConocimientos[indice] = { 
+          ...nuevosConocimientos[indice], 
+          imagen: reader.result 
+        };
+
+        actualizarConfigLocal({
+          key: componente,
+          propiedad: 'conocimientos',
+          valor: nuevosConocimientos,
         });
 
-        setConfigLocal((prev) => {
-          const nuevos = [...prev.conocimientos];
-          nuevos[indice] = { ...nuevos[indice], imagen: reader.result };
-          return { ...prev, conocimientos: nuevos };
-        });
-      };
+    };
+      
       reader.readAsDataURL(file);
-    }
   };
 
   const manejarCambioOrientacionTitulo = () => {
-    configLocal.orientacionTitulo === 'center' 
-    ? setConfigLocal({ ...configLocal, orientacionTitulo: 'start' }) 
-    : setConfigLocal({ ...configLocal, orientacionTitulo: 'center' });
+    const orientacion = config.orientacionTitulo === 'center' 
+    ? 'start' 
+    : 'center';
+
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'orientacionTitulo',
+      valor: orientacion
+    });
   };
 
   const cambiarValorConocimientos = (indice, campo, valor) => {
-    const nuevosConocimientos = conocimientos.map((t, i) =>
-      i === indice ? { ...t, [campo]: valor } : t
-    );
-    setConocimientos(nuevosConocimientos);
+
+    const nuevosConocimientos = [...config.conocimientos];
+    nuevosConocimientos[indice] = { ...nuevosConocimientos[indice], [campo]: valor };  
+    
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'conocimientos',
+      valor: nuevosConocimientos,
+    });
   };
 
   const eliminarConocimiento = (indice) => {
-  setConfigLocal((prev) => {
-    const nuevosConocimientos = prev.conocimientos.filter((_, i) => i !== indice);
-    return { ...prev, conocimientos: nuevosConocimientos };
-  });
+
+    const nuevosConocimientos = config.conocimientos.filter((_, i) => i !== indice);
+
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'conocimientos',
+      valor: nuevosConocimientos,
+    });
+
 };
 
 const agregarConocimiento = () => {
-    setConfigLocal(prev => {
+
       const nuevoConocimiento = { 
         imagen: "../img-conocimientos/css.png",
         texto: "HTML",
         colorFondo: "#ccc",
         colorTexto: "#000"
       };
-      return {
-        ...prev,
-        conocimientos: [...prev.conocimientos, nuevoConocimiento]
-      };
-    });
+
+      const nuevosConocimientos = [...config.conocimientos, nuevoConocimiento]
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'conocimientos',
+        valor: nuevosConocimientos,
+      });
   };
 
   return (
     <div className={`relative
-                    bg-[${configLocal.colorFondo}]
+                    bg-[${config.colorFondo}]
                     py-10 
                     sm:py-20`} 
         id={config.id}>
         <div className="w-[85%] mx-auto select-none relative">
 
-          <div className={`flex items-start gap-2 justify-${configLocal.orientacionTitulo} relative`}>
+          <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
 
-            <h2 className={`text-4xl font-semibold outline-none text-[${configLocal.colorTitulo}]
+            <h2 className={`text-4xl font-semibold outline-none text-[${config.colorTitulo}]
                             mb-10 
                             sm:text-5xl`}
                 contentEditable={editar}
                 suppressContentEditableWarning={true}
-                onBlur={(e) => setTitulo(e.currentTarget.textContent)}>
-                {titulo}
+                onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                {config.titulo}
             </h2>
 
             {editar && (
               <div className="flex gap-1">
                 <button
                   onClick={(e) =>
-                    abrirSelectorColor(e, configLocal.colorTitulo, (nuevoColor) => {
-                      setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
+                    abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
+                      actualizarConfigLocal({ 
+                        key: componente,
+                        propiedad: 'colorTitulo', 
+                        valor: nuevoColor });
                     }, {
                       vertical: "abajo",
                       horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'
@@ -134,7 +163,7 @@ const agregarConocimiento = () => {
                   className="flex items-center justify-center cursor-pointer
                             bg-white p-1 rounded-full hover:bg-pink-400"
                 >
-                  <i className={`fa-solid ${configLocal.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                  <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                 </button>
               </div>
               )}
@@ -142,7 +171,7 @@ const agregarConocimiento = () => {
 
             <div className={`flex flex-wrap justify-center gap-2
                             sm:gap-4`}>
-                {configLocal.conocimientos.map((c, indice) => (
+                {config.conocimientos.map((c, indice) => (
                     <div key={indice} className={`content-center text-center relative
                                     shadow-md bg-[${c.colorFondo}]
                                     p-5 w-[45%]
@@ -162,7 +191,7 @@ const agregarConocimiento = () => {
                         {editar && (
                           <button
                             onClick={(e) =>
-                              abrirSelectorColor(e, configLocal.conocimientos[indice].colorFondo, (nuevoColor) => {
+                              abrirSelectorColor(e, config.conocimientos[indice].colorFondo, (nuevoColor) => {
                                 actualizarColorConocimiento(indice, nuevoColor, "colorFondo");
                               }, 
                               indice < 2 //VER ESTO 
@@ -180,7 +209,7 @@ const agregarConocimiento = () => {
                         {editar && (
                             <button
                               onClick={(e) =>
-                                abrirSelectorColor(e, configLocal.colorTexto, (nuevoColor) => {
+                                abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
                                   actualizarColorConocimiento(indice, nuevoColor, "colorTexto");
                                 }, {
                                   vertical: "abajo",
@@ -239,8 +268,11 @@ const agregarConocimiento = () => {
 
         {editar === true && (
         <button onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
+                      abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
+                        actualizarConfigLocal({ 
+                          key: componente,
+                          propiedad: 'colorFondo', 
+                          valor: nuevoColor });
                       }, {
                         vertical: "abajo",
                         horizontal: "izquierda"

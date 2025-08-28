@@ -13,9 +13,10 @@ const configuracionInicial = (config) => {
     .sort((a, b) => (a[1].orden ?? 0) - (b[1].orden ?? 0))
     .map(([key]) => key);
 
-  return { modulosActivos: activos, modulosOrden: orden };
+  return { modulosActivos: activos, modulosOrden: orden, configLocal: config };
 };
 
 export const preloadedPortfolio = {
-  ...configuracionInicial(MODULOS_CONFIG),
+  ...configuracionInicial(MODULOS_CONFIG)  
 };
+

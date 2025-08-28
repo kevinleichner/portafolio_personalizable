@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { SelectorColor } from "./SelectorColor";
 import { SelectorIcono } from "./SelectorIcono";
-import { useSelectorColor, useSelectorIcono } from '../../hooks';
+import { useSelectorColor, useSelectorIcono, usePortfolioStore } from '../../hooks';
 import { Icon } from '@iconify/react';
 
 export const Perfil = ({ config, editar }) => {
+
+  const componente = 'perfil';
 
   const {
     mostrarSelectorColor,
@@ -24,88 +26,114 @@ export const Perfil = ({ config, editar }) => {
     manejarSeleccionIcono
   } = useSelectorIcono();
 
-  const [titulo, setTitulo] = useState(config.titulo); 
-  const [descripcion, setDescripcion] = useState(config.descripcion); 
+  const {actualizarConfigLocal} = usePortfolioStore();
 
-  const [imagenPerfil, setImagenPerfil] = useState(config.imagen);
-
-  const [configLocal, setConfigLocal] = useState(config);
   const [mostrarUrls, setMostrarUrls] = useState(config.redesSociales.map(() => false));
 
   const urlRefs = useRef({});
 
-  useEffect(() => {
-    setConfigLocal(config);
-    setTitulo(config.titulo);
-    setDescripcion(config.descripcion);
-    setImagenPerfil(config.imagen);
-  }, [config]);
+  const actualizarTitulo = (nuevoTitulo) => {
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'titulo',
+      valor: nuevoTitulo
+    })
+  }
+
+  const actualizarDescripcion = (nuevaDescripcion) => {
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'descripcion',
+      valor: nuevaDescripcion
+    })
+  }
 
   const manejarCambioAnchoBorde = () => {
-    const anchoActual = parseInt(configLocal.anchoBorde, 10);
+    const anchoActual = parseInt(config.anchoBorde, 10);
     const nuevoAncho = anchoActual < 7 ? anchoActual + 1 : 1;
-    setConfigLocal({ ...configLocal, anchoBorde: nuevoAncho });
+
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'anchoBorde',
+      valor: nuevoAncho
+    })
   };
 
   const manejarCambioImagen = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagenPerfil(reader.result); // Base64
-        setConfigLocal({ ...configLocal, imagen: reader.result }); 
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file || !file.type.startsWith("image/")) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'imagen',
+        valor: reader.result, // Base64
+      });
+    };
+
+    reader.readAsDataURL(file);
   };
 
+
   const agregarRedSocial = () => {
-    setConfigLocal(prev => {
-      if (prev.redesSociales.length >= 4) return prev;
-      const nuevaRed = { //Cambiar para que tome la por defecto
+      if (config.redesSociales.length >= 4) return config;
+
+      const nuevaRed = { //TODO: Cambiar para que tome la por defecto
         icono: "fa-instagram",
         url: "https://",
         colorIcono: "#000000",
         colorFondo: "#ffffff",
         id: Math.random()
       };
-      return {
-        ...prev,
-        redesSociales: [...prev.redesSociales, nuevaRed]
-      };
-    });
+      const nuevasRedesSociales = [...config.redesSociales, nuevaRed]
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'redesSociales',
+        valor: nuevasRedesSociales
+      })
   };
 
   const eliminarRedSocial = (i) => {
-    setConfigLocal(prev => {
-      if (prev.redesSociales.length <= 0) return prev; // No elimina si no hay ninguna
-      return {
-        ...prev,
-        redesSociales: prev.redesSociales.filter(r => r.id !== i)
-      };
-    });
+      if (config.redesSociales.length <= 0) return config; // No elimina si no hay ninguna
+
+      const nuevasRedesSociales = config.redesSociales.filter(r => r.id !== i)
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'redesSociales',
+        valor: nuevasRedesSociales
+      })
+
   };
 
   const actualizarColorRedSocial = (indice, nuevoColor, propiedad = "colorIcono") => {
-    setConfigLocal(prevConfig => {
-      const nuevasRedes = [...prevConfig.redesSociales];
+      const nuevasRedes = [...config.redesSociales];
       nuevasRedes[indice] = {
         ...nuevasRedes[indice],
         [propiedad]: nuevoColor,
       };
-      return { ...prevConfig, redesSociales: nuevasRedes };
-    });
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'redesSociales',
+        valor: nuevasRedes
+      })
   };
 
   const actualizarUrlRedSocial = (indice, nuevaUrl) => {
-    setConfigLocal(prevConfig => {
-      const nuevasRedes = [...prevConfig.redesSociales];
+      const nuevasRedes = [...config.redesSociales];
       nuevasRedes[indice] = {
         ...nuevasRedes[indice],
         url: nuevaUrl,
       };
-      return { ...prevConfig, redesSociales: nuevasRedes };
-    });
+
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'redesSociales',
+        valor: nuevasRedes
+      })
   };
 
   const toggleMostrarUrl = (indice) => {
@@ -118,12 +146,12 @@ export const Perfil = ({ config, editar }) => {
 
   return (
     <div className={`relative
-                    bg-[${configLocal.colorFondo}]
+                    bg-[${config.colorFondo}]
                     py-10 
                     m:py-20`}>                 
 
       <div className={`flex justify-between relative
-                      border-${configLocal.anchoBorde} border-[${configLocal.colorBorde}]
+                      border-${config.anchoBorde} border-[${config.colorBorde}]
                       mx-auto w-[85%]
                       select-none  
                       lg:w-[70%]`}>     
@@ -132,8 +160,12 @@ export const Perfil = ({ config, editar }) => {
                         <>                       
                           <button
                             onClick={(e) =>
-                              abrirSelectorColor(e, configLocal.colorBorde, (nuevoColor) => {
-                                setConfigLocal({ ...configLocal, colorBorde: nuevoColor });
+                              abrirSelectorColor(e, config.colorBorde, (nuevoColor) => {
+                                actualizarConfigLocal({
+                                  key: componente,
+                                  propiedad: 'colorBorde',
+                                  valor: nuevoColor
+                                })
                               }, {
                                 vertical: "abajo",
                                 horizontal: "derecha"
@@ -164,21 +196,25 @@ export const Perfil = ({ config, editar }) => {
                               md:justify-start">                
                 
                 <h1
-                  className={`font-semibold tracking-tight outline-none text-4xl text-[${configLocal.colorTitulo}]
+                  className={`font-semibold tracking-tight outline-none text-4xl text-[${config.colorTitulo}]
                               md:text-5xl 
                               xl:text-6xl`}
                   contentEditable={editar}
                   suppressContentEditableWarning={true}
-                  onBlur={(e) => setTitulo(e.currentTarget.textContent)}
+                  onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}
                 >
-                  {titulo}
+                  {config.titulo}
                 </h1>
 
                 {editar && (
                   <button
                     onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorTitulo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorTitulo: nuevoColor });
+                      abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
+                        actualizarConfigLocal({
+                          key: componente,
+                          propiedad: 'colorTitulo',
+                          valor: nuevoColor
+                        })
                       }, {
                         vertical: "abajo",
                         horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'     
@@ -201,7 +237,7 @@ export const Perfil = ({ config, editar }) => {
                               2xl:object-contain">
 
               <img  
-                src={`${imagenPerfil}`}/>
+                src={`${config.imagen}`}/>
                 {editar && (
                   <button
                     onClick={() => document.getElementById("input-imagen-perfil").click()}
@@ -221,20 +257,24 @@ export const Perfil = ({ config, editar }) => {
 
               <div className="flex items-start gap-2 justify-center relative
                               md:justify-start">  
-                <p className={`h-auto outline-none text-[${configLocal.colorTexto}]
+                <p className={`h-auto outline-none text-[${config.colorTexto}]
                               sm:text-lg 
                               xl:text-xl`}
                     contentEditable={editar}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => setDescripcion(e.currentTarget.textContent)}>
-                    {descripcion}
+                    onBlur={(e) => actualizarDescripcion(e.currentTarget.textContent)}>
+                    {config.descripcion}
                 </p>
 
                 {editar && (
                     <button
                     onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorTexto, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorTexto: nuevoColor });
+                      abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
+                        actualizarConfigLocal({
+                          key: componente,
+                          propiedad: 'colorTexto',
+                          valor: nuevoColor
+                        })
                         }, {
                         vertical: "abajo",
                         horizontal: "derecha"
@@ -253,14 +293,14 @@ export const Perfil = ({ config, editar }) => {
             </div>   
 
             <div className="p-2 flex mt-2 justify-center md:justify-start">
-              {configLocal.redesSociales.map((r, indice) => (
+              {config.redesSociales.map((r, indice) => (
                 <div key={indice} className="relative inline-block mx-1">
                   
                   {editar && (
                     <>
                       <button
                         onClick={(e) =>
-                          abrirSelectorColor(e, configLocal.redesSociales[indice].colorIcono, (nuevoColor) => {
+                          abrirSelectorColor(e, config.redesSociales[indice].colorIcono, (nuevoColor) => {
                             actualizarColorRedSocial(indice, nuevoColor);
                           }, 
                           indice < 2
@@ -276,7 +316,7 @@ export const Perfil = ({ config, editar }) => {
 
                       <button
                         onClick={(e) =>
-                          abrirSelectorColor(e, configLocal.redesSociales[indice].colorFondo, (nuevoColor) => {
+                          abrirSelectorColor(e, config.redesSociales[indice].colorFondo, (nuevoColor) => {
                             actualizarColorRedSocial(indice, nuevoColor, "colorFondo");
                           }, 
                           indice < 2 
@@ -350,14 +390,17 @@ export const Perfil = ({ config, editar }) => {
                             e,
                             indice,
                             (nuevoIcono) => {
-                              setConfigLocal((prevConfig) => {
-                                const nuevasRedes = [...prevConfig.redesSociales];
+                                const nuevasRedes = [...config.redesSociales];
                                 nuevasRedes[indice] = {
                                   ...nuevasRedes[indice],
                                   icono: nuevoIcono,
                                 };
-                                return { ...prevConfig, redesSociales: nuevasRedes };
-                              });
+
+                                actualizarConfigLocal({
+                                  key: componente,
+                                  propiedad: 'redesSociales',
+                                  valor: nuevasRedes
+                                })
                             },
                             indice < 2
                               ? { vertical: "arriba", horizontal: "derecha" }
@@ -388,7 +431,7 @@ export const Perfil = ({ config, editar }) => {
               ))}
 
 
-              {editar === true && configLocal.redesSociales.length < 4 && (
+              {editar === true && config.redesSociales.length < 4 && (
                 <button onClick={agregarRedSocial}>
                   <i className="fa-solid fa-plus fa-2x text-gray-500 cursor-pointer
                                 rounded-sm border-2
@@ -408,7 +451,7 @@ export const Perfil = ({ config, editar }) => {
 
             <img
               className="object-cover w-full h-full"
-              src={`${imagenPerfil}`}
+              src={`${config.imagen}`}
             />
 
             {editar && (
@@ -432,8 +475,12 @@ export const Perfil = ({ config, editar }) => {
 
       {editar === true && (
         <button onClick={(e) =>
-                      abrirSelectorColor(e, configLocal.colorFondo, (nuevoColor) => {
-                        setConfigLocal({ ...configLocal, colorFondo: nuevoColor });
+                      abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
+                        actualizarConfigLocal({
+                          key: componente,
+                          propiedad: 'colorFondo',
+                          valor: nuevoColor
+                        })
                       }, {
                         vertical: "abajo",
                         horizontal: "izquierda"
