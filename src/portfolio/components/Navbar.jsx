@@ -1,5 +1,5 @@
 import { SelectorColor } from "./SelectorColor";
-import { useSelectorColor } from '../../hooks';
+import { useSelectorColor, usePortfolioStore } from '../../hooks';
 
 export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
 
@@ -14,6 +14,8 @@ export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
       cerrarSelectorColor,
       manejarCambioColor,
     } = useSelectorColor();
+
+  const {actualizarConfigLocal} = usePortfolioStore();
 
   const modulos = modulosOrden
   .map((key) => {
@@ -44,7 +46,11 @@ export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
             <button 
               onClick={(e) =>
                 abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
-                  setConfigLocal({ ...config, colorTexto: nuevoColor });
+                  actualizarConfigLocal({
+                    key: componente,
+                    propiedad: 'colorTexto',
+                    valor: nuevoColor,
+                  });
                 }, {
                   vertical: "abajo",
                   horizontal: "izquierda"
@@ -63,7 +69,11 @@ export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
         <button 
           onClick={(e) =>
                       abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
-                        setConfigLocal({ ...config, colorFondo: nuevoColor });
+                        actualizarConfigLocal({
+                          key: componente,
+                          propiedad: 'colorFondo',
+                          valor: nuevoColor,
+                        });
                       }, {
                         vertical: "abajo",
                         horizontal: "izquierda"

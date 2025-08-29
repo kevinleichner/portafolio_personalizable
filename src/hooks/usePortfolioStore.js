@@ -6,6 +6,7 @@ import {
   desactivarModulo,
   actualizarOrden,
   actualizarConfigLocal,
+  guardarCambios,
 } from '../store';
 
 export const usePortfolioStore = () => {
@@ -27,5 +28,6 @@ export const usePortfolioStore = () => {
     desactivarModuloPorKey: (key) => dispatch(desactivarModulo(key)),
     cambiarOrden: (nuevoOrden) => dispatch(actualizarOrden(nuevoOrden)),
     actualizarConfigLocal: (nuevaConfigLocal) => dispatch(actualizarConfigLocal(nuevaConfigLocal)),
+    guardarCambios: (cambios) => dispatch(guardarCambios(cambios)),
   };
 };

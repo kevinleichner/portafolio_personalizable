@@ -5,7 +5,7 @@ const MODULOS_PERMITIDOS = ['conocimientos', 'experiencia', 'proyectos', 'contac
 
 export const PortfolioPage = () => {
   const { estado } = useAuthStore();
-  const { edicion, modulosOrden, modulosActivos, configLocal } = usePortfolioStore();
+  const { edicion, modulosOrden, modulosActivos, configLocal, hayCambios } = usePortfolioStore();
 
   const finalOrden = modulosOrden.filter(key => modulosActivos[key]);
 
@@ -20,7 +20,11 @@ export const PortfolioPage = () => {
 
   return (
     <>
-      {estado === 'logeado' && <AdminNavbar />}
+      {estado === 'logeado' 
+        && <AdminNavbar 
+            editar={edicion}
+            hayCambios={hayCambios}
+          />}
 
       <Navbar 
         config={configLocal.navbar}

@@ -38,13 +38,17 @@ export const portfolioSlice = createSlice({
       state.hayCambios = true;
       state.mensajeError = undefined;
     },
-    actualizarConfigLocal: (state, {payload}) => {
-      
+    actualizarConfigLocal: (state, {payload}) => {     
       payload.propiedad != null 
       ? state.configLocal[payload.key][payload.propiedad] = payload.valor 
       : state.configLocal[payload.key] = payload.valor
 
       state.hayCambios = true;
+      state.mensajeError = undefined;
+    },
+    guardarCambios: (state, {payload}) => {
+      console.log("Cambios guardados:")
+      state.hayCambios = false;
       state.mensajeError = undefined;
     },
     limpiarMensajeErrorPortafolio: (state) => {
@@ -53,4 +57,4 @@ export const portfolioSlice = createSlice({
   },
 });
 
-export const { habilitarEdicion, deshabilitarEdicion, limpiarMensajeErrorPortafolio, activarModulo, desactivarModulo, actualizarOrden, actualizarConfigLocal } = portfolioSlice.actions;
+export const { habilitarEdicion, deshabilitarEdicion, limpiarMensajeErrorPortafolio, activarModulo, desactivarModulo, actualizarOrden, actualizarConfigLocal, guardarCambios } = portfolioSlice.actions;

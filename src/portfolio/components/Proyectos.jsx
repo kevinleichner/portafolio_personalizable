@@ -208,7 +208,7 @@ export const Proyectos = ({config, editar}) => {
     nuevosProyectos[indiceProyectoActivo] = nuevoProyecto;
 
     actualizarConfigLocal({
-      key: 'proyectos',
+      key: componente,
       propiedad: 'proyectos',
       valor: nuevosProyectos,
     });
