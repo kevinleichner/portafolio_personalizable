@@ -33,8 +33,8 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
     <div className="relative w-full">
       <div
         ref={scrollRef}
-        className={`overflow-x-auto flex gap-4 snap-x snap-mandatory scroll-smooth hide-scrollbar 
-                    pt-6 pb-3 rounded-t-sm
+        className={`overflow-x-auto flex gap-2 sm:gap-4 snap-x snap-mandatory scroll-smooth hide-scrollbar 
+                    pt-6 pb-3 rounded-t-sm h-auto
                     bg-[${colorFondo}]`}
       >
         {imagenes.map((img, i) => (
@@ -46,7 +46,7 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
             <img
               src={img.url}
               alt={`img-${i}`}
-              className="object-cover h-70 rounded-sm"
+              className="object-cover h-30 sm:h-50 md:h-70 rounded-sm"
             />
 
             {editar && (
@@ -82,7 +82,7 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
           <div className="relative snap-center flex-shrink-0 mr-[10%]">
             <button
               onClick={agregarImagenCarrusel}
-              className="h-70 w-35 bg-white rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 border-2 border-dashed border-gray-400"
+              className="h-50 md:h-70 w-35 bg-white rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 border-2 border-dashed border-gray-400"
             >
               <i className="fa-solid fa-plus text-3xl text-gray-600" />
             </button>

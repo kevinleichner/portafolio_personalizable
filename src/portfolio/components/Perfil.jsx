@@ -83,8 +83,7 @@ export const Perfil = ({ config, editar }) => {
         icono: "fa-instagram",
         url: "https://",
         colorIcono: "#000000",
-        colorFondo: "#ffffff",
-        id: Math.random()
+        colorFondo: "#ffffff"
       };
       const nuevasRedesSociales = [...config.redesSociales, nuevaRed]
 
@@ -95,10 +94,10 @@ export const Perfil = ({ config, editar }) => {
       })
   };
 
-  const eliminarRedSocial = (i) => {
+  const eliminarRedSocial = (indice) => {
       if (config.redesSociales.length <= 0) return config; // No elimina si no hay ninguna
 
-      const nuevasRedesSociales = config.redesSociales.filter(r => r.id !== i)
+      const nuevasRedesSociales = config.redesSociales.filter((_, i) => i !== indice);
 
       actualizarConfigLocal({
         key: componente,
@@ -341,7 +340,7 @@ export const Perfil = ({ config, editar }) => {
 
                       <button
                         onClick={(e) =>
-                          eliminarRedSocial(r.id)
+                          eliminarRedSocial(indice)
                         }
                         className="flex items-center absolute -bottom-6 left-1/2 -translate-x-[-20%] cursor-pointer
                                   bg-white p-1 rounded-full hover:bg-pink-400

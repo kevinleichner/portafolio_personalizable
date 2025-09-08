@@ -17,21 +17,19 @@ export const MODULOS_CONFIG = {
                 icono: "fa-facebook",              
                 url : "facebook.com",
                 colorIcono: "#000",
-                colorFondo: "#ffff",
-                id: 1
+                colorFondo: "#ffff"
             },
             {
                 icono: "fa-facebook",              
                 url : "facebook.com",
                 colorIcono: "#000",
-                colorFondo: "#ffff",
-                id: 2
-            },{
+                colorFondo: "#ffff"
+            },
+            {
                 icono: "fa-facebook",              
                 url : "facebook.com",
                 colorIcono: "#000",
-                colorFondo: "#ffff",
-                id: 3
+                colorFondo: "#ffff"
             }
         ]       
     },
@@ -120,12 +118,6 @@ export const MODULOS_CONFIG = {
                 ],
                 descripcion: "Descripcion proyecto",
                 botones: [
-                    {
-                        imagen: "../img-botones/descargas.png",
-                        texto: "Descargar",
-                        color: "#07e71b",
-                        url: "facebook.com"
-                    },
                     {
                         imagen: "../img-botones/descargas.png",
                         texto: "Descargar",
