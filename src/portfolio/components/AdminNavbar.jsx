@@ -49,12 +49,16 @@ export const AdminNavbar = ({editar, hayCambios}) => {
                         sm:text-base'>
             <p><span className={`${anchoPantalla < 400 && 'hidden'}`}>Comparte tu portafolio: </span>www.paginaweb/</p>
             <span
-                className="bg-white p-2 text-black rounded-sm outline-none"
+                className="bg-white p-2 text-black rounded-sm outline-none max-w-30 lg:max-w-50 whitespace-nowrap overflow-x-auto
+                                    overflow-y-hidden hide-scrollbar"
                 role="textbox"
                 spellCheck="false"
                 contentEditable={editar}
                 suppressContentEditableWarning={true}
-            >
+                onBlur={(e) => {
+                  e.currentTarget.scrollTo({ left: 0 });
+                }}
+              >
                 kevinleichner
             </span>
             <i className="fa-solid fa-copy fa-lg cursor-pointer" />

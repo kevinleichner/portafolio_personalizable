@@ -363,7 +363,7 @@ export const Perfil = ({ config, editar }) => {
                           contentEditable={editar}
                           suppressContentEditableWarning={true}
                           onBlur={(e) => {urlRefs.current[indice]?.scrollTo({ left: 0 });
-                                          actualizarUrlRedSocial(indice, e.currentTarget.textContent);}}
+                          actualizarUrlRedSocial(indice, e.currentTarget.textContent);}}
                         >
                           {r.url}
                         </p>
