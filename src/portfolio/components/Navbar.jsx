@@ -36,10 +36,18 @@ export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
 
       {modulos.map((m, indice, list) => (
         <div key={indice} className="sm:inline-flex flex items-center justify-center gap-2">
-          <a className={`text-sm text-[${config.colorTexto}]
+          <a
+            className={`text-sm text-[${config.colorTexto}] cursor-pointer
                         hover:underline hover:underline-offset-8 hover:decoration-4
-                        lg:text-md`}                        
-              href={`#${m.id}`}>
+                        lg:text-md`}
+            onClick={(e) => {
+              e.preventDefault();
+              const section = document.getElementById(m.id);
+              if (section) {
+                section.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
             {m.titulo}
           </a>
           {editar && indice === list.length - 1 &&(
