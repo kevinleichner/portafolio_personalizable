@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAnchoPantalla, usePortfolioStore } from '../../hooks';
 
-export const AdminNavbar = ({editar, hayCambios}) => {
+export const AdminNavbar = ({editar, hayCambios, config}) => {
 
-  const {empezarEdicion, terminarEdicion, guardarCambios} = usePortfolioStore();
+  const {empezarEdicion, terminarEdicion, guardarCambios, actualizarConfigGeneralLocal} = usePortfolioStore();
 
   const [activo, setActivo] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false); //solo para evitar llamadas a terminarEdicion cuando cambia de tamaño
 
   const [guardado, setGuardado] = useState(false);
+  const [copiado, setCopiado] = useState(false);
 
   const anchoPantalla = useAnchoPantalla();
+
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const nuevoModoEdicion = activo && anchoPantalla > 640;
@@ -27,12 +30,36 @@ export const AdminNavbar = ({editar, hayCambios}) => {
     }
   }, [hayCambios]);
 
+  const actualizarUrl = (nuevaUrl) => {
+      actualizarConfigGeneralLocal({
+        key: 'urlUsuario',
+        valor: nuevaUrl
+      })
+  }
+
   const manejarGuardado = async () => {
     await guardarCambios();
     
     setGuardado(true);
 
     setTimeout(() => setGuardado(false), 2000);
+  };
+
+  const copiarURL = () => {
+    const base = config.urlBase;
+    const seccion = inputRef.current?.value || "";
+    const urlCompleta = base + seccion;
+
+    navigator.clipboard.writeText(urlCompleta)
+      .then(() => {
+        console.log("URL copiada:", urlCompleta);
+      })
+      .catch(err => {
+        console.error("Error al copiar: ", err);
+      });
+
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 1000);
   };
 
   return (
@@ -45,23 +72,32 @@ export const AdminNavbar = ({editar, hayCambios}) => {
             Administrador
         </h2>
 
-        <div className='flex items-center gap-2 text-xs
-                        sm:text-base'>
-            <p><span className={`${anchoPantalla < 400 && 'hidden'}`}>Comparte tu portafolio: </span>www.paginaweb/</p>
-            <span
-                className="bg-white p-2 text-black rounded-sm outline-none max-w-30 lg:max-w-50 whitespace-nowrap overflow-x-auto
-                                    overflow-y-hidden hide-scrollbar"
-                role="textbox"
-                spellCheck="false"
-                contentEditable={editar}
-                suppressContentEditableWarning={true}
-                onBlur={(e) => {
-                  e.currentTarget.scrollTo({ left: 0 });
-                }}
-              >
-                kevinleichner
-            </span>
-            <i className="fa-solid fa-copy fa-lg cursor-pointer" />
+        <div className='flex items-center gap-2 text-xs sm:text-base'>
+          <p>
+           {config.urlBase}
+          </p>
+
+          <input
+            ref={inputRef}
+            type="text"
+            className="bg-white p-2 text-black rounded-sm outline-none max-w-30 lg:max-w-40 whitespace-nowrap overflow-x-auto
+                      overflow-y-hidden hide-scrollbar"
+            defaultValue={config.urlUsuario}
+            spellCheck="false"
+            readOnly={!editar}
+            pattern="[a-zA-Z0-9_-]+"
+            title="Solo letras, números, guiones y guiones bajos. Sin espacios."
+            onBlur={(e) => {
+              actualizarUrl(e.currentTarget.value);
+              e.currentTarget.scrollTo({ left: 0 });              
+            }}
+            onInput={(e) => {
+              e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z0-9_-]/g, '');
+            }}
+          />
+
+          <i className={`${ copiado ? 'fa-check text-green-500' : 'fa-copy cursor-pointer hover:text-pink-400'} m-1 fa-solid fa-lg`}
+              onClick={copiarURL} />
         </div>
 
         <div className='flex gap-4'>

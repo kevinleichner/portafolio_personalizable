@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { SelectorColor } from "./SelectorColor";
 import { SelectorIcono } from "./SelectorIcono";
 import { useSelectorColor, useSelectorIcono, usePortfolioStore } from '../../hooks';

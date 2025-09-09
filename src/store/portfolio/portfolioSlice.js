@@ -9,6 +9,7 @@ export const portfolioSlice = createSlice({
     modulosActivos: {},
     modulosOrden: [],
     configLocal: {},
+    configGeneralLocal: {},
   },
   reducers: {
     habilitarEdicion: (state) => {
@@ -39,12 +40,24 @@ export const portfolioSlice = createSlice({
       state.mensajeError = undefined;
     },
     actualizarConfigLocal: (state, {payload}) => {     
-      payload.propiedad != null 
-      ? state.configLocal[payload.key][payload.propiedad] = payload.valor 
-      : state.configLocal[payload.key] = payload.valor
+      if (state.configLocal[payload.key] !== payload.valor && state.configLocal[payload.key][payload.propiedad] !== payload.valor)
+      {
+        payload.propiedad != null 
+        ? state.configLocal[payload.key][payload.propiedad] = payload.valor 
+        : state.configLocal[payload.key] = payload.valor
 
-      state.hayCambios = true;
-      state.mensajeError = undefined;
+        state.hayCambios = true;
+        state.mensajeError = undefined;
+      }
+    },
+    actualizarConfigGeneralLocal: (state, {payload}) => {
+      if (state.configGeneralLocal[payload.key] !== payload.valor) 
+      {
+        state.configGeneralLocal[payload.key] = payload.valor
+
+        state.hayCambios = true;
+        state.mensajeError = undefined;
+      }
     },
     guardarCambios: (state, {payload}) => {
       console.log("Cambios guardados:")
@@ -57,4 +70,4 @@ export const portfolioSlice = createSlice({
   },
 });
 
-export const { habilitarEdicion, deshabilitarEdicion, limpiarMensajeErrorPortafolio, activarModulo, desactivarModulo, actualizarOrden, actualizarConfigLocal, guardarCambios } = portfolioSlice.actions;
+export const { habilitarEdicion, deshabilitarEdicion, limpiarMensajeErrorPortafolio, activarModulo, desactivarModulo, actualizarOrden, actualizarConfigLocal, actualizarConfigGeneralLocal, guardarCambios } = portfolioSlice.actions;

@@ -1,8 +1,9 @@
 import { MODULOS_CONFIG } from '../config/modulos';
+import { CONFIG_GENERAL } from '../config/general';
 
 const MODULOS_PERMITIDOS = ['conocimientos', 'experiencia', 'proyectos', 'contacto'];
 
-const configuracionInicial = (config) => {
+const configuracionModulosInicial = (config) => {
   const activos = {};
   Object.entries(config).forEach(([key, mod]) => {
     if (MODULOS_PERMITIDOS.includes(key)) activos[key] = !!mod.activo;
@@ -16,7 +17,12 @@ const configuracionInicial = (config) => {
   return { modulosActivos: activos, modulosOrden: orden, configLocal: config };
 };
 
+const configuracionGeneralInicial = (config) => {
+  return { configGeneralLocal: config };
+};
+
 export const preloadedPortfolio = {
-  ...configuracionInicial(MODULOS_CONFIG)  
+  ...configuracionModulosInicial(MODULOS_CONFIG),
+  ...configuracionGeneralInicial(CONFIG_GENERAL)
 };
 

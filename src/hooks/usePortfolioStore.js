@@ -6,12 +6,13 @@ import {
   desactivarModulo,
   actualizarOrden,
   actualizarConfigLocal,
+  actualizarConfigGeneralLocal,
   guardarCambios,
 } from '../store';
 
 export const usePortfolioStore = () => {
   const dispatch = useDispatch();
-  const { edicion, hayCambios, mensajeError, modulosOrden, modulosActivos, configLocal } = useSelector(state => state.portfolio);
+  const { edicion, hayCambios, mensajeError, modulosOrden, modulosActivos, configLocal, configGeneralLocal } = useSelector(state => state.portfolio);
 
   return {
     edicion,
@@ -20,6 +21,7 @@ export const usePortfolioStore = () => {
     modulosOrden,
     modulosActivos,
     configLocal,
+    configGeneralLocal,
 
     empezarEdicion: () => dispatch(habilitarEdicion()),
     terminarEdicion: () => dispatch(deshabilitarEdicion()),
@@ -28,6 +30,7 @@ export const usePortfolioStore = () => {
     desactivarModuloPorKey: (key) => dispatch(desactivarModulo(key)),
     cambiarOrden: (nuevoOrden) => dispatch(actualizarOrden(nuevoOrden)),
     actualizarConfigLocal: (nuevaConfigLocal) => dispatch(actualizarConfigLocal(nuevaConfigLocal)),
+    actualizarConfigGeneralLocal: (nuevaConfigGeneralLocal) => dispatch(actualizarConfigGeneralLocal(nuevaConfigGeneralLocal)),
     guardarCambios: (cambios) => dispatch(guardarCambios(cambios)),
   };
 };
