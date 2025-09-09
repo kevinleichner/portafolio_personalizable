@@ -40,14 +40,18 @@ export const portfolioSlice = createSlice({
       state.mensajeError = undefined;
     },
     actualizarConfigLocal: (state, {payload}) => {     
-      if (state.configLocal[payload.key] !== payload.valor && state.configLocal[payload.key][payload.propiedad] !== payload.valor)
-      {
-        payload.propiedad != null 
-        ? state.configLocal[payload.key][payload.propiedad] = payload.valor 
-        : state.configLocal[payload.key] = payload.valor
-
-        state.hayCambios = true;
-        state.mensajeError = undefined;
+      if (payload.propiedad != null) {
+        if (state.configLocal[payload.key][payload.propiedad] !== payload.valor) {
+          state.configLocal[payload.key][payload.propiedad] = payload.valor;
+          state.hayCambios = true;
+          state.mensajeError = undefined;
+        }
+      } else {
+        if (state.configLocal[payload.key] !== payload.valor) {
+          state.configLocal[payload.key] = payload.valor;
+          state.hayCambios = true;
+          state.mensajeError = undefined;
+        }
       }
     },
     actualizarConfigGeneralLocal: (state, {payload}) => {
