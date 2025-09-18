@@ -3,19 +3,19 @@ import { useAuthStore, useForm } from '../../hooks';
 import Swal from 'sweetalert2';
 
 const camposLogeo = {
-    emailLogeo: '',
+    usuarioLogeo: '',
     claveLogeo: '',
 }
 
 const camposRegistro = {
-    nombreRegistro: '',
-    emailRegistro: '',
+    usuarioRegistro: '',
     claveRegistro: '',
     segundaClaveRegistro: '',
+    codigoRegistro: '',
 }
 
 const camposRecuperar = {
-    emailRecuperar: '',
+    usuarioRecuperar: '',
     codigoRecuperar: '',
     nuevaClaveRecuperar: '',
     segundaNuevaClaveRecuperar: '',
@@ -24,33 +24,47 @@ const camposRecuperar = {
 export const LoginPage = () => {
     const [registro, setRegistro] = useState(false);
     const [recuperar, setRecuperar] = useState(false);
-    const { empezarLogeo, mensajeError, empezarRegistro } = useAuthStore();
+    const { empezarLogeo, mensajeError, empezarRegistro, empezarRecuperacion } = useAuthStore();
 
-    const {emailLogeo, claveLogeo, cambiarInput:cambiarInputLogeo } = useForm(camposLogeo);
-    const {nombreRegistro, emailRegistro, claveRegistro, segundaClaveRegistro, cambiarInput:cambiarInputRegistro } = useForm(camposRegistro);
-    const {emailRecuperar, codigoRecuperar, nuevaClaveRecuperar, segundaNuevaClaveRecuperar } = useForm(camposRecuperar);
+    const {usuarioLogeo, claveLogeo, cambiarInput:cambiarInputLogeo } = useForm(camposLogeo);
+    const {usuarioRegistro, codigoRegistro, claveRegistro, segundaClaveRegistro, cambiarInput:cambiarInputRegistro } = useForm(camposRegistro);
+    const {usuarioRecuperar, codigoRecuperar, nuevaClaveRecuperar, segundaNuevaClaveRecuperar, cambiarInput:cambiarInputRecuperar } = useForm(camposRecuperar);
 
     const logeoSubmit = (event) => {
         event.preventDefault();
-        empezarLogeo({email: emailLogeo, clave: claveLogeo})
+        empezarLogeo({usuario: usuarioLogeo, clave: claveLogeo})
     }
 
     const registroSubmit = (event) => {
         event.preventDefault();
         if (claveRegistro !== segundaClaveRegistro ) {
-            Swal.fire('Error en registro', 'Contraseñas no son iguales', 'error');
+            Swal.fire('Problema en registro', 'Las contraseñas no son iguales. Verifique.', 'warning');
             return;
         }
-        empezarRegistro({nombre: nombreRegistro, email: emailRegistro, clave: claveRegistro});
+        if (codigoRegistro.length < 4) {
+            Swal.fire('Problema en registro', 'El código de seguridad debe tener min. 4 dígitos. Verifique.', 'warning');
+            return;
+        }
+        empezarRegistro({usuario: usuarioRegistro, codigo: codigoRegistro, clave: claveRegistro});
     }
 
     const recuperarSubmit = (event) => {
-
+        event.preventDefault();
+        if (nuevaClaveRecuperar !== segundaNuevaClaveRecuperar ) {
+            Swal.fire('Problema al recuperar', 'Las contraseñas no son iguales', 'warning');
+            return;
+        }
+        if (codigoRecuperar.length < 4) {
+            Swal.fire('Problema al recuperar', 'El código de seguridad debe tener min. 4 dígitos. Verifique.', 'warning');
+            return;
+        }
+        //MOSTRAR ERROR SI EL USUARIO Y EL CODIGO DE SEGURIDAD NO COINCIDEN
+        empezarRecuperacion({usuario: usuarioRecuperar, codigo: codigoRecuperar, nuevaClave: nuevaClaveRecuperar});
     }
 
     useEffect(() => {
         if ( mensajeError !== undefined ) {
-          Swal.fire('Error en la autenticación', errorMessage, 'error');
+          Swal.fire('Error en la autenticación', mensajeError, 'error');
         }
       
       }, [mensajeError])
@@ -59,10 +73,10 @@ export const LoginPage = () => {
   return (
     <div  className="flex items-center gap-5 justify-around flex-col
                     bg-[#7eb77f]
-                    h-[100vh]
+                    md:h-[100vh]
                     md:gap-0 md:flex-row md:bg-linear-to-r md:from-white md:from-54% md:to-[#7eb77f] md:to-46%
                     xl:from-57% xl:to-43%">
-        <div className="text-center order-2
+        <div className="text-center order-2 
                         p-4 h-[50%] w-[100%]
                         md:p-0 md:h-[auto] md:w-[50%] md:order-1">
             <h1 className="text-xl 
@@ -106,43 +120,62 @@ export const LoginPage = () => {
                                         text-sm
                                         p-2 w-[100%] 
                                         sm:text-md" 
-                            type="email" 
-                            placeholder="Correo"
-                            name="emailLogeo"
-                            value={registro && !recuperar ? emailRegistro : recuperar ? emailRecuperar : emailLogeo}
+                            type="text" 
+                            placeholder="Usuario"
+                            name={registro && !recuperar ? "usuarioRegistro" : recuperar ? "usuarioRecuperar" : "usuarioLogeo"}
+                            value={registro && !recuperar ? usuarioRegistro : recuperar ? usuarioRecuperar : usuarioLogeo}
                             onChange={registro ? cambiarInputRegistro : cambiarInputLogeo}
-                            required/>
-                    <label className={`self-start text-left 
-                                       text-[12px]
-                                       ${recuperar ? "" : "hidden"}`}>
-                        <i className="fa-solid fa-circle-info 
-                                       mr-1"
-                        />
-                        Si tu correo pertenece a una cuenta existente, te llegarán las instrucciones.
-                    </label>
+                            required/>                   
                 </div>                       
                 <input className={`border-2 outline-none
                                     text-sm
                                     p-2 w-[100%] 
-                                    sm:text-md
-                                    ${recuperar ? "hidden" : ""}`} 
+                                    sm:text-md`} 
                         type="password"
-                        placeholder="Contraseña" 
-                        name="claveLogeo"
-                        value={registro ? claveRegistro : claveLogeo}
-                        onChange={registro ? cambiarInputRegistro : cambiarInputLogeo}
+                        placeholder={recuperar ? "Nueva contraseña" :"Contraseña"} 
+                        name={registro && !recuperar ? "claveRegistro" : recuperar ? "nuevaClaveRecuperar" : "claveLogeo"}
+                        value={registro && !recuperar ? claveRegistro : recuperar ? nuevaClaveRecuperar : claveLogeo}
+                        onChange={registro && !recuperar ? cambiarInputRegistro : recuperar ? cambiarInputRecuperar : cambiarInputLogeo}
                         required/>
-                <input className={`border-2 outline-none 
-                                    text-sm
-                                    p-2 w-[100%] 
-                                    sm:text-md
-                                    ${registro && !recuperar ? "" : "hidden"}`} 
-                        type="password"
-                        placeholder="Repetir contraseña" 
-                        name="claveLogeo"
-                        value={segundaClaveRegistro}
-                        onChange={cambiarInputRegistro}
-                        required/>
+                {(registro || recuperar) && (
+                    <div className='flex flex-col gap-2 w-full'>                  
+                        <input className={`border-2 outline-none 
+                                            text-sm
+                                            p-2 w-[100%] 
+                                            sm:text-md}`}
+                                type="password"
+                                placeholder={recuperar ? "Repetir nueva contraseña" : "Repetir contraseña"} 
+                                name={registro ? "segundaClaveRegistro" : "segundaNuevaClaveRecuperar"}
+                                value={registro ? segundaClaveRegistro : segundaNuevaClaveRecuperar}
+                                onChange={registro ? cambiarInputRegistro : cambiarInputRecuperar}
+                                required/>                                
+                        <input className={`border-2 outline-none
+                                            text-sm
+                                            p-2 w-[100%] 
+                                            sm:text-md
+                                            ${registro || recuperar ? "" : "hidden"}`} 
+                                type="text"
+                                placeholder="Código de seguridad" 
+                                name={registro ? "segundaClaveRegistro" : "segundaNuevaClaveRecuperar"}
+                                value={registro ? segundaClaveRegistro : segundaNuevaClaveRecuperar}
+                                onChange={registro ? cambiarInputRegistro : cambiarInputRecuperar}
+                                maxLength={6}
+                                minLength={4}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/\D/g, ''); // elimina todo lo que no sea número
+                                }}
+                                required/>      
+                        <label className={`self-start text-left 
+                                        text-[12px] mt-[-7px]
+                                        ${registro && !recuperar ? "" : "hidden"}`}
+                        >
+                            <i className="fa-solid fa-circle-info 
+                                            mr-1"
+                            />
+                            Este código servirá para recuperar tu contraseña en caso de olvidarla.
+                        </label> 
+                    </div>
+                )}           
                 <input className="self-end
                                     border-2
                                     text-sm
@@ -152,7 +185,7 @@ export const LoginPage = () => {
                                     xl:w-[25%] 
                                     hover:cursor-pointer hover:bg-[#7eb77f] hover:text-white hover:border-black" 
                         type="submit" 
-                        value={registro && !recuperar ? "Registrar" : recuperar ? "Enviar" : "Ingresar"} />
+                        value={registro && !recuperar ? "Registrar" : recuperar ? "Recuperar" : "Ingresar"} />                
             </form>
             <div className="text-sm 
                             sm:text-md 
@@ -185,18 +218,6 @@ export const LoginPage = () => {
                 </a>
             </div>
         </div>
-        {/* RECUPERAR CONTRASEÑA */}
-        {/* <div className={`${registro ? "hidden" : ""} flex flex-col gap-10 text-center decoration-none w-[35%] bg-white px-8 py-15 shadow-xl font-sans`}>
-            <h2 className="text-4xl">Recuperar Contraseña</h2>          
-            <form className="flex flex-col gap-2 items-center">
-                <p>Si tu correo pertenece a una cuenta existente, te llegarán las instrucciones.</p>
-                <input className="border-2 p-2 w-[100%] outline-none" type="email" placeholder="Correo" required/>
-                <input className="border-2 p-2 w-[25%] self-end hover:cursor-pointer hover:bg-[#7eb77f] hover:text-white hover:border-black" type="submit" value="Enviar" />
-            </form>
-            <div>
-                <p>Volver para <a className="text-[#7eb77f] font-bold hover:underline" href="#">Iniciar Sesión</a></p>
-            </div>
-        </div> */}
     </div>
   )
 }

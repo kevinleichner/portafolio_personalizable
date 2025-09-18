@@ -5,12 +5,12 @@ export const useAuthStore = () => {
   const { estado, usuario, mensajeError } = useSelector ( state => state.auth );
   const dispatch = useDispatch();
 
-  const empezarLogeo = async({ email, clave }) => {
+  const empezarLogeo = async({ usuario, clave }) => {
     dispatch( Comprobar() );
 
     try {
         
-        //const {data} = await calendarApi.post('/auth',{email, clave});
+        //const {data} = await calendarApi.post('/auth',{usuario, clave});
         //localStorage.setItem('token', data.token);
         //localStorage.setItem('token-init-date', new Date().getTime() );
         dispatch( Logear({nombre: 'Kevin', uid: '1234567'}) );
@@ -23,12 +23,12 @@ export const useAuthStore = () => {
     }
   }
 
-  const empezarRegistro = async({ nombre, email, clave }) => {
+  const empezarRegistro = async({ usuario, codigo, clave }) => {
     dispatch( onChecking() );
 
     try {
         
-        // const {data} = await calendarApi.post('/auth/new',{nombre, email, clave});
+        // const {data} = await calendarApi.post('/auth/new',{usuario, codigo, clave});
         // localStorage.setItem('token', data.token);
         // localStorage.setItem('token-init-date', new Date().getTime() );
         dispatch( Logear({nombre: 'Kevin', uid: '123456'}) );
@@ -36,6 +36,19 @@ export const useAuthStore = () => {
     } catch (error) {
         //dispatch( Deslogear(error.response.data?.msg || Object.values(error.response.data.errors)[0].msg)); //Lo primero es los errores que manda el res.status(400).json y lo segundo es lo que manda el express-validator
         dispatch( Deslogear('Error al registrar: ' + error));
+        setTimeout(() => {
+            dispatch( limpiarMensajeErrorAuth() );
+        }, 10);
+    }
+  }
+
+  const empezarRecuperacion = async({usuario, codigo, nuevaClave}) => {
+    try {
+        
+        //VER QUE HACER
+
+    } catch (error) {
+        dispatch( Deslogear('Error al recuperar: ' + error));
         setTimeout(() => {
             dispatch( limpiarMensajeErrorAuth() );
         }, 10);
@@ -71,6 +84,7 @@ export const useAuthStore = () => {
     //*Métodos
     empezarLogeo,
     empezarRegistro,
+    empezarRecuperacion,
     // checkAuthToken,
     empezarDeslogeo
   }
