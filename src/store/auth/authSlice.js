@@ -3,31 +3,47 @@ import { createSlice } from '@reduxjs/toolkit';
 export const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        estado: 'deslogeado',//'pendiente', //'logeado', 'deslogeado'
+        estado: 'logeado',//'pendiente', //'logeado', 'deslogeado'     
         usuario: {},
         mensajeError: undefined,
+        mensajeExitoso: undefined,
 
     },
     reducers: {
-        Comprobar: (state) => {
+        comprobar: (state) => {
             state.estado = 'pendiente';
             state.usuario = {};
             state.mensajeError = undefined;
         },
-        Logear: (state, {payload}) => {
+        logear: (state, {payload}) => {
             state.estado = 'logeado';
             state.usuario = payload;
             state.mensajeError = undefined;
         },
-        Deslogear: (state, { payload }) => {
+        deslogear: (state, { payload }) => {
             state.estado = 'deslogeado';
             state.usuario = {};
             state.mensajeError = payload;
         },
+        registrar: (state, { payload }) => {
+            state.estado = 'deslogeado';
+            state.usuario = {};
+            state.mensajeError = undefined;
+            state.mensajeExitoso = payload;
+        },
+        restablecer: (state, { payload }) => {
+            state.estado = 'deslogeado';
+            state.usuario = {};
+            state.mensajeError = undefined;
+            state.mensajeExitoso = payload;
+        },
         limpiarMensajeErrorAuth: ( state ) => {
             state.mensajeError = undefined;
+        },
+        limpiarMensajeExitosoAuth: ( state ) => {
+            state.mensajeExitoso = undefined;
         }
     }
 });
 
-export const { Comprobar, Logear, Deslogear, limpiarMensajeErrorAuth } = authSlice.actions;
+export const { comprobar, logear, deslogear, restablecer, registrar, limpiarMensajeErrorAuth, limpiarMensajeExitosoAuth } = authSlice.actions;

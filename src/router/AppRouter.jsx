@@ -1,16 +1,17 @@
 import { Route, Routes, Navigate} from 'react-router-dom';
 import { PortfolioPage } from '../portfolio';
 import { LoginPage } from '../auth';
-import { useAuthStore } from '../hooks';
+import { useAuthStore, usePortfolioStore } from '../hooks';
 
 export const AppRouter = () => {
 
-    const  {estado} = useAuthStore();
-
-    return (           
+    const  {estado, usuario} = useAuthStore();
+    const {configGeneralLocal} = usePortfolioStore();
+   
+    return (         
         <Routes>
             {
-                (estado == 'logeado')
+                (estado == 'logeado' && Object.keys(usuario).length !== 0)
                 ? (
                     <>
                         <Route path="/" element={<PortfolioPage/>} />
@@ -21,6 +22,8 @@ export const AppRouter = () => {
                     <>
                         <Route path="/login/*" element={<LoginPage/>} />
                         <Route path="/*" element={ <Navigate to="/login"/> }/>
+                        {/* CAMBIAR ESTO POR LA BASE DE DATOS */}
+                        <Route path={`/${configGeneralLocal.urlUsuario}`} element={<PortfolioPage/>} /> 
                     </>
                 )
             }                        

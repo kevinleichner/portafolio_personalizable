@@ -1,22 +1,22 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { limpiarMensajeErrorAuth, Comprobar, Logear, Deslogear } from '../store';
+import { limpiarMensajeErrorAuth, limpiarMensajeExitosoAuth, comprobar, logear, deslogear, registrar, restablecer } from '../store';
+import { portafolioApi } from '../api';
 
 export const useAuthStore = () => {
-  const { estado, usuario, mensajeError } = useSelector ( state => state.auth );
+  const { estado, usuario, mensajeError, mensajeExitoso } = useSelector ( state => state.auth );
   const dispatch = useDispatch();
 
   const empezarLogeo = async({ usuario, clave }) => {
-    dispatch( Comprobar() );
+    dispatch( comprobar() );
 
     try {
-        
-        //const {data} = await calendarApi.post('/auth',{usuario, clave});
-        //localStorage.setItem('token', data.token);
-        //localStorage.setItem('token-init-date', new Date().getTime() );
-        dispatch( Logear({nombre: 'Kevin', uid: '1234567'}) );
+        const {data} = await portafolioApi.post('/auth/iniciar',{usuario, clave});
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('token-init-date', new Date().getTime() );
+        dispatch( logear({usuario: data.usuario, uid: data.uid}) )
 
     } catch (error) {
-        dispatch( Deslogear('Credenciales incorrectas.'));
+        dispatch( deslogear('Credenciales incorrectas.'));
         setTimeout(() => {
             dispatch( limpiarMensajeErrorAuth() );
         }, 10);
@@ -24,18 +24,20 @@ export const useAuthStore = () => {
   }
 
   const empezarRegistro = async({ usuario, codigo, clave }) => {
-    dispatch( onChecking() );
+    dispatch( comprobar() );
 
     try {
         
-        // const {data} = await calendarApi.post('/auth/new',{usuario, codigo, clave});
-        // localStorage.setItem('token', data.token);
-        // localStorage.setItem('token-init-date', new Date().getTime() );
-        dispatch( Logear({nombre: 'Kevin', uid: '123456'}) );
+        const {data} = await portafolioApi.post('/auth/crear',{usuario, clave, codigoSeguridad:codigo});
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('token-init-date', new Date().getTime() );
+        dispatch( registrar(data?.msg) );
+        setTimeout(() => {
+            dispatch( limpiarMensajeExitosoAuth() );
+        }, 10);
 
     } catch (error) {
-        //dispatch( Deslogear(error.response.data?.msg || Object.values(error.response.data.errors)[0].msg)); //Lo primero es los errores que manda el res.status(400).json y lo segundo es lo que manda el express-validator
-        dispatch( Deslogear('Error al registrar: ' + error));
+        dispatch( deslogear(error.response.data?.msg || Object.values(error.response.data.errores)[0].msg));   
         setTimeout(() => {
             dispatch( limpiarMensajeErrorAuth() );
         }, 10);
@@ -45,47 +47,54 @@ export const useAuthStore = () => {
   const empezarRecuperacion = async({usuario, codigo, nuevaClave}) => {
     try {
         
-        //VER QUE HACER
+        const {data} = await portafolioApi.put('/auth/restablecer',{usuario, nuevaClave, codigoSeguridad:codigo});
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('token-init-date', new Date().getTime() );
+        dispatch( restablecer(data?.msg) );
+        setTimeout(() => {
+            dispatch( limpiarMensajeExitosoAuth() );
+        }, 10);
 
     } catch (error) {
-        dispatch( Deslogear('Error al recuperar: ' + error));
+        dispatch( deslogear(error.response.data?.msg || Object.values(error.response.data.errores)[0].msg));
         setTimeout(() => {
             dispatch( limpiarMensajeErrorAuth() );
         }, 10);
     }
   }
 
-  // const checkAuthToken = async() => {
-  //   const token = localStorage.getItem('token');
-  //   if (!token) return dispatch( onLogout() );
-  //   try {
-  //       const  { data } = await calendarApi.get('auth/renew')
-  //       localStorage.setItem('token', data.token);
-  //       localStorage.setItem('token-init-date', new Date().getTime() );
-  //       dispatch( onLogin({name: data.name, uid: data.uid}) );
-  //   } catch (error) {
-  //       localStorage.clear();
-  //       dispatch( onLogout() );
-  //   }
-  // }
+  const validarToken = async() => {
+    const token = localStorage.getItem('token');
+    if (!token) return dispatch( deslogear() );
+    try {
+        const  { data } = await portafolioApi.get('auth/revalidar')
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('token-init-date', new Date().getTime() );
+        dispatch( logear({usuario: data.usuario, uid: data.uid}) );
+    } catch (error) {
+        localStorage.clear();
+        dispatch( deslogear() );
+    }
+  }
 
   const empezarDeslogeo = () => {
     localStorage.clear();
-    // dispatch( onLogoutCalendar() );
-    dispatch(Deslogear());
+    dispatch(deslogear());
   }
 
   return {
     //*Propiedades
     mensajeError,
+    mensajeExitoso,
     estado,
     usuario,
+
 
     //*Métodos
     empezarLogeo,
     empezarRegistro,
     empezarRecuperacion,
-    // checkAuthToken,
-    empezarDeslogeo
+    empezarDeslogeo,
+    validarToken  
   }
 }

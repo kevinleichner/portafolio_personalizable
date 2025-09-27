@@ -1,4 +1,4 @@
-import { SelectorColor } from "./SelectorColor";
+import { SelectorColor } from "../components/SelectorColor";
 import { useSelectorColor, usePortfolioStore } from '../../hooks';
 
 export const Conocimientos = ({config, editar}) => { 

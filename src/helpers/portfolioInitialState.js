@@ -21,7 +21,7 @@ const configuracionGeneralInicial = (config) => {
   return { configGeneralLocal: config };
 };
 
-export const preloadedPortfolio = {
+export const portafolioPrecargado = {
   ...configuracionModulosInicial(MODULOS_CONFIG),
   ...configuracionGeneralInicial(CONFIG_GENERAL)
 };

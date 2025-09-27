@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAnchoPantalla, usePortfolioStore } from '../../hooks';
+import { useAnchoPantalla, usePortfolioStore, useAuthStore } from '../../hooks';
 
 export const AdminNavbar = ({editar, hayCambios, config}) => {
 
   const {empezarEdicion, terminarEdicion, guardarCambios, actualizarConfigGeneralLocal} = usePortfolioStore();
+  const {empezarDeslogeo} = useAuthStore();
 
   const [activo, setActivo] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false); //solo para evitar llamadas a terminarEdicion cuando cambia de tamaño
@@ -45,6 +46,10 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
     setTimeout(() => setGuardado(false), 2000);
   };
 
+  const manejarDeslogeo = async () => {
+    await empezarDeslogeo();
+  }
+
   const copiarURL = () => {
     const base = config.urlBase;
     const seccion = inputRef.current?.value || "";
@@ -63,18 +68,64 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   };
 
   return (
-    <div className={`flex z-49 justify-center sticky top-0 items-center
+    <div className={`flex z-49 justify-between sticky top-0 items-center
                     bg-black
                     text-white font-sans font-semibold
-                    p-3
-                    sm:justify-between`}>                  
-        <h2 hidden = {anchoPantalla < 800}>
-            Administrador
-        </h2>
+                    p-3`}>    
 
+        {anchoPantalla > 640 && (        
+          <div className='flex gap-4'>
+            <button
+                onClick={() => setActivo(!activo)}
+                className={`flex items-center
+                            rounded-full
+                            w-16 h-9 p-1 
+                            cursor-pointer 
+                            transition-colors duration-300
+                            ${activo ? 'bg-blue-500' : 'bg-gray-400'}`}
+            >
+                <div
+                    className={`flex items-center justify-center
+                                bg-white rounded-full shadow-md
+                                text-sm 
+                                w-7 h-7 
+                                transform transition-transform duration-300 
+                                ${activo ? 'translate-x-7' : 'translate-x-0'}`}
+                >
+                    <i className={`fa-solid fa-pen 
+                                    ${anchoPantalla > 640 ? 'text-blue-500' : 'text-gray-500'}`} />
+                </div>
+            </button>
+
+            <button 
+              onClick={() => hayCambios && manejarGuardado()}       
+              className={`flex items-center justify-center
+                          rounded-full
+                          transition-colors duration-200
+                          ${
+                            guardado
+                              ? 'bg-green-500'
+                              : hayCambios
+                              ? 'bg-blue-500 cursor-pointer'
+                              : 'bg-gray-400'
+                          }
+                          w-9 h-9 p-1 `}
+            >
+                <i 
+                className={`${
+                            guardado
+                              ? 'fa-solid fa-circle-check'
+                              : 'fa-regular fa-floppy-disk'
+                          }`}
+                />
+            </button>                 
+          </div>              
+        )}
+
+        
         <div className='flex items-center gap-2 text-xs sm:text-base'>
           <p>
-           {config.urlBase}
+           {anchoPantalla < 400 ? "....com/" : config.urlBase}
           </p>
 
           <input
@@ -99,57 +150,21 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
           <i className={`${ copiado ? 'fa-check text-green-500' : 'fa-copy cursor-pointer hover:text-pink-400'} m-1 fa-solid fa-lg`}
               onClick={copiarURL} />
         </div>
-
-        <div className='flex gap-4'>
-            <button
-              disabled = {anchoPantalla < 640}
-              hidden = {anchoPantalla < 640}  
-              onClick={() => hayCambios && manejarGuardado()}       
-              className={`flex items-center justify-center
-                          rounded-full
-                          transition-colors duration-200
-                         ${
-                            guardado
-                              ? 'bg-green-500'
-                              : hayCambios
-                              ? 'bg-blue-500 cursor-pointer'
-                              : 'bg-gray-400'
-                          }
-                          w-9 h-9 p-1 `}
-            >
-                <i 
-                className={`${
-                            guardado
-                              ? 'fa-solid fa-circle-check'
-                              : 'fa-regular fa-floppy-disk'
-                          }`}
-                />
-            </button>        
-
-          <button
-              disabled = {anchoPantalla < 640}
-              hidden = {anchoPantalla < 640}
-              onClick={() => setActivo(!activo)}
-              className={`flex items-center
-                          rounded-full
-                          w-16 h-9 p-1 
-                          cursor-pointer 
-                          transition-colors duration-300
-                          ${activo ? 'bg-blue-500' : 'bg-gray-400'}`}
+     
+        <button 
+            onClick={() => manejarDeslogeo()}       
+            className={`flex items-center justify-center
+                        rounded-full bg-red-500 cursor-pointer
+                        p-1 
+                        ${anchoPantalla < 400 
+                            ? "w-6 h-6"
+                            : "w-9 h-9"
+                        }`}
           >
-              <div
-                  className={`flex items-center justify-center
-                              bg-white rounded-full shadow-md
-                              text-sm 
-                              w-7 h-7 
-                              transform transition-transform duration-300 
-                              ${activo ? 'translate-x-7' : 'translate-x-0'}`}
-              >
-                  <i className={`fa-solid fa-pen 
-                                  ${anchoPantalla > 640 ? 'text-blue-500' : 'text-gray-500'}`} />
-              </div>
+              <i 
+              className={'fa-solid fa-right-from-bracket text-sm sm:text-normal'}
+              />
           </button>
-        </div>
 
     </div>
   )

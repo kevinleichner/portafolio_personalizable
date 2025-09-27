@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import { SelectorColor } from "./SelectorColor";
-import { SelectorIcono } from "./SelectorIcono";
+import { SelectorColor } from "../components/SelectorColor";
+import { SelectorIcono } from "../components/SelectorIcono";
 import { useSelectorColor, useSelectorIcono, usePortfolioStore } from '../../hooks';
 import { Icon } from '@iconify/react';
 

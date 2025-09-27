@@ -1,7 +1,7 @@
 import {useState} from "react";
-import { SelectorColor } from "./SelectorColor";
+import { SelectorColor } from "../components/SelectorColor";
 import { useSelectorColor, usePortfolioStore } from '../../hooks';
-import { VistaProyecto } from "./VistaProyecto";
+import { VistaProyecto } from "../components/VistaProyecto";
 
 export const Proyectos = ({config, editar}) => {
 
