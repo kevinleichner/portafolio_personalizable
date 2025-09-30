@@ -84,17 +84,7 @@ export const LoginPage = () => {
             reiniciarPagina();
         }
         
-        }, [mensajeExitoso])
-
-    if (estado == 'pendiente') {       
-        return (
-            <div className='flex items-center justify-center h-[100vh] bg-[#7eb77f]'>
-                <h3 className='text-2xl text-white md:text-4xl'>
-                    Cargando...
-                </h3>
-            </div>            
-        )
-    }
+        }, [mensajeExitoso])   
 
     return (
         
@@ -134,11 +124,23 @@ export const LoginPage = () => {
                             h-[50%] w-[100%] px-8 py-15
                             md:h-[auto] md:w-[40%] md:order-2
                             xl:w-[35%]`}>
-                <h2 className="text-4xl
-                                md:text-3xl 
-                                xl:text-4xl">
-                    {registro && !recuperar ? "Registro" : recuperar ? "Restablecer Contraseña" : "Iniciar Sesión"} 
-                </h2>           
+                <div className="flex justify-center">
+                    <div className="flex flex-col items-center">
+                        <h2 className="text-4xl md:text-3xl xl:text-4xl mb-2">
+                        {registro && !recuperar
+                            ? "Registro"
+                            : recuperar
+                            ? "Restablecer Contraseña"
+                            : "Iniciar Sesión"}
+                        </h2>
+
+                        <div className={`relative w-40 h-1 bg-gray-200 overflow-hidden ${estado == 'pendiente' ? "" : "invisible"} rounded`}>
+                            {estado === "pendiente" && (
+                                <div className="absolute top-0 left-0 w-full h-full bg-blue-500 animate-[slide_1.5s_linear_infinite]" />
+                            )}
+                        </div>
+                    </div>
+                </div>
                 <form className="flex flex-col gap-2 items-center"
                     onSubmit={registro && !recuperar ? registroSubmit : recuperar ? recuperarSubmit : logeoSubmit}>     
                     <div className="flex flex-col
@@ -206,7 +208,7 @@ export const LoginPage = () => {
                     <input className="self-end
                                         border-2
                                         text-sm
-                                        p-2 w-[30%] 
+                                        p-2 w-[40%] 
                                         sm:text-md sm:w-[25%] 
                                         md:w-[40%] 
                                         xl:w-[25%] 

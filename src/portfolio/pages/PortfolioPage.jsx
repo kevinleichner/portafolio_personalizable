@@ -38,7 +38,7 @@ export const PortfolioPage = () => {
 
   useEffect(() => {
     if ( mensajeError !== undefined ) {
-      Swal.fire('Error', mensajeError, 'error');
+      Swal.fire('Aviso', mensajeError, 'warning');
     }
   
   }, [mensajeError])

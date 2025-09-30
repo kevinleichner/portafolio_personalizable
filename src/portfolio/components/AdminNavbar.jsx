@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAnchoPantalla, usePortfolioStore, useAuthStore } from '../../hooks';
 import { getVariablesEntorno } from '../../helpers/getVariablesEntorno';
+import Swal from 'sweetalert2';
 const { VITE_URL_BASE } = getVariablesEntorno();
 
 export const AdminNavbar = ({editar, hayCambios, config}) => {
@@ -41,14 +42,35 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   }
 
   const manejarGuardado = async () => {
-    await empezarGuardarCambios(usuario.uid, config);
-    
-    setGuardado(true);
-    setTimeout(() => setGuardado(false), 2000);
+    const resp = await Swal.fire({
+      title: "¿Guardar cambios?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar"
+    })
+
+    if(resp.isConfirmed){  
+      await empezarGuardarCambios(usuario.uid, config);
+      
+      setGuardado(true);
+      setTimeout(() => setGuardado(false), 2000);
+    }
   };
 
   const manejarDeslogeo = async () => {
-    empezarDeslogeo();
+    const resp = await Swal.fire({
+      title: "¿Cerrar sesión?",
+      text: "Perderá los cambios sin guardar",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Aceptar",
+      cancelButtonText: "Cancelar"
+    })
+
+    if(resp.isConfirmed){  
+      empezarDeslogeo();
+    }   
   }
 
   const copiarURL = () => {

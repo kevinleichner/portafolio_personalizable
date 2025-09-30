@@ -52,7 +52,7 @@ export const portfolioSlice = createSlice({
       state.hayCambios = true;
       state.mensajeError = undefined;
     },
-    actualizarConfigLocal: (state, {payload}) => {     
+    actualizarConfig: (state, {payload}) => {     
       if (payload.propiedad != null) {
         if (state.configLocal[payload.key][payload.propiedad] !== payload.valor) {
           state.configLocal[payload.key][payload.propiedad] = payload.valor;
@@ -91,8 +91,7 @@ export const {
   limpiarMensajeErrorPortafolio, 
   activarModulo, 
   desactivarModulo, 
-  actualizarOrden, 
-  actualizarConfigLocal, 
+  actualizarConfig, 
   guardarCambios, 
   desactivarCargando 
 } = portfolioSlice.actions;

@@ -5,8 +5,7 @@ import {
   deshabilitarEdicion,
   activarModulo,
   desactivarModulo,
-  actualizarOrden,
-  actualizarConfigLocal,
+  actualizarConfig,
   guardarCambios,
   cargarRepositorio,
   desactivarCargando,
@@ -81,9 +80,9 @@ export const usePortfolioStore = () => {
     }
   }
 
-  const actualizarConfigLocal = (nuevaConfigLocal) => {
+  const actualizarConfigLocal = async(nuevaConfigLocal) => {
     try {
-      dispatch(actualizarConfigLocal(nuevaConfigLocal))
+      dispatch(actualizarConfig(nuevaConfigLocal))
     } catch (error) {
       dispatch( reportarError("Ocurrió un problema al querer actualizar la configuración, intente nuevamente en unos segundos."));
       setTimeout(() => {
@@ -98,7 +97,7 @@ export const usePortfolioStore = () => {
       dispatch(guardarCambios());
       
     } catch (error) {
-      dispatch( reportarError("Ocurrió un problema al querer guardar los cambios, intente nuevamente en unos segundos."));
+      dispatch( reportarError(error.response.data?.msg || Object.values(error.response.data.errores)[0].msg));
       setTimeout(() => {
           dispatch( limpiarMensajeErrorPortafolio() );
       }, 10);
