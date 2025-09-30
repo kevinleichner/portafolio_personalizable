@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAnchoPantalla, usePortfolioStore, useAuthStore } from '../../hooks';
+import { getVariablesEntorno } from '../../helpers/getVariablesEntorno';
+const { VITE_URL_BASE } = getVariablesEntorno();
 
 export const AdminNavbar = ({editar, hayCambios, config}) => {
 
-  const {empezarEdicion, terminarEdicion, guardarCambios, actualizarConfigGeneralLocal} = usePortfolioStore();
-  const {empezarDeslogeo} = useAuthStore();
+  const {empezarEdicion, terminarEdicion, empezarGuardarCambios, actualizarConfigLocal} = usePortfolioStore();
+  const {empezarDeslogeo, usuario} = useAuthStore();
 
   const [activo, setActivo] = useState(false);
-  const [modoEdicion, setModoEdicion] = useState(false); //solo para evitar llamadas a terminarEdicion cuando cambia de tamaño
+  const [modoEdicion, setModoEdicion] = useState(false);
 
   const [guardado, setGuardado] = useState(false);
   const [copiado, setCopiado] = useState(false);
@@ -32,26 +34,25 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   }, [hayCambios]);
 
   const actualizarUrl = (nuevaUrl) => {
-      actualizarConfigGeneralLocal({
+      actualizarConfigLocal({
         key: 'urlUsuario',
         valor: nuevaUrl
       })
   }
 
   const manejarGuardado = async () => {
-    await guardarCambios();
+    await empezarGuardarCambios(usuario.uid, config);
     
     setGuardado(true);
-
     setTimeout(() => setGuardado(false), 2000);
   };
 
   const manejarDeslogeo = async () => {
-    await empezarDeslogeo();
+    empezarDeslogeo();
   }
 
   const copiarURL = () => {
-    const base = config.urlBase;
+    const base = VITE_URL_BASE;
     const seccion = inputRef.current?.value || "";
     const urlCompleta = base + seccion;
 
@@ -125,7 +126,7 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
         
         <div className='flex items-center gap-2 text-xs sm:text-base'>
           <p>
-           {anchoPantalla < 400 ? "....com/" : config.urlBase}
+           {anchoPantalla < 400 ? "....com/" : VITE_URL_BASE}
           </p>
 
           <input

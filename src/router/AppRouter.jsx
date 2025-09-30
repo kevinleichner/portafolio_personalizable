@@ -6,7 +6,7 @@ import { useAuthStore, usePortfolioStore } from '../hooks';
 export const AppRouter = () => {
 
     const  {estado, usuario} = useAuthStore();
-    const {configGeneralLocal} = usePortfolioStore();
+    const {configLocal} = usePortfolioStore();
    
     return (         
         <Routes>
@@ -23,7 +23,7 @@ export const AppRouter = () => {
                         <Route path="/login/*" element={<LoginPage/>} />
                         <Route path="/*" element={ <Navigate to="/login"/> }/>
                         {/* CAMBIAR ESTO POR LA BASE DE DATOS */}
-                        <Route path={`/${configGeneralLocal.urlUsuario}`} element={<PortfolioPage/>} /> 
+                        <Route path={`/${configLocal.urlUsuario}`} element={<PortfolioPage/>} /> 
                     </>
                 )
             }                        

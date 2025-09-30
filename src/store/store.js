@@ -1,17 +1,23 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { portfolioSlice } from "./portfolio/portfolioSlice";
 import { authSlice } from "./auth/authSlice";
-import { portafolioPrecargado } from "../helpers/portfolioInitialState";
+
+const appReducer = combineReducers({
+  portfolio: portfolioSlice.reducer,
+  auth: authSlice.reducer,
+});
+
+const rootReducer = (state, action) => {
+  if (action.type === "auth/deslogear") {
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 export const store = configureStore({
-    reducer: {
-        portfolio: portfolioSlice.reducer,
-        auth: authSlice.reducer
-    },
-    preloadedState: {
-        portfolio: portafolioPrecargado,
-    },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-        serializableCheck: false
-    })
-})
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});

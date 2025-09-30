@@ -1,11 +1,22 @@
+import { useEffect } from 'react';
 import { Perfil, AdminNavbar, Navbar, Conocimientos, Experiencia, Contacto, Proyectos, Footer, AgregarModulo } from '..';
 import { useAuthStore, usePortfolioStore } from '../../hooks';
+import Swal from 'sweetalert2';
 
 const MODULOS_PERMITIDOS = ['conocimientos', 'experiencia', 'proyectos', 'contacto'];
 
 export const PortfolioPage = () => {
-  const { estado } = useAuthStore();
-  const { edicion, modulosOrden, modulosActivos, configLocal, configGeneralLocal, hayCambios } = usePortfolioStore();
+  const { estado, usuario } = useAuthStore();
+  const { 
+    cargando, 
+    edicion, 
+    modulosOrden, 
+    modulosActivos, 
+    configLocal, 
+    hayCambios, 
+    obtenerRepositorioUsuario,
+    mensajeError 
+  } = usePortfolioStore();
 
   const finalOrden = modulosOrden.filter(key => modulosActivos[key]);
 
@@ -18,39 +29,64 @@ export const PortfolioPage = () => {
     contacto: Contacto,
   };
 
+  useEffect(() => {
+    const cargarConfig = async () => {
+      await obtenerRepositorioUsuario(usuario.uid);
+    };
+    cargarConfig();
+  }, [usuario.uid]);
+
+  useEffect(() => {
+    if ( mensajeError !== undefined ) {
+      Swal.fire('Error', mensajeError, 'error');
+    }
+  
+  }, [mensajeError])
+
   return (
     <>
-      {estado === 'logeado' 
-        && <AdminNavbar 
-            editar={edicion}
-            hayCambios={hayCambios}
-            config={configGeneralLocal}
-          />}
+      {cargando ? (        
+        <div className='flex items-center justify-center h-[100vh] bg-[#7eb77f]'>
+          <h3 className='text-2xl text-white md:text-4xl'>
+            Cargando...
+          </h3>
+        </div>
+      ) : (
+        <>
+          {estado === 'logeado' &&  
+            <AdminNavbar 
+              editar={edicion}
+              hayCambios={hayCambios}
+              config={configLocal}
+            />
+          }
 
-      <Navbar 
-        config={configLocal.navbar}
-        modulosConfig={configLocal} 
-        modulosOrden={finalOrden}
-        editar={edicion} 
-      />
+          <Navbar 
+            config={configLocal.navbar}
+            modulosConfig={configLocal} 
+            modulosOrden={finalOrden}
+            editar={edicion} 
+          />
 
-      <Perfil 
-        config={configLocal.perfil} 
-        editar={edicion} 
-      />
+          <Perfil 
+            config={configLocal.perfil} 
+            editar={edicion} 
+          />
 
-      {finalOrden.map((key) => {
-        const Componente = COMPONENTES_MAP[key];
-        return Componente ? (
-          <Componente key={key} config={configLocal[key]} editar={edicion} />
-        ) : null;
-      })}
+          {finalOrden.map((key) => {
+            const Componente = COMPONENTES_MAP[key];
+            return Componente ? (
+              <Componente key={key} config={configLocal[key]} editar={edicion} />
+            ) : null;
+          })}
 
-      {edicion && modulosInactivos.length > 0 && (
-        <AgregarModulo config={configLocal} />
+          {edicion && modulosInactivos.length > 0 && (
+            <AgregarModulo config={configLocal} />
+          )}
+
+          <Footer />
+        </>
       )}
-
-      <Footer />
     </>
   );
 };

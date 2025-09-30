@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        estado: 'logeado',//'pendiente', //'logeado', 'deslogeado'     
+        estado: 'deslogeado',//'pendiente', //'logeado', 'deslogeado'     
         usuario: {},
         mensajeError: undefined,
         mensajeExitoso: undefined,
