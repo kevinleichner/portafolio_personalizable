@@ -61,8 +61,8 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   const manejarDeslogeo = async () => {
     const resp = await Swal.fire({
       title: "¿Cerrar sesión?",
-      text: "Perderá los cambios sin guardar",
-      icon: "question",
+      text: hayCambios ? "Tiene cambios sin guardar" : "",
+      icon: hayCambios ? "warning" : "question",
       showCancelButton: true,
       confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar"

@@ -1,6 +1,6 @@
 import {useState} from "react";
 import { SelectorColor } from "../components/SelectorColor";
-import { useSelectorColor, usePortfolioStore } from '../../hooks';
+import { useSelectorColor, usePortfolioStore, useImagenes } from '../../hooks';
 import { VistaProyecto } from "../components/VistaProyecto";
 
 export const Proyectos = ({config, editar}) => {
@@ -16,6 +16,9 @@ export const Proyectos = ({config, editar}) => {
     cerrarSelectorColor,
     manejarCambioColor,
   } = useSelectorColor();
+
+  const {subirImagen} = useImagenes();
+  const [cargandoImgIndice, setCargandoImgIndice] = useState(null);
 
   const {desactivarModuloPorKey, actualizarConfigLocal} = usePortfolioStore();
 
@@ -45,31 +48,31 @@ export const Proyectos = ({config, editar}) => {
     });
   };
 
-  const manejarCambioImagen = (e, indice) => {
+  const manejarCambioImagen = async(e, indice) => {
     
-    const file = e.target.files[0];
+    const archivo = e.target.files[0];
 
-    if (!file || !file.type.startsWith("image/")) return; //Verifico que sea una imagen
+    if (!archivo || !archivo.type.startsWith("image/")) return; //Verifico que sea una imagen
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
+    setCargandoImgIndice(indice);
+    const url = await subirImagen(archivo, "imagenes_modulos"); 
+    
+    if (!url) return;
 
-        const nuevosProyectos = [...config.proyectos];
-        
-        nuevosProyectos[indice] = { 
-          ...nuevosProyectos[indice], 
-          imagenFondo: reader.result 
-        };
-
-        actualizarConfigLocal({
-          key: componente,
-          propiedad: 'proyectos',
-          valor: nuevosProyectos,
-        });
-
+    const nuevosProyectos = [...config.proyectos];
+    
+    nuevosProyectos[indice] = { 
+      ...nuevosProyectos[indice], 
+      imagenFondo: url 
     };
-      
-      reader.readAsDataURL(file);
+
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'proyectos',
+      valor: nuevosProyectos,
+    });
+
+    setCargandoImgIndice(null);
   };
 
   const actualizarColorProyecto = (indice, nuevoColor, propiedad = 'colorFondo') => {
@@ -280,7 +283,13 @@ export const Proyectos = ({config, editar}) => {
                                     sm:w-[45%] 
                                     lg:w-[30%] 
                                     xl:w-[23%]`}>
-                        <img className="rounded-md" 
+                        {cargandoImgIndice === indice && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md z-20">
+                            <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                        <img className="rounded-md w-full h-80 object-cover" 
+                        
                             src={p.imagenFondo}/>
                             {editar && (
                                 <button

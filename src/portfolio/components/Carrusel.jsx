@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenCarrusel, cambiarImagenCarrusel, agregarImagenCarrusel }) => {
+export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenCarrusel, cambiarImagenCarrusel, agregarImagenCarrusel, cargandoImgIndice }) => {
   const scrollRef = useRef(null);
   const [imagenActual, setImagenActual] = useState(0);
 
@@ -43,10 +43,15 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
             className={`relative snap-center flex-shrink-0
                       ${i === 0 ? 'ml-[20%]' : i === imagenes.length - 1 && !editar ? 'mr-[20%]' : ''}`}
           >
+            {cargandoImgIndice === i && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-20">
+                <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
             <img
               src={img.url}
               alt={`img-${i}`}
-              className="object-cover h-30 sm:h-50 md:h-70 rounded-sm"
+              className="object-cover h-30 sm:h-50 md:h-70 max-w-[590px] rounded-sm"
             />
 
             {editar && (

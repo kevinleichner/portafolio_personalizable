@@ -4,3 +4,4 @@ export * from './useSelectorColor';
 export * from './useSelectorIcono';
 export * from './useForm';
 export * from './useAuthStore';
+export * from './useImagenes';

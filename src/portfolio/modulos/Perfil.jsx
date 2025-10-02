@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { SelectorColor } from "../components/SelectorColor";
 import { SelectorIcono } from "../components/SelectorIcono";
-import { useSelectorColor, useSelectorIcono, usePortfolioStore } from '../../hooks';
+import { useSelectorColor, useSelectorIcono, usePortfolioStore, useImagenes } from '../../hooks';
 import { Icon } from '@iconify/react';
 
 export const Perfil = ({ config, editar }) => {
@@ -25,6 +25,8 @@ export const Perfil = ({ config, editar }) => {
     abrirSelectorIcono,
     manejarSeleccionIcono
   } = useSelectorIcono();
+
+  const {subirImagen, cargandoImagen} = useImagenes();
 
   const {actualizarConfigLocal} = usePortfolioStore();
 
@@ -59,20 +61,20 @@ export const Perfil = ({ config, editar }) => {
     })
   };
 
-  const manejarCambioImagen = (e) => {
-    const file = e.target.files[0];
-    if (!file || !file.type.startsWith("image/")) return;
+  const manejarCambioImagen = async(e) => {
+    const archivo = e.target.files[0];
+    if (!archivo || !archivo.type.startsWith("image/")) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      actualizarConfigLocal({
-        key: componente,
-        propiedad: 'imagen',
-        valor: reader.result, // Base64
-      });
-    };
+    const url = await subirImagen(archivo, "imagenes_modulos"); 
+    
+    if (!url) return;
 
-    reader.readAsDataURL(file);
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'imagen',
+      valor: url,
+    });
+
   };
 
 
@@ -234,6 +236,12 @@ export const Perfil = ({ config, editar }) => {
                               lg:w-[30%]
                               xl:w-[20%] 
                               2xl:object-contain">
+
+              {cargandoImagen && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md z-20">
+                  <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
 
               <img  
                 src={`${config.imagen}`}/>
@@ -447,6 +455,12 @@ export const Perfil = ({ config, editar }) => {
                 lg:w-[30%] 
                 xl:w-[20%] 
                 2xl:object-contain">
+
+            {cargandoImagen && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-20">
+                <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
 
             <img
               className="object-cover w-full h-full"

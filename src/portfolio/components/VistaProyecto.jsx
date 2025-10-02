@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { SelectorColor } from "./SelectorColor";
-import { useSelectorColor } from '../../hooks';
+import { useSelectorColor, useImagenes } from '../../hooks';
 import { Carrusel } from "./Carrusel";
 
 export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto }) => {
@@ -15,6 +15,10 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
     } = useSelectorColor();
 
   const [mostrarUrls, setMostrarUrls] = useState(contenido.botones.map(() => false));
+  const [cargandoImgBotonIndice, setCargandoImgBotonIndice] = useState(null);
+  const [cargandoImgIndice, setCargandoImgIndice] = useState(null);
+
+  const {subirImagen} = useImagenes();
   
   const urlRefs = useRef({});
 
@@ -24,6 +28,32 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
       descripcion: nuevaDescripcion
     });
   }
+
+  const agregarEtiqueta = () => {
+      const nuevasEtiqueta = { //TODO: hacer que tome el por defecto         
+        texto: "Etiqueta"
+      }
+
+      const nuevasEtiquetas = [...contenido.etiquetas, nuevasEtiqueta]
+
+      actualizarProyecto({
+        ...contenido,
+        etiquetas: nuevasEtiquetas
+      })
+  };
+
+  const eliminarEtiqueta = (indice) => {
+      if (contenido.etiquetas.length <= 0) return contenido;
+
+      const nuevasEtiquetas = contenido.etiquetas.filter((_, i) => i !== indice);
+
+      actualizarProyecto({
+        ...contenido,
+        etiquetas: nuevasEtiquetas
+      })
+
+  };
+
   const cambiarValorEtiquetas = (indiceEtiqueta, campo, valor) => {
     const nuevasEtiquetas = [...contenido.etiquetas];
     nuevasEtiquetas[indiceEtiqueta] = {
@@ -37,25 +67,27 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
     });
   };
 
-  const manejarCambioImagen = (e, indice) => {
-    const file = e.target.files[0];
-    if (!file || !file.type.startsWith("image/")) return; // validación
+  const manejarCambioImagen = async(e, indice) => {
+    const archivo = e.target.files[0];
+    if (!archivo || !archivo.type.startsWith("image/")) return; // validación
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const nuevosBotones = [...contenido.botones];
-      nuevosBotones[indice] = {
-        ...nuevosBotones[indice],
-        imagen: reader.result,
-      };
-
-      actualizarProyecto({
-        ...contenido,
-        botones: nuevosBotones,
-      });
-    };
+    setCargandoImgBotonIndice(indice);
+    const url = await subirImagen(archivo, "imagenes_modulos"); 
     
-    reader.readAsDataURL(file);
+    if (!url) return;
+
+    const nuevosBotones = [...contenido.botones];
+    nuevosBotones[indice] = {
+      ...nuevosBotones[indice],
+      imagen: url,
+    };
+
+    actualizarProyecto({
+      ...contenido,
+      botones: nuevosBotones,
+    });
+
+    setCargandoImgBotonIndice(null);
   };
 
   const cambiarValorBotones = (indiceBoton, campo, valor) => {
@@ -135,21 +167,24 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
     });
   };
 
-  const cambiarImagenCarrusel = (e, indiceImagen) => {
-    const file = e.target.files[0];
-    if (!file || !file.type.startsWith("image/")) return;
+  const cambiarImagenCarrusel = async(e, indiceImagen) => {
+    const archivo = e.target.files[0];
+    if (!archivo || !archivo.type.startsWith("image/")) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const nuevasImagenes = [...contenido.imagenes];
-      nuevasImagenes[indiceImagen] = { ...nuevasImagenes[indiceImagen], url: reader.result };
+    setCargandoImgIndice(indiceImagen);
+    const urlImg = await subirImagen(archivo, "imagenes_modulos"); 
+    
+    if (!urlImg) return;
 
-      actualizarProyecto({
-        ...contenido,
-        imagenes: nuevasImagenes
-      });
-    };
-    reader.readAsDataURL(file);
+    const nuevasImagenes = [...contenido.imagenes];
+    nuevasImagenes[indiceImagen] = { ...nuevasImagenes[indiceImagen], url: urlImg };
+
+    actualizarProyecto({
+      ...contenido,
+      imagenes: nuevasImagenes
+    });
+
+    setCargandoImgIndice(null);
   };
 
   const eliminarImagenCarrusel = (indiceImagen) => {
@@ -198,23 +233,59 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
               cambiarImagenCarrusel={cambiarImagenCarrusel}
               eliminarImagenCarrusel={eliminarImagenCarrusel}
               agregarImagenCarrusel={agregarImagenCarrusel}
+              cargandoImgIndice={cargandoImgIndice}
             />
 
           )}
 
           <div className="flex gap-1 flex-wrap
-                        text-sm 
+                        text-sm max-w-[95%]
                         p-1">
             {contenido.etiquetas.map((e, indice) => (
-                <h6 key={indice} className={`p-1 outline-none bg-[${contenido.colorFondoEtiqueta}] text-[${contenido.colorTexto}] 
+              <div key={indice} className="relative">    
+                {editar === true && (
+                  <button
+                    onClick={(e) =>
+                      eliminarEtiqueta(indice)
+                    }
+                    className="flex items-center absolute -top-3 right-0 cursor-pointer
+                              bg-white p-1 rounded-full hover:bg-pink-400
+                              z-10"
+                  >
+                    <i className="fa-solid fa-trash text-xs" />
+                  </button>
+                )}        
+                <h6 className={`p-1 outline-none bg-[${contenido.colorFondoEtiqueta}] text-[${contenido.colorTexto}] 
                                 rounded-sm 
-                                2xl:p-2`}
+                                2xl:p-2`}                    
                     contentEditable={editar}
+                    onInput={(e) => { //Que no pueda tener más de 20 carácteres
+                      const maximoCaracteres = 20;
+                      const target = e.currentTarget;
+                      if (target.innerText.length > maximoCaracteres) {
+                        target.innerText = target.innerText.slice(0, maximoCaracteres);
+                        const range = document.createRange();
+                        const sel = window.getSelection();
+                        range.setStart(target.childNodes[0], maximoCaracteres);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                      }
+                    }}
                     suppressContentEditableWarning={true}
                     onBlur={(e) => cambiarValorEtiquetas(indice, "texto", e.currentTarget.textContent)}>
                     {e.texto}
                 </h6>
-            ))}    
+              </div>
+            ))}
+            {editar === true && contenido.etiquetas.length < 10 && (
+              <button onClick={agregarEtiqueta}>
+                <i className="fa-solid fa-plus fa-1x text-gray-500 cursor-pointer
+                              rounded-sm border-2
+                              px-5 ml-1
+                              hover:text-black" />
+              </button>
+            )}    
           </div>
           <p className={`w-[90%] outline-none text-[${contenido.colorTexto}] text-sm sm:text-base`}
               contentEditable={editar}
@@ -233,7 +304,12 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                                 bg-[${b.color}] text-sm md:text-base
                                 p-2 rounded-sm min-w-20 sm:w-[30%] lg:w-auto
                                 ${editar == false ? 'hover:brightness-80' : 'cursor-default'} `}>
-                  <img className="w-[30px] sm:w-[40px]" src={b.imagen} />
+                  {cargandoImgBotonIndice === indice && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md">
+                      <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <img className="object-cover h-10 w-10 sm:h-11 sm:w-11" src={b.imagen} />
                   {editar && (
                     <button
                       onClick={() => document.getElementById('imgBoton-' + indice).click()}
@@ -272,16 +348,16 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                   )}
 
                   {editar === true && (
-                  <button
-                    onClick={(e) =>
-                      eliminarBoton(indice)
-                    }
-                    className="flex items-center absolute -top-3 right-1 cursor-pointer
-                              bg-white p-1 rounded-full hover:bg-pink-400
-                              z-10"
-                  >
-                    <i className="fa-solid fa-trash text-sm" />
-                  </button>
+                    <button
+                      onClick={(e) =>
+                        eliminarBoton(indice)
+                      }
+                      className="flex items-center absolute -top-3 right-1 cursor-pointer
+                                bg-white p-1 rounded-full hover:bg-pink-400
+                                z-10"
+                    >
+                      <i className="fa-solid fa-trash text-sm" />
+                    </button>
                   )}
 
                   

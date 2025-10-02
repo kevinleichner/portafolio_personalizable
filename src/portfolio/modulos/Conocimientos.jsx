@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { SelectorColor } from "../components/SelectorColor";
-import { useSelectorColor, usePortfolioStore } from '../../hooks';
+import { useSelectorColor, usePortfolioStore, useImagenes } from '../../hooks';
 
 export const Conocimientos = ({config, editar}) => { 
+
   const componente = 'conocimientos';
 
   const {
@@ -12,7 +14,10 @@ export const Conocimientos = ({config, editar}) => {
       abrirSelectorColor,
       cerrarSelectorColor,
       manejarCambioColor,
-    } = useSelectorColor();
+  } = useSelectorColor();
+
+  const { subirImagen } = useImagenes();
+  const [cargandoImgIndice, setCargandoImgIndice] = useState(null);
 
   const {desactivarModuloPorKey, actualizarConfigLocal} = usePortfolioStore();
 
@@ -38,31 +43,27 @@ export const Conocimientos = ({config, editar}) => {
       });
   };
 
-  const manejarCambioImagen = (e, indice) => {
+  const manejarCambioImagen = async (e, indice) => {
     
-    const file = e.target.files[0];
+    const archivo = e.target.files[0];
 
-    if (!file || !file.type.startsWith("image/")) return; //Verifico que sea una imagen
+    if (!archivo || !archivo.type.startsWith("image/")) return; //Verifico que sea una imagen
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
+    setCargandoImgIndice(indice);
+    const url = await subirImagen(archivo, "imagenes_modulos"); 
+    
+    if (!url) return;
 
-        const nuevosConocimientos = [...config.conocimientos];
-        
-        nuevosConocimientos[indice] = { 
-          ...nuevosConocimientos[indice], 
-          imagen: reader.result 
-        };
+    const nuevosConocimientos = [...config.conocimientos];
+    nuevosConocimientos[indice] = { ...nuevosConocimientos[indice], imagen: url };
 
-        actualizarConfigLocal({
-          key: componente,
-          propiedad: 'conocimientos',
-          valor: nuevosConocimientos,
-        });
+    actualizarConfigLocal({
+      key: "conocimientos",
+      propiedad: "conocimientos",
+      valor: nuevosConocimientos,
+    });
 
-    };
-      
-      reader.readAsDataURL(file);
+    setCargandoImgIndice(null);
   };
 
   const manejarCambioOrientacionTitulo = () => {
@@ -206,6 +207,12 @@ const agregarConocimiento = () => {
                           </button>    
                         )}
 
+                        {cargandoImgIndice === indice && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md z-20">
+                            <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+
                         {editar && (
                             <button
                               onClick={(e) =>
@@ -224,9 +231,12 @@ const agregarConocimiento = () => {
                             </button>  
                         )}   
 
-                        <img className="w-[70%] mx-auto 
-                                        sm:w-[100px]" 
+                        <div className="flex items-center justify-center h-[70%]">
+                          <img className="max-h-full w-[70%] mx-auto 
+                                        sm:w-[100px] object-contain" 
                             src={c.imagen}/>
+                        </div>
+
                             {editar && (
                               <button
                                 onClick={() => document.getElementById('img-' + indice).click()}
