@@ -6,13 +6,14 @@ const { VITE_URL_BASE } = getVariablesEntorno();
 
 export const AdminNavbar = ({editar, hayCambios, config}) => {
 
-  const {empezarEdicion, terminarEdicion, empezarGuardarCambios, actualizarConfigLocal} = usePortfolioStore();
+  const {empezarEdicion, terminarEdicion, empezarGuardarCambios, empezarDeshacerCambios, actualizarConfigLocal} = usePortfolioStore();
   const {empezarDeslogeo, usuario} = useAuthStore();
 
   const [activo, setActivo] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
 
   const [guardado, setGuardado] = useState(false);
+  const [deshacer, setDeshacer] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
   const anchoPantalla = useAnchoPantalla();
@@ -55,6 +56,23 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
       
       setGuardado(true);
       setTimeout(() => setGuardado(false), 2000);
+    }
+  };
+
+  const manejarDeshacerCambios = async () => {
+    const resp = await Swal.fire({
+      title: "Deshacer cambios?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Deshacer",
+      cancelButtonText: "Cancelar"
+    })
+
+    if(resp.isConfirmed){  
+      empezarDeshacerCambios();
+      
+      setDeshacer(true);
+      setTimeout(() => setDeshacer(false), 2000);
     }
   };
 
@@ -141,7 +159,30 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
                               : 'fa-regular fa-floppy-disk'
                           }`}
                 />
-            </button>                 
+            </button>  
+
+            <button 
+              onClick={() => hayCambios && manejarDeshacerCambios()}       
+              className={`flex items-center justify-center
+                          rounded-full
+                          transition-colors duration-200
+                          ${
+                            deshacer
+                              ? 'bg-green-500'
+                              : hayCambios
+                              ? 'bg-orange-500 cursor-pointer'
+                              : 'bg-gray-400'
+                          }
+                          w-9 h-9 p-1 `}
+            >
+                <i 
+                className={`${
+                            deshacer
+                              ? 'fa-solid fa-circle-check'
+                              : 'fa-solid fa-arrow-rotate-left'
+                          }`}
+                />
+            </button>               
           </div>              
         )}
 

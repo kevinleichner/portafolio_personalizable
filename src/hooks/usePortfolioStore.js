@@ -7,10 +7,11 @@ import {
   desactivarModulo,
   actualizarConfig,
   guardarCambios,
+  deshacerCambios,
   cargarRepositorio,
   desactivarCargando,
   reportarError,
-  limpiarMensajeErrorPortafolio
+  limpiarMensajeErrorPortafolio,
 } from '../store';
 
 export const usePortfolioStore = () => {
@@ -23,6 +24,7 @@ export const usePortfolioStore = () => {
     modulosOrden, 
     modulosActivos, 
     configLocal,
+    configLocalInicial,
   } = useSelector(state => state.portfolio);
 
   const obtenerRepositorioUsuario = async(uid) => {
@@ -91,12 +93,41 @@ export const usePortfolioStore = () => {
     }    
   }
 
+  const empezarDeshacerCambios = () => {     
+      try {
+        const MODULOS_PERMITIDOS = ['conocimientos', 'experiencia', 'proyectos', 'contacto'];
+        const config = configLocalInicial;
+       
+        const activos = {};
+        Object.entries(config).forEach(([key, mod]) => {
+          if (MODULOS_PERMITIDOS.includes(key)) activos[key] = !!mod.activo;
+        });
+
+        const orden = Object.entries(config)
+          .filter(([key]) => activos[key])
+          .sort((a, b) => (a[1].orden ?? 0) - (b[1].orden ?? 0))
+          .map(([key]) => key);
+
+        dispatch(deshacerCambios({
+          modulosActivos: activos,
+          modulosOrden: orden,
+          configLocal: config,
+        }));
+      } catch (error) {       
+        dispatch( reportarError("Ocurrió un problema al querer deshacer los cambios, intente nuevamente en unos segundos."));
+        setTimeout(() => {
+            dispatch( limpiarMensajeErrorPortafolio() );
+        }, 10);
+      }
+  }
+
   const empezarGuardarCambios = async(uid, nuevaConfigLocal) => {
     try {
       await portafolioApi.put(`/portafolio/guardar/${ uid }`, nuevaConfigLocal)
       dispatch(guardarCambios());
       
     } catch (error) {
+      console.log(error);
       dispatch( reportarError(error.response.data?.msg || Object.values(error.response.data.errores)[0].msg));
       setTimeout(() => {
           dispatch( limpiarMensajeErrorPortafolio() );
@@ -115,6 +146,7 @@ export const usePortfolioStore = () => {
     
     obtenerRepositorioUsuario,
     empezarGuardarCambios,
+    empezarDeshacerCambios,
     activarModuloPorKey,
     desactivarModuloPorKey,
     actualizarConfigLocal,

@@ -1,5 +1,7 @@
 import { SelectorColor } from "../components/SelectorColor";
-import { useSelectorColor, usePortfolioStore } from '../../hooks';
+import { useSelectorColor, usePortfolioStore, useEmailStore } from '../../hooks';
+import Swal from 'sweetalert2';
+import { useEffect } from "react";
 
 export const Contacto = ({config, editar}) => {
   const componente = 'contacto';
@@ -15,6 +17,13 @@ export const Contacto = ({config, editar}) => {
     } = useSelectorColor();
 
   const {desactivarModuloPorKey, actualizarConfigLocal} = usePortfolioStore();
+  const { enviarMail, enviando } = useEmailStore();
+
+  useEffect(() => {
+  if (config.activo && (!config.email || config.email.trim() === '')) {
+    manejarCambioMail();
+  }
+}, [config.activo]);
 
   const actualizarTitulo = (nuevoTitulo) => {
     actualizarConfigLocal({
@@ -34,6 +43,73 @@ export const Contacto = ({config, editar}) => {
       propiedad: 'orientacionTitulo',
       valor: orientacion
     });
+  };
+
+  const manejarCambioMail = async() => {
+    const { value: nuevoMail, isConfirmed: confirmado } = await Swal.fire({
+      title: 'Dirección de email receptor:',
+      input: 'email',
+      inputValue: config.email,
+      inputLabel: 'Aquí llegaran los mensajes de contacto',
+      inputPlaceholder: 'ejemplo@gmail.com',
+      inputAttributes: {
+        required: true
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'Tenés que ingresar un email';
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          return 'Ingresá un email válido (por ejemplo: ejemplo@gmail.com)';
+        }
+
+        return null; // ✅ válido
+      }
+    });
+
+    if(confirmado && nuevoMail != config.email){  
+      actualizarConfigLocal({
+        key: componente,
+        propiedad: 'email',
+        valor: nuevoMail
+      })
+    }
+    else if (!config.email || config.email.trim() === '') {
+      desactivarModuloPorKey(componente)
+    }
+  }
+    
+  const manejarEnvioMail = async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const nombre = form.nombre.value.trim();
+    const correoEmisor = form.correo.value.trim();
+    const mensaje = form.mensaje.value.trim();
+
+    if (!nombre || !correoEmisor || !mensaje) {
+      Swal.fire('Error', 'Completá todos los campos antes de enviar', 'error');
+      return;
+    }
+
+    const respuesta = await enviarMail({
+      nombre,
+      correoEmisor, 
+      mensaje, 
+      correoReceptor: config.email
+    });
+
+    if (respuesta.ok) {
+      Swal.fire('Enviado', respuesta.msg, 'success');
+      form.reset();
+    } else {
+      Swal.fire('Error', respuesta.msg || 'No se pudo enviar el correo', 'error');
+    }
   };
 
   return (
@@ -86,7 +162,7 @@ export const Contacto = ({config, editar}) => {
               )}
           </div>
           <div className="relative">
-            <form className="flex flex-wrap justify-between flex-col
+            <form onSubmit={manejarEnvioMail} className="flex flex-wrap justify-between flex-col
                               sm:flex-row gap-2">
                 <input className={`border rounded-sm outline-none border-[${config.colorBordes}]
                                   p-4 
@@ -111,15 +187,16 @@ export const Contacto = ({config, editar}) => {
                           spellCheck="false"/>
                 <div className={`relative w-full flex justify-center ${editar && 'mt-7'}`}>
                   <input
+                    disabled={enviando}
                     className={`outline rounded-sm bg-[${config.colorBoton}]
                                 font-semibold text-[${config.colorTextoBoton}]
+                                ${enviando ? "bg-gray-500" : "hover:cursor-pointer hover:brightness-80"}
                                 py-[2%] w-[30%]
                                 sm:py-[1%] 
                                 sm:w-[15%] 
-                                lg:w-[10%] 
-                                hover:cursor-pointer hover:brightness-80`} 
+                                lg:w-[10%] `} 
                     type="submit" 
-                    value="Enviar" 
+                    value="Enviar"
                   />
 
                   {editar && (
@@ -189,38 +266,49 @@ export const Contacto = ({config, editar}) => {
         </div>
 
         {editar === true && (
-        <button onClick={(e) =>
-                      abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
-                        actualizarConfigLocal({ 
-                          key: componente,
-                          propiedad: 'colorFondo', 
-                          valor: nuevoColor });
-                      }, {
-                        vertical: "abajo",
-                        horizontal: "izquierda"
-                      })
-                    }
-                className={`absolute right-10 top-3 cursor-pointer flex items-center
-                              bg-white rounded-full p-2 
-                              hover:bg-pink-400
-                              xl:right-14`}>
-              <i className="fa-solid fa-paint-roller text-sm
-                            xl:text-xl"/>
-        </button>
-      )}
+          <button onClick={(e) => manejarCambioMail()}
+                  className={`absolute right-18 top-3 cursor-pointer flex items-center
+                                bg-white rounded-full p-2 
+                                hover:bg-blue-400
+                                xl:right-14`}>
+                <i className="fa-solid fa-at text-sm
+                              xl:text-xl"/>
+          </button>
+        )}
 
-      {editar === true && (
-        <button onClick={(e) =>
-                      desactivarModuloPorKey('contacto')
-                    }
-                className={`absolute right-2 top-3 cursor-pointer flex items-center
-                              bg-white rounded-full p-2 
-                              hover:bg-red-500
-                              xl:right-5`}>
-              <i className="fa-solid fa-trash text-sm
-                            xl:text-xl"/>
-        </button>
-      )}
+        {editar === true && (
+          <button onClick={(e) =>
+                        abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
+                          actualizarConfigLocal({ 
+                            key: componente,
+                            propiedad: 'colorFondo', 
+                            valor: nuevoColor });
+                        }, {
+                          vertical: "abajo",
+                          horizontal: "izquierda"
+                        })
+                      }
+                  className={`absolute right-10 top-3 cursor-pointer flex items-center
+                                bg-white rounded-full p-2 
+                                hover:bg-pink-400
+                                xl:right-14`}>
+                <i className="fa-solid fa-paint-roller text-sm
+                              xl:text-xl"/>
+          </button>
+        )}
+
+        {editar === true && (
+          <button onClick={(e) =>
+                        desactivarModuloPorKey(componente)
+                      }
+                  className={`absolute right-2 top-3 cursor-pointer flex items-center
+                                bg-white rounded-full p-2 
+                                hover:bg-red-500
+                                xl:right-5`}>
+                <i className="fa-solid fa-trash text-sm
+                              xl:text-xl"/>
+          </button>
+        )}
 
         {mostrarSelectorColor && editar && (
           <SelectorColor

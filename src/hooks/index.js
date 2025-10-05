@@ -5,3 +5,4 @@ export * from './useSelectorIcono';
 export * from './useForm';
 export * from './useAuthStore';
 export * from './useImagenes';
+export * from './useEmailStore';

@@ -10,12 +10,14 @@ export const portfolioSlice = createSlice({
     modulosActivos: {},
     modulosOrden: [],
     configLocal: {},
+    configLocalInicial: {},
   },
   reducers: {
     cargarRepositorio: (state, {payload}) =>{
       state.modulosActivos = payload.modulosActivos;
       state.modulosOrden = payload.modulosOrden;
       state.configLocal = payload.configLocal;
+      state.configLocalInicial = payload.configLocal;
     },
     habilitarEdicion: (state) => {
       state.edicion = true;
@@ -67,7 +69,15 @@ export const portfolioSlice = createSlice({
         }
       }
     },
-    guardarCambios: (state) => {
+    guardarCambios: (state) => {     
+      state.configLocalInicial = state.configLocal;
+      state.hayCambios = false;
+      state.mensajeError = undefined;
+    },
+    deshacerCambios: (state, {payload}) => {     
+      state.modulosActivos = payload.modulosActivos;
+      state.modulosOrden = payload.modulosOrden;
+      state.configLocal = payload.configLocal;
       state.hayCambios = false;
       state.mensajeError = undefined;
     },
@@ -93,5 +103,6 @@ export const {
   desactivarModulo, 
   actualizarConfig, 
   guardarCambios, 
+  deshacerCambios,
   desactivarCargando 
 } = portfolioSlice.actions;

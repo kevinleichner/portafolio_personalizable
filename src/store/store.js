@@ -1,10 +1,12 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { portfolioSlice } from "./portfolio/portfolioSlice";
 import { authSlice } from "./auth/authSlice";
+import { emailSlice } from "./email/emailSlice";
 
 const appReducer = combineReducers({
   portfolio: portfolioSlice.reducer,
   auth: authSlice.reducer,
+  email: emailSlice.reducer,
 });
 
 const rootReducer = (state, action) => {
