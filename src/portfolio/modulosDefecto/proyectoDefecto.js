@@ -25,10 +25,10 @@ export const proyectoDefecto = {
     descripcion: "Descripción",
     botones: [
         {
-            imagen: "../img-botones/descargas.png",
+            imagen: "../img/descargar.png",
             texto: "Descargar",
             color: "#07e71b",
-            url: "facebook.com"
+            url: "www."
         }
     ]
 };
