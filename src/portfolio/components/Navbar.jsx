@@ -52,6 +52,7 @@ export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
           </a>
           {editar && indice === list.length - 1 &&(
             <button 
+              title="Cambiar color de menús"  
               onClick={(e) =>
                 abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
                   actualizarConfigLocal({
@@ -75,6 +76,7 @@ export const Navbar = ({config, modulosConfig, modulosOrden, editar}) => {
       
       {editar === true && (
         <button 
+          title="Cambiar color del fondo"  
           onClick={(e) =>
                       abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
                         actualizarConfigLocal({

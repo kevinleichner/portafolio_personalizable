@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import { SelectorColor } from "./SelectorColor";
 import { useSelectorColor, useImagenes } from '../../hooks';
+import { botonProyectoDefecto, etiquetaProyectoDefecto, imagenCarruselDefecto } from "../modulosDefecto";
 import { Carrusel } from "./Carrusel";
+import Swal from "sweetalert2";
 
 export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto }) => {
   const {
@@ -30,9 +32,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
   }
 
   const agregarEtiqueta = () => {
-      const nuevasEtiqueta = { //TODO: hacer que tome el por defecto         
-        texto: "Etiqueta"
-      }
+      const nuevasEtiqueta = etiquetaProyectoDefecto;
 
       const nuevasEtiquetas = [...contenido.etiquetas, nuevasEtiqueta]
 
@@ -119,13 +119,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
   const agregarBoton = () => {
       if (contenido.botones.length >= 3) return contenido;
 
-      const nuevoBoton = { //TODO: hacer que tome el por defecto
-          imagen: "../img-botones/descargas.png",
-          texto: "Descargar",
-          color: "#07e71b",
-          url: "facebook.com",
-          id: Math.random()
-      }
+      const nuevoBoton = botonProyectoDefecto;
       const nuevosBotones = [...contenido.botones, nuevoBoton]
 
       actualizarProyecto({
@@ -197,7 +191,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
   };
 
   const agregarImagenCarrusel = () => {
-    const nuevasImagenes = [...contenido.imagenes, { url: "../img-proyectos/banco.jpg" }];
+    const nuevasImagenes = [...contenido.imagenes, imagenCarruselDefecto];
 
     actualizarProyecto({
       ...contenido,
@@ -215,6 +209,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                         shadow-xl`}>         
         
           <button
+              title="Cerrar 'ver más'"
               className="absolute z-50 cursor-pointer
                         bg-red-600 
                         text-sm text-white
@@ -241,15 +236,16 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
           <div className="flex gap-1 flex-wrap
                         text-sm max-w-[95%]
                         p-1">
-            {contenido.etiquetas.map((e, indice) => (
+            {contenido.etiquetas.map((et, indice) => (
               <div key={indice} className="relative">    
                 {editar === true && (
                   <button
+                    title="Eliminar etiqueta" 
                     onClick={(e) =>
                       eliminarEtiqueta(indice)
                     }
                     className="flex items-center absolute -top-3 right-0 cursor-pointer
-                              bg-white p-1 rounded-full hover:bg-pink-400
+                              bg-white p-1 rounded-full hover:bg-red-500
                               z-10"
                   >
                     <i className="fa-solid fa-trash text-xs" />
@@ -257,7 +253,8 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                 )}        
                 <h6 className={`p-1 outline-none bg-[${contenido.colorFondoEtiqueta}] text-[${contenido.colorTexto}] 
                                 rounded-sm 
-                                2xl:p-2`}                    
+                                2xl:p-2`}
+                    spellCheck={false}                 
                     contentEditable={editar}
                     onInput={(e) => { //Que no pueda tener más de 20 carácteres
                       const maximoCaracteres = 20;
@@ -273,13 +270,29 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                       }
                     }}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => cambiarValorEtiquetas(indice, "texto", e.currentTarget.textContent)}>
-                    {e.texto}
+                    onBlur={(e) => {
+                      const texto = e.currentTarget.textContent.trim();
+  
+                      if (texto.length === 0) {
+                        e.currentTarget.textContent = et.texto;
+                        Swal.fire({
+                          icon: "warning",
+                          title: "La etiqueta no puede quedar vacía",
+                          showConfirmButton: true,
+                          confirmButtonText: "Aceptar"
+                        });
+                      } 
+                      else {
+                        cambiarValorEtiquetas(indice, "texto", e.currentTarget.textContent)
+                      }
+                    }}
+                >
+                  {et.texto}
                 </h6>
               </div>
             ))}
             {editar === true && contenido.etiquetas.length < 10 && (
-              <button onClick={agregarEtiqueta}>
+              <button title="Agregar etiqueta"  onClick={agregarEtiqueta}>
                 <i className="fa-solid fa-plus fa-1x text-gray-500 cursor-pointer
                               rounded-sm border-2
                               px-5 ml-1
@@ -288,6 +301,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
             )}    
           </div>
           <p className={`w-[90%] outline-none text-[${contenido.colorTexto}] text-sm sm:text-base`}
+              spellCheck={false}
               contentEditable={editar}
               suppressContentEditableWarning={true}
               onBlur={(e) => actualizarDescripcion(e.currentTarget.textContent)}>
@@ -302,7 +316,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                    href={editar === false ? (b.url.startsWith('http') ? b.url : `https://${b.url}`) : undefined}
                    className={`flex justify-center my-1 sm:my-0 gap-1 items-center relative 
                                 bg-[${b.color}] text-sm md:text-base
-                                p-2 rounded-sm min-w-20 sm:w-[30%] lg:w-auto
+                                p-2 rounded-sm min-w-25 sm:w-[30%] lg:w-auto
                                 ${editar == false ? 'hover:brightness-80' : 'cursor-default'} `}>
                   {cargandoImgBotonIndice === indice && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md">
@@ -312,6 +326,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                   <img className="object-cover h-10 w-10 sm:h-11 sm:w-11" src={b.imagen} />
                   {editar && (
                     <button
+                      title="Cambiar ícono" 
                       onClick={() => document.getElementById('imgBoton-' + indice).click()}
                       className="flex items-center justify-center absolute -top-3 right-13 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
                     >
@@ -327,13 +342,27 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                   />
                   <p className={`${editar == true ? 'cursor-text' : ''} outline-none text-[${contenido.colorTexto}]`}
                     contentEditable={editar}
+                    spellCheck={false}
+                    onInput={(e) => { //Que no pueda tener más de 15 carácteres
+                      const maximoCaracteres = 15;
+                      const target = e.currentTarget;
+                      if (target.innerText.length > maximoCaracteres) {
+                        target.innerText = target.innerText.slice(0, maximoCaracteres);
+                        const range = document.createRange();
+                        const sel = window.getSelection();
+                        range.setStart(target.childNodes[0], maximoCaracteres);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                      }
+                    }}
                     suppressContentEditableWarning={true}
                     onBlur={(e) => cambiarValorBotones(indice, "texto", e.currentTarget.textContent)}>
                     {b.texto}
                   </p>
 
                   {editar === true && (
-                    <button onClick={(e) =>
+                    <button title="Cambiar color del botón" onClick={(e) =>
                                   abrirSelectorColor(e, contenido.botones[indice].color, (nuevoColor) => {
                                     actualizarColorBoton(indice, nuevoColor);
                                   }, indice < 2 
@@ -349,11 +378,12 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
 
                   {editar === true && (
                     <button
+                      title="Eliminar botón" 
                       onClick={(e) =>
                         eliminarBoton(indice)
                       }
                       className="flex items-center absolute -top-3 right-1 cursor-pointer
-                                bg-white p-1 rounded-full hover:bg-pink-400
+                                bg-white p-1 rounded-full hover:bg-red-500
                                 z-10"
                     >
                       <i className="fa-solid fa-trash text-sm" />
@@ -363,6 +393,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                   
                   {editar === true && (
                   <button
+                    title="Cambiar url del botón" 
                     onClick={() => toggleMostrarUrl(indice)}
                     className="flex items-center absolute -top-3 right-19 cursor-pointer
                               bg-white p-1 rounded-full hover:bg-pink-400
@@ -374,7 +405,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
 
                   {mostrarUrls[indice] && (
                         <p
-                          ref={(el) => (urlRefs.current[indice] = el)}
+                          ref={(e) => (urlRefs.current[indice] = e)}
                           title={b.url}
                           className="absolute -top-12 z-10 outline-none
                                     bg-white p-1 rounded-sm w-48
@@ -387,6 +418,13 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                           suppressContentEditableWarning={true}
                           onBlur={(e) => {urlRefs.current[indice]?.scrollTo({ left: 0 });
                                           actualizarUrlBoton(indice, e.currentTarget.textContent);}}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              toggleMostrarUrl(indice); 
+                              urlRefs.current[indice]?.blur(); 
+                            }
+                          }}
                         >
                           {b.url}
                         </p>
@@ -395,7 +433,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
             ))}
             
             {editar === true && contenido.botones.length < 3 && (
-              <button onClick={agregarBoton}>
+              <button title="Agregar botón" onClick={agregarBoton}>
                 <i className="fa-solid fa-plus fa-2x text-gray-500 cursor-pointer
                               rounded-sm border-2
                               p-2 px-10 ml-1
@@ -405,7 +443,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
           </div> 
 
           {editar === true && (
-            <button onClick={(e) =>
+            <button title="Cambiar color de fondo del carrusel"  onClick={(e) =>
                           abrirSelectorColor(e, contenido.colorFondoImagenes, (nuevoColor) => {
                             actualizarProyecto({
                               ...contenido,
@@ -425,7 +463,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
           )} 
 
           {editar === true && (
-            <button onClick={(e) =>
+            <button title="Cambiar color de fondo de información" onClick={(e) =>
                           abrirSelectorColor(e, contenido.colorFondoTexto, (nuevoColor) => {
                             actualizarProyecto({ 
                               ...contenido, 

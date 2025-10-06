@@ -1,5 +1,7 @@
 import { SelectorColor } from "../components/SelectorColor";
 import { useSelectorColor, usePortfolioStore } from '../../hooks';
+import { tarjetaExperienciaDefecto } from "../modulosDefecto";
+import Swal from "sweetalert2";
 
 export const Experiencia = ({config, editar}) => {
 
@@ -25,15 +27,15 @@ export const Experiencia = ({config, editar}) => {
       })
     }
 
-   const manejarCambioOrientacionTitulo = () => {
-    const orientacion = config.orientacionTitulo === 'center' 
+   const manejarCambioAlineacionTitulo = () => {
+    const alineacion = config.alineacionTitulo === 'center' 
     ? 'start' 
     : 'center';
 
     actualizarConfigLocal({
       key: componente,
-      propiedad: 'orientacionTitulo',
-      valor: orientacion
+      propiedad: 'alineacionTitulo',
+      valor: alineacion
     });
   };
 
@@ -70,27 +72,20 @@ export const Experiencia = ({config, editar}) => {
       propiedad: 'tarjetas',
       valor: nuevasTarjetas,
     });
-};
-
-const agregarTarjeta = () => {
-      
-  const nuevaTarjeta = { 
-        puesto: "Rol o puesto",
-        empresa: "Nombre de empresa",
-        tiempo: "Enero 2020 - Febrero 2021",
-        descripcion: "Descripcion experiencia",
-        colorTexto: "#000",
-        colorFondo: "#ffff"
-      };
-
-      const nuevasTarjetas = [...config.tarjetas, nuevaTarjeta]
-
-      actualizarConfigLocal({
-        key: componente,
-        propiedad: 'tarjetas',
-        valor: nuevasTarjetas,
-      });
   };
+
+  const agregarTarjeta = () => {
+        
+    const nuevaTarjeta = tarjetaExperienciaDefecto;
+
+    const nuevasTarjetas = [...config.tarjetas, nuevaTarjeta]
+
+    actualizarConfigLocal({
+      key: componente,
+      propiedad: 'tarjetas',
+      valor: nuevasTarjetas,
+    });
+  };  
 
   return (
     <div className={`text-center relative
@@ -101,21 +96,39 @@ const agregarTarjeta = () => {
 
         <div className="w-[85%] mx-auto">
 
-          <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
+          <div className={`flex items-start gap-2 justify-${config.alineacionTitulo} relative`}>
 
             <h2 className={`select-none outline-none text-[${config.colorTitulo}]
                             mb-10 
                             text-4xl font-semibold
                             sm:text-5xl`}
+                spellCheck={false}
                 contentEditable={editar}
                 suppressContentEditableWarning={true}
-                onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                onBlur={(e) => {
+                  const texto = e.currentTarget.textContent.trim();
+
+                  if (texto.length === 0) {
+                    e.currentTarget.textContent = config.titulo;
+                    Swal.fire({
+                      icon: "warning",
+                      title: "El Título no puede quedar vacío",
+                      showConfirmButton: true,
+                      confirmButtonText: "Aceptar"
+                    });
+                  } 
+                  else {
+                    actualizarTitulo(e.currentTarget.textContent)
+                  }
+                }}
+            >
                 {config.titulo}
             </h2>
 
             {editar && (
               <div className="flex gap-1">
                 <button
+                  title="Cambiar color del título"
                   onClick={(e) =>
                     abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
                        actualizarConfigLocal({ 
@@ -134,11 +147,12 @@ const agregarTarjeta = () => {
                 </button>
 
                 <button
-                  onClick={manejarCambioOrientacionTitulo}
+                  title="Cambiar alineación del título"
+                  onClick={manejarCambioAlineacionTitulo}
                   className="flex items-center justify-center cursor-pointer
                             bg-white p-1 rounded-full hover:bg-pink-400"
                 >
-                  <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                  <i className={`fa-solid ${config.alineacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                 </button>
               </div>
               )}
@@ -157,26 +171,47 @@ const agregarTarjeta = () => {
                         <h3 className="text-2xl outline-none font-semibold
                                         sm:text-3xl"
                             contentEditable={editar}
+                            spellCheck={false}
                             suppressContentEditableWarning={true}
-                            onBlur={(e) => cambiarValorTarjetas(indice, "puesto", e.currentTarget.textContent)}>
-                            {t.puesto}
+                            onBlur={(e) => {
+                              const texto = e.currentTarget.textContent.trim();
+
+                              if (texto.length === 0) {
+                                e.currentTarget.textContent = t.puesto;
+                                Swal.fire({
+                                  icon: "warning",
+                                  title: "El Título de la tarjeta no puede quedar vacío",
+                                  showConfirmButton: true,
+                                  confirmButtonText: "Aceptar"
+                                });
+                              } 
+                              else {
+                                cambiarValorTarjetas(indice, "puesto", e.currentTarget.textContent)
+                              }
+                            }}
+                        >
+                          {t.puesto}
                         </h3>
                      
                         <h5 className="text-lg outline-none
                                         sm:text-xl"
-                             contentEditable={editar}
-                             suppressContentEditableWarning={true}
-                             onBlur={(e) => cambiarValorTarjetas(indice, "empresa", e.currentTarget.textContent)}>
-                            {t.empresa}
+                            spellCheck={false}
+                            contentEditable={editar}
+                            suppressContentEditableWarning={true}
+                            onBlur={(e) => cambiarValorTarjetas(indice, "empresa", e.currentTarget.textContent)}
+                        >
+                          {t.empresa}
                         </h5>
                         <p className="text-sm outline-none
                                         sm:text-md"
+                            spellCheck={false}
                             contentEditable={editar}
                             suppressContentEditableWarning={true}
                             onBlur={(e) => cambiarValorTarjetas(indice, "tiempo", e.currentTarget.textContent)}>
                             {t.tiempo}
                         </p>
                         <p className="lg:text-lg outline-none"
+                            spellCheck={false}
                             contentEditable={editar}
                             suppressContentEditableWarning={true}
                             onBlur={(e) => cambiarValorTarjetas(indice, "descripcion", e.currentTarget.textContent)}>
@@ -186,16 +221,18 @@ const agregarTarjeta = () => {
 
                     {editar && (
                         <button
-                        onClick={() => eliminarTarjeta(indice)}
-                        className="flex items-center justify-center absolute top-1 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
+                          title="Eliminar tarjeta"
+                          onClick={() => eliminarTarjeta(indice)}
+                          className="flex items-center justify-center absolute top-1 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-500"
                         >
-                        <i className="fa-solid fa-trash text-sm" />
+                          <i className="fa-solid fa-trash text-sm" />
                         </button>
                     )}
 
                     {editar && (
                         <button
-                        onClick={(e) =>
+                          title="Cambiar color del fondo"
+                          onClick={(e) =>
                           abrirSelectorColor(e, config.tarjetas[indice].colorFondo, (nuevoColor) => {
                             actualizarColorTarjeta(indice, nuevoColor, "colorFondo");
                             }, {
@@ -215,7 +252,8 @@ const agregarTarjeta = () => {
 
                     {editar && (
                         <button
-                        onClick={(e) =>
+                          title="Cambiar color del texto"
+                          onClick={(e) =>
                           abrirSelectorColor(e, config.tarjetas[indice].colorTexto, (nuevoColor) => {
                             actualizarColorTarjeta(indice, nuevoColor, "colorTexto");
                             }, {
@@ -236,7 +274,7 @@ const agregarTarjeta = () => {
         </div>
 
         {editar === true && (
-        <button onClick={(e) =>
+        <button title="Cambiar color del fondo" onClick={(e) =>
                       abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
                          actualizarConfigLocal({ 
                           key: componente,
@@ -262,6 +300,7 @@ const agregarTarjeta = () => {
                         mx-auto mt-2
                         h-[calc(100%/3)]`}>
           <button
+            title="Agregar tarjeta"
             onClick={agregarTarjeta}
             className="w-full h-full bg-white rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 border-2 border-dashed border-gray-400"
           >
@@ -271,7 +310,7 @@ const agregarTarjeta = () => {
       )}
 
       {editar === true && (
-        <button onClick={(e) =>
+        <button title="Eliminar módulo" onClick={(e) =>
                       desactivarModuloPorKey('experiencia')
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center

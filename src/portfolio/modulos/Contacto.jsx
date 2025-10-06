@@ -33,15 +33,15 @@ export const Contacto = ({config, editar}) => {
     })
   }
 
-  const manejarCambioOrientacionTitulo = () => {
-    const orientacion = config.orientacionTitulo === 'center' 
+  const manejarCambioAlineacionTitulo = () => {
+    const alineacion = config.alineacionTitulo === 'center' 
     ? 'start' 
     : 'center';
 
     actualizarConfigLocal({
       key: componente,
-      propiedad: 'orientacionTitulo',
-      valor: orientacion
+      propiedad: 'alineacionTitulo',
+      valor: alineacion
     });
   };
 
@@ -120,20 +120,38 @@ export const Contacto = ({config, editar}) => {
                       sm:py-20`} 
           id={config.id}>       
         <div className="w-[85%] mx-auto">
-          <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
+          <div className={`flex items-start gap-2 justify-${config.alineacionTitulo} relative`}>
             <h2 className={`select-none text-[${config.colorTitulo}] outline-none
                             text-4xl font-semibold
                             mb-10    
                             sm:text-5xl`}
+                spellCheck={false}
                 contentEditable={editar}
                 suppressContentEditableWarning={true}
-                onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                onBlur={(e) => {
+                  const texto = e.currentTarget.textContent.trim();
+
+                  if (texto.length === 0) {
+                    e.currentTarget.textContent = config.titulo;
+                    Swal.fire({
+                      icon: "warning",
+                      title: "El Título no puede quedar vacío",
+                      showConfirmButton: true,
+                      confirmButtonText: "Aceptar"
+                    });
+                  } 
+                  else {
+                    actualizarTitulo(e.currentTarget.textContent)
+                  }
+                }}
+            >
                 {config.titulo}
             </h2>
 
             {editar && (
               <div className="flex gap-1">
                 <button
+                  title="Cambiar color del título"
                   onClick={(e) =>
                     abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
                       actualizarConfigLocal({ 
@@ -152,11 +170,12 @@ export const Contacto = ({config, editar}) => {
                 </button>
 
                 <button
-                  onClick={manejarCambioOrientacionTitulo}
+                  title="Cambiar alineación del título"
+                  onClick={manejarCambioAlineacionTitulo}
                   className="flex items-center justify-center cursor-pointer
                             bg-white p-1 rounded-full hover:bg-pink-400"
                 >
-                  <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                  <i className={`fa-solid ${config.alineacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                 </button>
               </div>
               )}
@@ -182,11 +201,13 @@ export const Contacto = ({config, editar}) => {
                         required />             
                 <textarea className={`border rounded-sm resize-none outline-none border-[${config.colorBordes}]
                                       p-4 w-[100%] h-30`} 
+                          required
                           name="mensaje" 
                           placeholder="Mensaje" 
                           spellCheck="false"/>
                 <div className={`relative w-full flex justify-center ${editar && 'mt-7'}`}>
                   <input
+                    title="Enviar email"
                     disabled={enviando}
                     className={`outline rounded-sm bg-[${config.colorBoton}]
                                 font-semibold text-[${config.colorTextoBoton}]
@@ -202,6 +223,7 @@ export const Contacto = ({config, editar}) => {
                   {editar && (
                     <>
                       <button
+                        title="Cambiar color del texto"
                         onClick={(e) =>
                           abrirSelectorColor(e, config.colorTextoBoton, (nuevoColor) => {
                             actualizarConfigLocal({ 
@@ -220,6 +242,7 @@ export const Contacto = ({config, editar}) => {
                       </button>
 
                       <button
+                        title="Cambiar color del botón"
                         onClick={(e) =>
                           abrirSelectorColor(e, config.colorBoton, (nuevoColor) => {
                             actualizarConfigLocal({ 
@@ -243,6 +266,7 @@ export const Contacto = ({config, editar}) => {
 
             {editar && (
               <button
+              title="Cambiar color de bordes"
               onClick={(e) =>
                 abrirSelectorColor(e, config.colorBordes, (nuevoColor) => {
                   actualizarConfigLocal({ 
@@ -266,18 +290,18 @@ export const Contacto = ({config, editar}) => {
         </div>
 
         {editar === true && (
-          <button onClick={(e) => manejarCambioMail()}
+          <button title="Cambiar dirección de email" onClick={(e) => manejarCambioMail()}
                   className={`absolute right-18 top-3 cursor-pointer flex items-center
                                 bg-white rounded-full p-2 
                                 hover:bg-blue-400
-                                xl:right-14`}>
+                                xl:right-23`}>
                 <i className="fa-solid fa-at text-sm
                               xl:text-xl"/>
           </button>
         )}
 
         {editar === true && (
-          <button onClick={(e) =>
+          <button title="Cambiar color del fondo" onClick={(e) =>
                         abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
                           actualizarConfigLocal({ 
                             key: componente,
@@ -298,7 +322,7 @@ export const Contacto = ({config, editar}) => {
         )}
 
         {editar === true && (
-          <button onClick={(e) =>
+          <button title="Eliminar módulo"  onClick={(e) =>
                         desactivarModuloPorKey(componente)
                       }
                   className={`absolute right-2 top-3 cursor-pointer flex items-center

@@ -56,8 +56,8 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
 
             {editar && (
               <>
-                {/* Botón cambiar imagen */}
                 <button
+                  title='Cambiar imagen'
                   onClick={() => document.getElementById(`imgCarrusel-${i}`).click()}
                   className="absolute flex item-center justify-center top-1 right-7 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
                 >
@@ -71,10 +71,10 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
                   onChange={(e) => cambiarImagenCarrusel(e, i)}
                 />
 
-                {/* Botón eliminar imagen */}
                 <button
+                  title='Eliminar imagen'
                   onClick={() => eliminarImagenCarrusel(i)}
-                  className="absolute flex item-center  justify-center top-1 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-400"
+                  className="absolute flex item-center  justify-center top-1 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-500"
                 >
                   <i className="fa-solid fa-trash text-sm" />
                 </button>
@@ -86,6 +86,7 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
         {editar && (
           <div className="relative snap-center flex-shrink-0 mr-[10%]">
             <button
+              title='Agregar imagen'
               onClick={agregarImagenCarrusel}
               className="h-50 md:h-70 w-35 bg-white rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-200 border-2 border-dashed border-gray-400"
             >
@@ -96,21 +97,23 @@ export const Carrusel = ({ imagenes, colorFondo, editar = false, eliminarImagenC
       </div>
 
       <button
+        title='Anterior imagen'
         onClick={anterior}
         className="absolute cursor-pointer 
                   bg-white 
                   p-2 top-1/2 left-2 transform -translate-y-1/2 rounded-sm  
-                  hover:bg-gray-300"
+                  hover:bg-pink-400"
       >
         <i className="fa-solid fa-arrow-left" />
       </button>
       
       <button
+        title='Siguiente imagen'
         onClick={siguiente}
         className="absolute cursor-pointer
                   bg-white
                   top-1/2 right-2 transform -translate-y-1/2 p-2 rounded-sm 
-                  hover:bg-gray-300"
+                  hover:bg-pink-400"
       >
         <i className="fa-solid fa-arrow-right" />
       </button>

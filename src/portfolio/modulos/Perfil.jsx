@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
 import { SelectorColor } from "../components/SelectorColor";
 import { SelectorIcono } from "../components/SelectorIcono";
+import { redSocialDefecto } from "../modulosDefecto";
 import { useSelectorColor, useSelectorIcono, usePortfolioStore, useImagenes } from '../../hooks';
 import { Icon } from '@iconify/react';
+import Swal from "sweetalert2";
 
 export const Perfil = ({ config, editar }) => {
 
@@ -81,12 +83,7 @@ export const Perfil = ({ config, editar }) => {
   const agregarRedSocial = () => {
       if (config.redesSociales.length >= 4) return config;
 
-      const nuevaRed = { //TODO: Cambiar para que tome la por defecto
-        icono: "fa-instagram",
-        url: "https://",
-        colorIcono: "#000000",
-        colorFondo: "#ffffff"
-      };
+      const nuevaRed = redSocialDefecto;
       const nuevasRedesSociales = [...config.redesSociales, nuevaRed]
 
       actualizarConfigLocal({
@@ -160,6 +157,7 @@ export const Perfil = ({ config, editar }) => {
                       {editar && (
                         <>                       
                           <button
+                            title="Cambiar color del borde"  
                             onClick={(e) =>
                               abrirSelectorColor(e, config.colorBorde, (nuevoColor) => {
                                 actualizarConfigLocal({
@@ -178,6 +176,7 @@ export const Perfil = ({ config, editar }) => {
                           </button>
 
                           <button
+                            title="Cambiar ancho del borde" 
                             onClick={manejarCambioAnchoBorde}
                             className="flex items-center absolute -top-8 left-7 z-10 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
                           >
@@ -201,14 +200,31 @@ export const Perfil = ({ config, editar }) => {
                               md:text-5xl 
                               xl:text-6xl`}
                   contentEditable={editar}
+                  spellCheck={false}
                   suppressContentEditableWarning={true}
-                  onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}
+                  onBlur={(e) => {
+                    const texto = e.currentTarget.textContent.trim();
+
+                    if (texto.length === 0) {
+                      e.currentTarget.textContent = config.titulo;
+                      Swal.fire({
+                        icon: "warning",
+                        title: "El Nombre no puede quedar vacío",
+                        showConfirmButton: true,
+                        confirmButtonText: "Aceptar"
+                      });
+                    } 
+                    else {
+                      actualizarTitulo(e.currentTarget.textContent)
+                    }
+                  }}
                 >
                   {config.titulo}
                 </h1>
 
                 {editar && (
                   <button
+                    title="Cambiar color del título" 
                     onClick={(e) =>
                       abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
                         actualizarConfigLocal({
@@ -247,6 +263,7 @@ export const Perfil = ({ config, editar }) => {
                 src={`${config.imagen}`}/>
                 {editar && (
                   <button
+                    title="Cambiar imagen de perfil" 
                     onClick={() => document.getElementById("input-imagen-perfil").click()}
                     className="flex items-center justify-center absolute top-2 right-2 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
                   >
@@ -268,6 +285,7 @@ export const Perfil = ({ config, editar }) => {
                               sm:text-lg 
                               xl:text-xl`}
                     contentEditable={editar}
+                    spellCheck={false}
                     suppressContentEditableWarning={true}
                     onBlur={(e) => actualizarDescripcion(e.currentTarget.textContent)}>
                     {config.descripcion}
@@ -275,6 +293,7 @@ export const Perfil = ({ config, editar }) => {
 
                 {editar && (
                     <button
+                    title="Cambiar color de descripción" 
                     onClick={(e) =>
                       abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
                         actualizarConfigLocal({
@@ -306,6 +325,7 @@ export const Perfil = ({ config, editar }) => {
                   {editar && (
                     <>
                       <button
+                        title="Cambiar color del ícono" 
                         onClick={(e) =>
                           abrirSelectorColor(e, config.redesSociales[indice].colorIcono, (nuevoColor) => {
                             actualizarColorRedSocial(indice, nuevoColor);
@@ -322,6 +342,7 @@ export const Perfil = ({ config, editar }) => {
                       </button>                    
 
                       <button
+                        title="Cambiar color del fondo" 
                         onClick={(e) =>
                           abrirSelectorColor(e, config.redesSociales[indice].colorFondo, (nuevoColor) => {
                             actualizarColorRedSocial(indice, nuevoColor, "colorFondo");
@@ -338,6 +359,7 @@ export const Perfil = ({ config, editar }) => {
                       </button>
 
                       <button
+                        title="Cambiar url" 
                         onClick={() => toggleMostrarUrl(indice)}
                         className="flex items-center absolute -bottom-6 left-1/2 -translate-x-[120%] cursor-pointer
                                   bg-white p-1 rounded-full hover:bg-pink-400
@@ -347,11 +369,12 @@ export const Perfil = ({ config, editar }) => {
                       </button>
 
                       <button
+                        title="Eliminar" 
                         onClick={(e) =>
                           eliminarRedSocial(indice)
                         }
                         className="flex items-center absolute -bottom-6 left-1/2 -translate-x-[-20%] cursor-pointer
-                                  bg-white p-1 rounded-full hover:bg-pink-400
+                                  bg-white p-1 rounded-full hover:bg-red-500
                                   z-10"
                       >
                         <i className="fa-solid fa-trash text-sm" />
@@ -369,9 +392,17 @@ export const Perfil = ({ config, editar }) => {
                                     border border-gray-300 shadow-sm
                                     hide-scrollbar"
                           contentEditable={editar}
+                          spellCheck={false}
                           suppressContentEditableWarning={true}
                           onBlur={(e) => {urlRefs.current[indice]?.scrollTo({ left: 0 });
                           actualizarUrlRedSocial(indice, e.currentTarget.textContent);}}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              toggleMostrarUrl(indice); 
+                              urlRefs.current[indice]?.blur(); 
+                            }
+                          }}
                         >
                           {r.url}
                         </p>
@@ -381,7 +412,7 @@ export const Perfil = ({ config, editar }) => {
                   )}
 
                   <a
-                    href={r.url}
+                    href={editar === false ? (r.url.startsWith('http') ? r.url : `https://${r.url}`) : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => {
@@ -392,6 +423,7 @@ export const Perfil = ({ config, editar }) => {
                   >
                     {editar && (
                       <button
+                        title="Cambiar ícono" 
                         onClick={(e) =>
                           abrirSelectorIcono(
                             e,
@@ -439,7 +471,7 @@ export const Perfil = ({ config, editar }) => {
 
 
               {editar === true && config.redesSociales.length < 4 && (
-                <button onClick={agregarRedSocial}>
+                <button title="Agregar"  onClick={agregarRedSocial}>
                   <i className="fa-solid fa-plus fa-2x text-gray-500 cursor-pointer
                                 rounded-sm border-2
                                 p-2 ml-1
@@ -469,6 +501,7 @@ export const Perfil = ({ config, editar }) => {
 
             {editar && (
               <button
+                title="Cambiar imagen de perfil"
                 onClick={() => document.getElementById("input-imagen-perfil").click()}
                 className="flex items-center justify-center absolute top-2 right-2 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
               >
@@ -487,7 +520,8 @@ export const Perfil = ({ config, editar }) => {
       </div>
 
       {editar === true && (
-        <button onClick={(e) =>
+        <button title="Cambiar color de fondo" 
+                onClick={(e) =>
                       abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
                         actualizarConfigLocal({
                           key: componente,

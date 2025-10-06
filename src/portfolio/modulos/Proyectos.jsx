@@ -2,6 +2,8 @@ import {useState} from "react";
 import { SelectorColor } from "../components/SelectorColor";
 import { useSelectorColor, usePortfolioStore, useImagenes } from '../../hooks';
 import { VistaProyecto } from "../components/VistaProyecto";
+import { proyectoDefecto } from "../modulosDefecto";
+import Swal from "sweetalert2";
 
 export const Proyectos = ({config, editar}) => {
 
@@ -36,15 +38,15 @@ export const Proyectos = ({config, editar}) => {
     })
   }
 
-  const manejarCambioOrientacionTitulo = () => {
-    const orientacion = config.orientacionTitulo === 'center' 
+  const manejarCambioAlineacionTitulo = () => {
+    const alineacion = config.alineacionTitulo === 'center' 
     ? 'start' 
     : 'center';
 
     actualizarConfigLocal({
       key: componente,
-      propiedad: 'orientacionTitulo',
-      valor: orientacion
+      propiedad: 'alineacionTitulo',
+      valor: alineacion
     });
   };
 
@@ -136,66 +138,8 @@ export const Proyectos = ({config, editar}) => {
     };
 
     const agregarProyecto = () => {
-        const nuevoProyecto = { 
-          titulo: "Titulo",
-          colorBoton: "#1a5fad",  
-          colorTexto: "#000",
-          colorFondoEtiqueta: "#1a5fad",           
-          imagenFondo: "../img-proyectos/ahorcado.jpg",
-          etiquetas: [
-              {
-                  texto: "Etiqueta",                                           
-              },
-              {
-                  texto: "Etiqueta",                                            
-              },
-              {
-                  texto: "Etiqueta",                                                                 
-              }
-              
-          ],
-          //Ventanita que se abre al presionar "Ver más"
-          colorFondoImagenes:"#ccc",
-          colorFondoTexto:"#ffff",
-          imagenes: [
-              {
-                  url: "../img-vista-proyecto/foto5.jpg"
-              },
-              {
-                  url: "../img-proyectos/banco.jpg"
-              },
-              {
-                  url: "../img-proyectos/banco.jpg"
-              },
-              {
-                  url: "../img-vista-proyecto/foto4.jpg"
-              },
-              {
-                  url: "../img-vista-proyecto/foto6.jpg"
-              }
-          ],
-          descripcion: "Descripcion proyecto",
-          botones: [
-              {
-                  imagen: "../img-botones/descargas.png",
-                  texto: "Descargar",
-                  color: "#07e71b",
-                  url: "facebook.com"
-              },
-              {
-                  imagen: "../img-botones/descargas.png",
-                  texto: "Descargar",
-                  color: "#07e71b",
-                  url: "facebook.com"
-              },
-              {
-                  imagen: "../img-botones/descargas.png",
-                  texto: "Descargar",
-                  color: "#07e71b",
-                  url: "facebook.com"
-              }
-          ]
-        };
+      
+        const nuevoProyecto = proyectoDefecto;
 
         const nuevosProyectos = [...config.proyectos, nuevoProyecto]
 
@@ -228,21 +172,39 @@ export const Proyectos = ({config, editar}) => {
         <div className="select-none
                         w-[85%] mx-auto ">
 
-            <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
+            <div className={`flex items-start gap-2 justify-${config.alineacionTitulo} relative`}>
 
                 <h2 className={`select-none text-[${config.colorTitulo}] outline-none
                                 text-4xl font-semibold
                                 mb-10 
                                 sm:text-5xl`}
                     contentEditable={editar}
+                    spellCheck={false}
                     suppressContentEditableWarning={true}
-                    onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                    onBlur={(e) => {
+                      const texto = e.currentTarget.textContent.trim();
+
+                      if (texto.length === 0) {
+                        e.currentTarget.textContent = config.titulo;
+                        Swal.fire({
+                          icon: "warning",
+                          title: "El Título no puede quedar vacío",
+                          showConfirmButton: true,
+                          confirmButtonText: "Aceptar"
+                        });
+                      } 
+                      else {
+                        actualizarTitulo(e.currentTarget.textContent)
+                      }
+                    }}
+                >
                     {config.titulo}
                 </h2>
 
                 {editar && (
                 <div className="flex gap-1">
                     <button
+                    title="Cambiar color del título" 
                     onClick={(e) =>
                         abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
                          actualizarConfigLocal({ 
@@ -261,11 +223,12 @@ export const Proyectos = ({config, editar}) => {
                     </button>
 
                     <button
-                    onClick={manejarCambioOrientacionTitulo}
+                    title="Cambiar alineación del título" 
+                    onClick={manejarCambioAlineacionTitulo}
                     className="flex items-center justify-center cursor-pointer
                                 bg-white p-1 rounded-full hover:bg-pink-400"
                     >
-                    <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                    <i className={`fa-solid ${config.alineacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                     </button>
                 </div>
                 )}
@@ -293,6 +256,7 @@ export const Proyectos = ({config, editar}) => {
                             src={p.imagenFondo}/>
                             {editar && (
                                 <button
+                                title="Cambiar imagen de fondo" 
                                 onClick={() => document.getElementById('imgProyecto-' + indice).click()}
                                 className="flex items-center justify-center absolute -top-7 right-7 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
                                 >
@@ -315,6 +279,7 @@ export const Proyectos = ({config, editar}) => {
                                                 mb-2 
                                                 sm:text-xl
                                                 2xl:text-2xl`}
+                                    spellCheck={false}
                                     contentEditable={editar}
                                     suppressContentEditableWarning={true}
                                     onBlur={(e) => cambiarValorProyectos(indice, "titulo", e.currentTarget.textContent)}>
@@ -328,6 +293,7 @@ export const Proyectos = ({config, editar}) => {
                                                         bg-[${p.colorFondoEtiqueta}]
                                                         rounded-sm 
                                                         2xl:p-2`}
+                                            spellCheck={false}
                                             contentEditable={editar}
                                             suppressContentEditableWarning={true}
                                             onBlur={(e) => cambiarTextoEtiqueta(indice, indiceEtiqueta, e.currentTarget.textContent)}>
@@ -336,7 +302,7 @@ export const Proyectos = ({config, editar}) => {
                                     ))}                                  
                                 </div>
                             </div>
-                            <button onClick={() => setIndiceProyectoActivo(indice)}
+                            <button title="Ver más" onClick={() => setIndiceProyectoActivo(indice)}
                                     className={`font-sans font-semibold text-xl text-[${p.colorTexto}]
                                                 border-2
                                                 px-5 py-1
@@ -344,12 +310,13 @@ export const Proyectos = ({config, editar}) => {
                                                 hover:cursor-pointer     
                                                 sm:px-6 sm:py-2 
                                                 lg:text-lg`}>
-                                Ver Más
+                                Ver más
                             </button>
 
 
                             {editar && (
                               <button
+                              title="Cambiar color de los textos" 
                               onClick={(e) =>
                               abrirSelectorColor(e, config.proyectos[indice].colorTexto, (nuevoColor) => {
                                   actualizarColorProyecto(indice, nuevoColor, "colorTexto");
@@ -369,6 +336,7 @@ export const Proyectos = ({config, editar}) => {
 
                             {editar && (
                               <button
+                              title="Cambiar color de etiquetas" 
                               onClick={(e) =>
                               abrirSelectorColor(e, config.proyectos[indice].colorFondoEtiqueta || "#1a5fad", (nuevoColor) => {
                                   actualizarColorProyecto(indice, nuevoColor, 'colorFondoEtiqueta');
@@ -388,6 +356,7 @@ export const Proyectos = ({config, editar}) => {
 
                             {editar && (
                               <button
+                              title="Cambiar color del botón 'ver más'" 
                               onClick={(e) =>
                               abrirSelectorColor(e, config.proyectos[indice].colorBoton, (nuevoColor) => {
                                   actualizarColorProyecto(indice, nuevoColor, "colorBoton");
@@ -407,8 +376,9 @@ export const Proyectos = ({config, editar}) => {
 
                             {editar && (
                                 <button
+                                title="Eliminar" 
                                 onClick={() => eliminarProyecto(indice)}
-                                className="flex items-center justify-center absolute -top-7 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
+                                className="flex items-center justify-center absolute -top-7 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-500"
                                 >
                                 <i className="fa-solid fa-trash text-sm" />
                                 </button>
@@ -424,6 +394,7 @@ export const Proyectos = ({config, editar}) => {
                                   lg:w-[30%] 
                                   xl:w-[23%]`}>
                     <button
+                      title="Agregar" 
                       onClick={agregarProyecto}
                       className="w-full h-full aspect-[3/2] bg-white rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-200 border-2 border-dashed border-gray-400"
                     >           
@@ -443,7 +414,7 @@ export const Proyectos = ({config, editar}) => {
         )}
 
         {editar === true && (
-        <button onClick={(e) =>
+        <button title="Cambiar color del fondo"  onClick={(e) =>
                       abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
                          actualizarConfigLocal({ 
                           key: componente,
@@ -464,7 +435,7 @@ export const Proyectos = ({config, editar}) => {
       )}
 
       {editar === true && (
-        <button onClick={(e) =>
+        <button title="Eliminar módulo"  onClick={(e) =>
                       desactivarModuloPorKey('proyectos')
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center

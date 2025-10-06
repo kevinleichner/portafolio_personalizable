@@ -6,7 +6,7 @@ const { VITE_URL_BASE } = getVariablesEntorno();
 
 export const AdminNavbar = ({editar, hayCambios, config}) => {
 
-  const {empezarEdicion, terminarEdicion, empezarGuardarCambios, empezarDeshacerCambios, actualizarConfigLocal} = usePortfolioStore();
+  const {empezarEdicion, terminarEdicion, empezarGuardarCambios, empezarDeshacerCambios, actualizarConfigLocal, configLocal} = usePortfolioStore();
   const {empezarDeslogeo, usuario} = useAuthStore();
 
   const [activo, setActivo] = useState(false);
@@ -43,9 +43,19 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   }
 
   const manejarGuardado = async () => {
+
+    const faltanUrlsBotones = configLocal.proyectos?.proyectos?.some(p =>
+      p.botones?.some(b => !b.url || b.url.trim() === "" || b.url.trim() === "www.")
+    );
+
+    const faltanUrlsRedes = configLocal.perfil.redesSociales?.some(r => !r.url || r.url.trim() === "" || r.url.trim() === "www.");
+
     const resp = await Swal.fire({
       title: "¿Guardar cambios?",
       icon: "question",
+      text: (faltanUrlsBotones || faltanUrlsRedes)
+      ? "Tienes redes sociales o botones sin URL"
+      : "",
       showCancelButton: true,
       confirmButtonText: "Guardar",
       cancelButtonText: "Cancelar"
@@ -118,6 +128,7 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
           <div className='flex gap-4'>
             <button
                 onClick={() => setActivo(!activo)}
+                title="Habilitar/Deshabilitar modo edición"  
                 className={`flex items-center
                             rounded-full
                             w-16 h-9 p-1 
@@ -139,7 +150,8 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
             </button>
 
             <button 
-              onClick={() => hayCambios && manejarGuardado()}       
+              onClick={() => hayCambios && manejarGuardado()}  
+              title="Guardar cambios"       
               className={`flex items-center justify-center
                           rounded-full
                           transition-colors duration-200
@@ -162,7 +174,8 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
             </button>  
 
             <button 
-              onClick={() => hayCambios && manejarDeshacerCambios()}       
+              onClick={() => hayCambios && manejarDeshacerCambios()} 
+              title="Deshacer cambios"      
               className={`flex items-center justify-center
                           rounded-full
                           transition-colors duration-200
@@ -197,14 +210,29 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
             type="text"
             className="bg-white p-2 text-black rounded-sm outline-none max-w-30 lg:max-w-40 whitespace-nowrap overflow-x-auto
                       overflow-y-hidden hide-scrollbar"
-            defaultValue={config.urlUsuario}
-            spellCheck="false"
+            value={config.urlUsuario}
+            spellCheck={false}
             readOnly={!editar}
             pattern="[a-zA-Z0-9_-]+"
             title="Solo letras, números, guiones y guiones bajos. Sin espacios."
-            onBlur={(e) => {
+            onChange={(e) => {
               actualizarUrl(e.currentTarget.value);
-              e.currentTarget.scrollTo({ left: 0 });              
+            }}
+            onBlur={(e) => {
+              const texto = e.currentTarget.value.trim();
+
+              if (texto.length === 0 && editar) {
+                e.currentTarget.value = config.urlUsuario;
+                Swal.fire({
+                  icon: "warning",
+                  title: "El url no puede quedar vacío",
+                  showConfirmButton: true,
+                  confirmButtonText: "Aceptar"
+                });
+              } 
+              else {
+                e.currentTarget.scrollTo({ left: 0 })
+              }
             }}
             onInput={(e) => {
               e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z0-9_-]/g, '');
@@ -216,7 +244,8 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
         </div>
      
         <button 
-            onClick={() => manejarDeslogeo()}       
+            onClick={() => manejarDeslogeo()}
+            title="Cerrar sesión"         
             className={`flex items-center justify-center
                         rounded-full bg-red-500 cursor-pointer
                         p-1 

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { SelectorColor } from "../components/SelectorColor";
 import { useSelectorColor, usePortfolioStore, useImagenes } from '../../hooks';
+import { conocimientoDefecto } from "../modulosDefecto";
+import Swal from "sweetalert2";
 
 export const Conocimientos = ({config, editar}) => { 
 
@@ -66,15 +68,15 @@ export const Conocimientos = ({config, editar}) => {
     setCargandoImgIndice(null);
   };
 
-  const manejarCambioOrientacionTitulo = () => {
-    const orientacion = config.orientacionTitulo === 'center' 
+  const manejarCambioAlineacionTitulo = () => {
+    const alineacion = config.alineacionTitulo === 'center' 
     ? 'start' 
     : 'center';
 
     actualizarConfigLocal({
       key: componente,
-      propiedad: 'orientacionTitulo',
-      valor: orientacion
+      propiedad: 'alineacionTitulo',
+      valor: alineacion
     });
   };
 
@@ -104,12 +106,7 @@ export const Conocimientos = ({config, editar}) => {
 
 const agregarConocimiento = () => {
 
-      const nuevoConocimiento = { 
-        imagen: "../img-conocimientos/css.png",
-        texto: "HTML",
-        colorFondo: "#ccc",
-        colorTexto: "#000"
-      };
+      const nuevoConocimiento = conocimientoDefecto;
 
       const nuevosConocimientos = [...config.conocimientos, nuevoConocimiento]
 
@@ -128,20 +125,38 @@ const agregarConocimiento = () => {
         id={config.id}>
         <div className="w-[85%] mx-auto select-none relative">
 
-          <div className={`flex items-start gap-2 justify-${config.orientacionTitulo} relative`}>
+          <div className={`flex items-start gap-2 justify-${config.alineacionTitulo} relative`}>
 
             <h2 className={`text-4xl font-semibold outline-none text-[${config.colorTitulo}]
                             mb-10 
                             sm:text-5xl`}
                 contentEditable={editar}
+                spellCheck={false}
                 suppressContentEditableWarning={true}
-                onBlur={(e) => actualizarTitulo(e.currentTarget.textContent)}>
+                onBlur={(e) => {
+                  const texto = e.currentTarget.textContent.trim();
+
+                  if (texto.length === 0) {
+                    e.currentTarget.textContent = config.titulo;
+                    Swal.fire({
+                      icon: "warning",
+                      title: "El Título no puede quedar vacío",
+                      showConfirmButton: true,
+                      confirmButtonText: "Aceptar"
+                    });
+                  } 
+                  else {
+                    actualizarTitulo(e.currentTarget.textContent)
+                  }
+                }}
+            >
                 {config.titulo}
             </h2>
 
             {editar && (
               <div className="flex gap-1">
                 <button
+                  title="Cambiar color del título"
                   onClick={(e) =>
                     abrirSelectorColor(e, config.colorTitulo, (nuevoColor) => {
                       actualizarConfigLocal({ 
@@ -160,11 +175,12 @@ const agregarConocimiento = () => {
                 </button>
 
                 <button
-                  onClick={manejarCambioOrientacionTitulo}
+                  title="Cambiar alineación del título"
+                  onClick={manejarCambioAlineacionTitulo}
                   className="flex items-center justify-center cursor-pointer
                             bg-white p-1 rounded-full hover:bg-pink-400"
                 >
-                  <i className={`fa-solid ${config.orientacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
+                  <i className={`fa-solid ${config.alineacionTitulo == 'center' ? 'fa-align-left' : 'fa-align-center'} text-sm`} />
                 </button>
               </div>
               )}
@@ -181,8 +197,9 @@ const agregarConocimiento = () => {
 
                         {editar && (
                             <button
+                            title="Eliminar"
                             onClick={() => eliminarConocimiento(indice)}
-                            className="flex items-center justify-center absolute top-1 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
+                            className="flex items-center justify-center absolute top-1 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-500"
                             >
                             <i className="fa-solid fa-trash text-sm" />
                             </button>
@@ -191,6 +208,7 @@ const agregarConocimiento = () => {
 
                         {editar && (
                           <button
+                            title="Cambiar color del fondo"
                             onClick={(e) =>
                               abrirSelectorColor(e, config.conocimientos[indice].colorFondo, (nuevoColor) => {
                                 actualizarColorConocimiento(indice, nuevoColor, "colorFondo");
@@ -215,6 +233,7 @@ const agregarConocimiento = () => {
 
                         {editar && (
                             <button
+                              title="Cambiar color del texto"
                               onClick={(e) =>
                                 abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
                                   actualizarColorConocimiento(indice, nuevoColor, "colorTexto");
@@ -239,6 +258,7 @@ const agregarConocimiento = () => {
 
                             {editar && (
                               <button
+                                title="Cambiar imagen"
                                 onClick={() => document.getElementById('img-' + indice).click()}
                                 className="flex items-center justify-center absolute top-1 right-13 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
                               >
@@ -254,6 +274,7 @@ const agregarConocimiento = () => {
                             />
                         <p className={`mt-3 outline-none text-[${c.colorTexto}]`}
                             contentEditable={editar}
+                            spellCheck={false}
                             suppressContentEditableWarning={true}
                             onBlur={(e) => cambiarValorConocimientos(indice, "texto", e.currentTarget.textContent)}>
                             {c.texto}
@@ -266,6 +287,7 @@ const agregarConocimiento = () => {
                                   p-5 w-[45%]
                                   sm:p-10 sm:w-[150px]`}>
                     <button
+                      title="Agregar"
                       onClick={agregarConocimiento}
                       className="absolute inset-0 w-full h-full rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-200 border-2 border-dashed border-gray-400"
                     >
@@ -277,7 +299,7 @@ const agregarConocimiento = () => {
         </div>
 
         {editar === true && (
-        <button onClick={(e) =>
+        <button title="Cambiar color del fondo" onClick={(e) =>
                       abrirSelectorColor(e, config.colorFondo, (nuevoColor) => {
                         actualizarConfigLocal({ 
                           key: componente,
@@ -298,7 +320,7 @@ const agregarConocimiento = () => {
       )}
 
       {editar === true && (
-        <button onClick={(e) =>
+        <button title="Eliminar módulo" onClick={(e) =>
                       desactivarModuloPorKey('conocimientos')
                     }
                 className={`absolute right-2 top-3 cursor-pointer flex items-center
