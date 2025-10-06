@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { portafolioApi } from '../api';
 import {
+  activarNoEncontrada,
   habilitarEdicion,
   deshabilitarEdicion,
   activarModulo,
@@ -17,6 +18,7 @@ import {
 export const usePortfolioStore = () => {
   const dispatch = useDispatch();
   const { 
+    noEncontrada,
     cargando, 
     edicion, 
     hayCambios, 
@@ -53,10 +55,15 @@ export const usePortfolioStore = () => {
         dispatch(desactivarCargando())
 
       } catch (error) {
-        dispatch( reportarError("Ocurrió un problema al querer cargar la configuración, recargue la página e intente nuevamente en unos segundos."));
-        setTimeout(() => {
+        if (error.response?.status === 404) {
+          dispatch( activarNoEncontrada() );
+        }
+        else {
+          dispatch( reportarError("Ocurrió un problema al querer cargar la configuración, recargue la página e intente nuevamente en unos segundos."));
+          setTimeout(() => {
             dispatch( limpiarMensajeErrorPortafolio() );
-        }, 10);
+          }, 10);
+        }  
       }
   };
 
@@ -139,6 +146,7 @@ export const usePortfolioStore = () => {
   }
 
   return {
+    noEncontrada,
     cargando,
     edicion,
     hayCambios,

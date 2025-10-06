@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Perfil, AdminNavbar, Navbar, Conocimientos, Experiencia, Contacto, Proyectos, Footer, AgregarModulo } from '..';
 import { useAuthStore, usePortfolioStore } from '../../hooks';
 import Swal from 'sweetalert2';
@@ -6,8 +7,10 @@ import Swal from 'sweetalert2';
 const MODULOS_PERMITIDOS = ['conocimientos', 'experiencia', 'proyectos', 'contacto'];
 
 export const PortfolioPage = () => {
+  const { urlUsuario } = useParams();
   const { estado, usuario } = useAuthStore();
   const { 
+    noEncontrada,
     cargando, 
     edicion, 
     modulosOrden, 
@@ -30,6 +33,12 @@ export const PortfolioPage = () => {
   };
 
   useEffect(() => {
+    if (!urlUsuario) return; 
+    obtenerRepositorioUsuario(urlUsuario);
+  }, [urlUsuario]);
+
+  useEffect(() => {
+    if (!usuario?.uid) return;
     const cargarConfig = async () => {
       await obtenerRepositorioUsuario(usuario.uid);
     };
@@ -49,6 +58,12 @@ export const PortfolioPage = () => {
         <div className='flex items-center justify-center h-[100vh] bg-[#7eb77f]'>
           <h3 className='text-2xl text-white md:text-4xl'>
             Cargando...
+          </h3>
+        </div>
+      ) : noEncontrada ? (        
+        <div className='flex items-center justify-center h-[100vh] bg-[#7eb77f]'>
+          <h3 className='text-2xl text-white md:text-4xl'>
+            Página no encontrada.
           </h3>
         </div>
       ) : (

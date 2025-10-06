@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState: {
+    noEncontrada: false,
     cargando: true,
     edicion: false,
     hayCambios: false,
@@ -18,6 +19,10 @@ export const portfolioSlice = createSlice({
       state.modulosOrden = payload.modulosOrden;
       state.configLocal = payload.configLocal;
       state.configLocalInicial = payload.configLocal;
+    },
+    activarNoEncontrada: (state) => {
+      state.noEncontrada = true;
+      state.cargando = false;
     },
     habilitarEdicion: (state) => {
       state.edicion = true;
@@ -83,6 +88,7 @@ export const portfolioSlice = createSlice({
     },
     reportarError: (state, {payload}) => {
       state.mensajeError = payload;
+      state.cargando = false;
     },
     limpiarMensajeErrorPortafolio: (state) => {
       state.mensajeError = undefined;
@@ -95,6 +101,7 @@ export const portfolioSlice = createSlice({
 
 export const { 
   cargarRepositorio, 
+  activarNoEncontrada,
   habilitarEdicion, 
   deshabilitarEdicion, 
   reportarError, 
