@@ -113,11 +113,14 @@ export const usePortfolioStore = () => {
           modulosOrden: orden,
           configLocal: config,
         }));
+
+        return true;
       } catch (error) {       
         dispatch( reportarError("Ocurrió un problema al querer deshacer los cambios, intente nuevamente en unos segundos."));
         setTimeout(() => {
             dispatch( limpiarMensajeErrorPortafolio() );
         }, 10);
+        return false;
       }
   }
 
@@ -125,13 +128,13 @@ export const usePortfolioStore = () => {
     try {
       await portafolioApi.put(`/portafolio/guardar/${ uid }`, nuevaConfigLocal)
       dispatch(guardarCambios());
-      
+      return true;
     } catch (error) {
-      console.log(error);
       dispatch( reportarError(error.response.data?.msg || Object.values(error.response.data.errores)[0].msg));
       setTimeout(() => {
           dispatch( limpiarMensajeErrorPortafolio() );
       }, 10);
+      return false;
     }
   }
 

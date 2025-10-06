@@ -62,10 +62,12 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
     })
 
     if(resp.isConfirmed){  
-      await empezarGuardarCambios(usuario.uid, config);
+      const exito = await empezarGuardarCambios(usuario.uid, config);
       
-      setGuardado(true);
-      setTimeout(() => setGuardado(false), 2000);
+      if (exito) {
+        setGuardado(true);
+        setTimeout(() => setGuardado(false), 2000);
+      }
     }
   };
 
@@ -79,10 +81,12 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
     })
 
     if(resp.isConfirmed){  
-      empezarDeshacerCambios();
+      const exito = empezarDeshacerCambios();
       
-      setDeshacer(true);
-      setTimeout(() => setDeshacer(false), 2000);
+      if (exito) {
+        setDeshacer(true);
+        setTimeout(() => setDeshacer(false), 2000);
+      }
     }
   };
 
@@ -213,7 +217,7 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
             value={config.urlUsuario}
             spellCheck={false}
             readOnly={!editar}
-            pattern="[a-zA-Z0-9_-]+"
+            pattern="[a-zA-Z0-9_\-]+"
             title="Solo letras, números, guiones y guiones bajos. Sin espacios."
             onChange={(e) => {
               actualizarUrl(e.currentTarget.value);
