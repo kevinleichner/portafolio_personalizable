@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { limpiarMensajeErrorAuth, limpiarMensajeExitosoAuth, comprobar, logear, deslogear, registrar, restablecer } from '../store';
+import { limpiarMensajeErrorAuth, limpiarMensajeExitosoAuth, comprobar, cargar, logear, deslogear, registrar, restablecer } from '../store';
 import { portafolioApi } from '../api';
 
 export const useAuthStore = () => {
@@ -64,6 +64,7 @@ export const useAuthStore = () => {
   }
 
   const validarToken = async() => {
+    dispatch( cargar() );
     const token = localStorage.getItem('token');
     if (!token) return dispatch( deslogear() );
     try {

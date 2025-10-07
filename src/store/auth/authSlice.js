@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        estado: 'deslogeado',//'pendiente', //'logeado', 'deslogeado'     
+        estado: 'cargando',//'pendiente', 'logeado', 'deslogeado', 'cargando'   
         usuario: {},
         mensajeError: undefined,
         mensajeExitoso: undefined,
@@ -12,6 +12,11 @@ export const authSlice = createSlice({
     reducers: {
         comprobar: (state) => {
             state.estado = 'pendiente';
+            state.usuario = {};
+            state.mensajeError = undefined;
+        },
+        cargar: (state) => {
+            state.estado = 'cargando';
             state.usuario = {};
             state.mensajeError = undefined;
         },
@@ -46,4 +51,12 @@ export const authSlice = createSlice({
     }
 });
 
-export const { comprobar, logear, deslogear, restablecer, registrar, limpiarMensajeErrorAuth, limpiarMensajeExitosoAuth } = authSlice.actions;
+export const { 
+    comprobar, 
+    cargar,
+    logear, 
+    deslogear, 
+    restablecer, 
+    registrar, 
+    limpiarMensajeErrorAuth, 
+    limpiarMensajeExitosoAuth } = authSlice.actions;
