@@ -111,12 +111,6 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
     const urlCompleta = base + seccion;
 
     navigator.clipboard.writeText(urlCompleta)
-      .then(() => {
-        console.log("URL copiada:", urlCompleta);
-      })
-      .catch(err => {
-        console.error("Error al copiar: ", err);
-      });
 
     setCopiado(true);
     setTimeout(() => setCopiado(false), 1000);

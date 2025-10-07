@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { PortfolioPage } from '../portfolio';
 import { LoginPage } from '../auth';
 import { useAuthStore } from '../hooks';
@@ -6,11 +6,19 @@ import { useEffect } from 'react';
 
 export const AppRouter = () => {
 
-    const { estado, usuario, validarToken } = useAuthStore();
+    const { estado, usuario, validarToken, estadoDeslogeado } = useAuthStore();
+    const location = useLocation();
+
+    const esRutaPortafolioPublico = 
+        location.pathname !== '/' &&
+        !location.pathname.startsWith('/login') &&
+        location.pathname.split('/').length === 2;
 
     useEffect(() => {
-        validarToken();
-    }, [])
+        if (estado === 'cargando') {
+            validarToken(esRutaPortafolioPublico);
+        }
+    }, []);
 
     if (estado == 'cargando') {
         return (     
@@ -24,8 +32,7 @@ export const AppRouter = () => {
 
     return (
         <Routes>
-            {estado === 'logeado' && Object.keys(usuario).length !== 0 ? (
-                
+            {estado === 'logeado' && Object.keys(usuario).length !== 0 ? (              
                 <>
                     {/* Portafolio del usuario logueado */}
                     <Route path="/" element={<PortfolioPage />} />
@@ -36,7 +43,7 @@ export const AppRouter = () => {
                     {/* Login */}
                     <Route path="/login/*" element={<LoginPage />} />
 
-                    {/* Ruta para ver portafolio deslogeado*/}
+                    {/* Ruta para ver portafolio público*/}
                     <Route path="/:urlUsuario" element={<PortfolioPage />} />
 
                     {/* Cualquier otra ruta que no exista redirige a login */}

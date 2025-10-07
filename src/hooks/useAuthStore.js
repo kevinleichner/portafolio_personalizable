@@ -63,20 +63,25 @@ export const useAuthStore = () => {
     }
   }
 
-  const validarToken = async() => {
-    dispatch( cargar() );
-    const token = localStorage.getItem('token');
-    if (!token) return dispatch( deslogear() );
-    try {
-        const  { data } = await portafolioApi.get('auth/revalidar')
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('token-init-date', new Date().getTime() );
-        dispatch( logear({usuario: data.usuario, uid: data.uid}) );
-    } catch (error) {
-        localStorage.clear();
-        dispatch( deslogear() );
+  const validarToken = async (forzarDeslogueo = false) => {
+    if (forzarDeslogueo) {
+      dispatch(deslogear());
+      return;
     }
-  }
+
+    const token = localStorage.getItem('token');
+    if (!token) return dispatch(deslogear());
+
+    try {
+      const { data } = await portafolioApi.get('auth/revalidar');
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('token-init-date', new Date().getTime());
+      dispatch(logear({ usuario: data.usuario, uid: data.uid }));
+    } catch (error) {
+      localStorage.clear();
+      dispatch(deslogear());
+    }
+  };
 
   const empezarDeslogeo = () => {
     localStorage.clear();
@@ -96,6 +101,6 @@ export const useAuthStore = () => {
     empezarRegistro,
     empezarRecuperacion,
     empezarDeslogeo,
-    validarToken  
+    validarToken, 
   }
 }
