@@ -122,7 +122,7 @@ export const LoginPage = () => {
                             font-sans
                             h-[50%] w-[100%] px-8 py-15
                             md:h-[auto] md:w-[40%] md:order-2
-                            xl:gap-10 xl:w-[35%]`}>
+                            lg:gap-10 xl:w-[35%]`}>
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
                         <h2 className="text-4xl md:text-3xl xl:text-4xl mb-2">

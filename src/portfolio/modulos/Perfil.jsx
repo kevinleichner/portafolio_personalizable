@@ -457,7 +457,7 @@ export const Perfil = ({ config, editar }) => {
                       className={` text-[${r.colorIcono}]
                         rounded-sm p-2
                         bg-[${r.colorFondo}]
-                        ${!editar && 'md:bg-transparent md:hover:bg-[' + r.colorFondo + ']'}
+                        ${!editar && 'lg:bg-transparent lg:hover:bg-[' + r.colorFondo + ']'}
                         ${editar && 'md:bg-[' + r.colorFondo + ']'}
                         md:p-3
                       `}
