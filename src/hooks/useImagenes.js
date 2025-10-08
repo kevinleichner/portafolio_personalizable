@@ -19,7 +19,6 @@ export const useImagenes = () => {
       const res = await axios.post(VITE_CLOUDINARY_URL, datos);
       return res.data.secure_url;
     } catch (err) {
-      console.error("Error al subir imagen:", err);
       return null;
     } finally {
       setCargandoImagen(false);

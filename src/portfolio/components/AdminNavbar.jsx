@@ -10,7 +10,6 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   const {empezarDeslogeo, usuario} = useAuthStore();
 
   const [activo, setActivo] = useState(false);
-  const [modoEdicion, setModoEdicion] = useState(false);
 
   const [guardado, setGuardado] = useState(false);
   const [deshacer, setDeshacer] = useState(false);
@@ -21,13 +20,15 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    const nuevoModoEdicion = activo && anchoPantalla > 640;
+    const modoEdicion = activo && anchoPantalla > 640;
 
-    if (nuevoModoEdicion !== modoEdicion) {
-      setModoEdicion(nuevoModoEdicion);
-      nuevoModoEdicion ? empezarEdicion() : terminarEdicion();
+    if (modoEdicion) {
+      empezarEdicion();
     }
-  }, [activo, anchoPantalla, modoEdicion]);
+    else{
+      terminarEdicion();
+    }
+  }, [activo, anchoPantalla]);
 
   useEffect(() => {
     if (hayCambios) {
@@ -44,7 +45,7 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
 
   const manejarGuardado = async () => {
 
-    const faltanUrlsBotones = configLocal.proyectos?.proyectos?.some(p =>
+    const faltanUrlsBotones = configLocal.proyectos?.activo == 1 && configLocal.proyectos?.proyectos?.some(p =>
       p.botones?.some(b => !b.url || b.url.trim() === "" || b.url.trim() === "www.")
     );
 
@@ -54,7 +55,7 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
       title: "¿Guardar cambios?",
       icon: "question",
       text: (faltanUrlsBotones || faltanUrlsRedes)
-      ? "Tienes redes sociales o botones sin URL"
+      ? "Tienes redes sociales en el perfil o botones en el 'ver más' sin asignarle URL"
       : "",
       showCancelButton: true,
       confirmButtonText: "Guardar",

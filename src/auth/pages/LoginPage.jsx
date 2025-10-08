@@ -90,8 +90,7 @@ export const LoginPage = () => {
         
         <div  className="flex items-center gap-5 justify-around flex-col
                         bg-[#7eb77f]
-                        h-[100vh]
-                        md:gap-0 md:flex-row md:bg-linear-to-r md:from-white md:from-54% md:to-[#7eb77f] md:to-46%
+                        md:min-h-[100vh] md:gap-0 md:flex-row md:bg-linear-to-r md:from-white md:from-54% md:to-[#7eb77f] md:to-46%
                         xl:from-57% xl:to-43%">
             <div className="text-center order-2 
                             p-4 h-[50%] w-[100%]
@@ -118,12 +117,12 @@ export const LoginPage = () => {
                 </p>
             </div>
             {/* INICIAR SESION */}
-            <div className={`flex flex-col gap-10 text-center order-1
+            <div className={`flex flex-col gap-5 text-center order-1
                             decoration-none bg-white shadow-xl
                             font-sans
                             h-[50%] w-[100%] px-8 py-15
                             md:h-[auto] md:w-[40%] md:order-2
-                            xl:w-[35%]`}>
+                            xl:gap-10 xl:w-[35%]`}>
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
                         <h2 className="text-4xl md:text-3xl xl:text-4xl mb-2">

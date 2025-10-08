@@ -56,6 +56,18 @@ export const PortfolioPage = () => {
   
   }, [mensajeError])
 
+  useEffect(() => {
+    if (configLocal.mostrarCartel && estado === 'logeado' && !cargando && !noEncontrada) {
+      document.body.style.overflow = 'hidden'; // bloquea scroll
+    } else {
+      document.body.style.overflow = ''; 
+    }
+
+    return () => {
+      document.body.style.overflow = ''; 
+    };
+  }, [configLocal.mostrarCartel, estado, cargando, noEncontrada]);
+
   const cerrarCartel = async () =>{
     const nuevoConfig = {
       ...configLocal,

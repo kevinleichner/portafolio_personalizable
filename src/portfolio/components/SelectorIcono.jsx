@@ -27,7 +27,6 @@ export const SelectorIcono = ({ manejarSeleccionIcono }) => {
           setResultados([]);
         }
       } catch (error) {
-        console.error("Error al buscar íconos:", error);
         setResultados([]);
       }
     };

@@ -1,14 +1,24 @@
 import {useEffect, useState} from 'react'
 
 export const useAnchoPantalla = () => {
-    const [ancho, setAncho] = useState(window.innerWidth);
+  const obtenerAncho = () =>
+    document.documentElement.clientWidth || window.innerWidth;
 
-    useEffect(() => {
-        const manejarCambioAncho = () => setAncho(window.innerWidth);
-        window.addEventListener('resize', manejarCambioAncho);
-        manejarCambioAncho(); 
-        return () => window.removeEventListener('resize', manejarCambioAncho);
-    }, []);
+  const [ancho, setAncho] = useState(obtenerAncho());
 
-    return ancho;
-}
+  useEffect(() => {
+    const manejarCambioAncho = () => setAncho(obtenerAncho());
+
+    window.addEventListener('resize', manejarCambioAncho);
+    window.addEventListener('orientationchange', manejarCambioAncho);
+
+    manejarCambioAncho();
+
+    return () => {
+      window.removeEventListener('resize', manejarCambioAncho);
+      window.removeEventListener('orientationchange', manejarCambioAncho);
+    };
+  }, []);
+
+  return ancho;
+};
