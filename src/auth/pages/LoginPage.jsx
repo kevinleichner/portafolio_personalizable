@@ -90,7 +90,7 @@ export const LoginPage = () => {
         
         <div  className="flex items-center gap-5 justify-around flex-col
                         bg-[#7eb77f]
-                        md:h-[100vh]
+                        h-[100vh]
                         md:gap-0 md:flex-row md:bg-linear-to-r md:from-white md:from-54% md:to-[#7eb77f] md:to-46%
                         xl:from-57% xl:to-43%">
             <div className="text-center order-2 
