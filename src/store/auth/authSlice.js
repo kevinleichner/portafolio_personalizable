@@ -7,7 +7,6 @@ export const authSlice = createSlice({
         usuario: {},
         mensajeError: undefined,
         mensajeExitoso: undefined,
-
     },
     reducers: {
         comprobar: (state) => {
