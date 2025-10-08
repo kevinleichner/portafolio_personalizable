@@ -1,4 +1,4 @@
 export const imagenCarruselDefecto = 
 { 
-    url: "../img/proyecto-defecto.png" 
+    url: "/img/proyecto-defecto.png" 
 }

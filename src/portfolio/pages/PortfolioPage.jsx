@@ -79,7 +79,7 @@ export const PortfolioPage = () => {
           <div className={`gap-2 p-2 flex justify-center flex-col items-center bg-[#184e47]
                       rounded-sm max-h-[95vh] max-w-[90%]
                       shadow-xl`}>
-            <img className="object-contain max-h-[85vh] max-w-[100%] rounded-sm"  src="../img/cartel.png" alt="" />
+            <img className="object-contain max-h-[85vh] max-w-[100%] rounded-sm"  src="/img/cartel.png" alt="" />
             <button 
                 onClick={cerrarCartel}
                 className='border-2 rounded p-1 px-3 bg-blue-500 text-white hover:cursor-pointer hover:bg-blue-600'>

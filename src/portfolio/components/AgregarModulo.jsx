@@ -22,7 +22,7 @@ export const AgregarModulo = ({ config }) => {
             onClick={() => activarModuloPorKey(moduloKey)}
           >
             <img
-              src={`../img/${moduloKey}.png`}
+              src={`/img/${moduloKey}.png`}
               width={150}
               alt={`Agregar ${moduloKey}`}
             />
