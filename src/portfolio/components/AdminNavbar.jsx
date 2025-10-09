@@ -258,7 +258,7 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
                         }`}
           >
               <i 
-              className={'fa-solid fa-right-from-bracket text-sm sm:text-normal'}
+              className={'fa-solid fa-right-from-bracket text-sm sm:text-md'}
               />
           </button>
 

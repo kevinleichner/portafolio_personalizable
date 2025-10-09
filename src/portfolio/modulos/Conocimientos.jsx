@@ -191,8 +191,8 @@ const agregarConocimiento = () => {
                 {config.conocimientos.map((c, indice) => (
                     <div key={indice} className={`content-center text-center relative
                                     shadow-md bg-[${c.colorFondo}]
-                                    p-5 w-[45%]
-                                    sm:p-10 sm:w-[150px]`}>
+                                    text-sm p-4 w-[45%]
+                                    sm:text-md sm:w-[150px]`}>
 
 
                         {editar && (
@@ -213,7 +213,7 @@ const agregarConocimiento = () => {
                               abrirSelectorColor(e, config.conocimientos[indice].colorFondo, (nuevoColor) => {
                                 actualizarColorConocimiento(indice, nuevoColor, "colorFondo");
                               }, 
-                              indice < 2 //VER ESTO 
+                              indice < 2 
                               ? { vertical: "arriba", horizontal: "derecha" } 
                               : { vertical: "arriba", horizontal: "izquierda" } )
                             }
@@ -272,9 +272,22 @@ const agregarConocimiento = () => {
                               className="hidden"
                               id={'img-' + indice}
                             />
-                        <p className={`mt-3 outline-none text-[${c.colorTexto}]`}
+                        <p className={`mt-2 sm:mt-3 outline-none text-[${c.colorTexto}]`}
                             contentEditable={editar}
                             spellCheck={false}
+                            onInput={(e) => { //Que no pueda tener más de 20 carácteres
+                              const maximoCaracteres = 20;
+                              const target = e.currentTarget;
+                              if (target.innerText.length > maximoCaracteres) {
+                                target.innerText = target.innerText.slice(0, maximoCaracteres);
+                                const range = document.createRange();
+                                const sel = window.getSelection();
+                                range.setStart(target.childNodes[0], maximoCaracteres);
+                                range.collapse(true);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                              }
+                            }}
                             suppressContentEditableWarning={true}
                             onBlur={(e) => cambiarValorConocimientos(indice, "texto", e.currentTarget.textContent)}>
                             {c.texto}
