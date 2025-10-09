@@ -202,9 +202,9 @@ export const AdminNavbar = ({editar, hayCambios, config}) => {
         <div className='flex items-center gap-2 text-xs sm:text-base'>
           <p>
            {anchoPantalla < 400 
-           ? "....com/" 
+           ? ".../" 
            : VITE_URL_BASE.length > 20 
-              ? VITE_URL_BASE.substring(0, 20) + "..." 
+              ? VITE_URL_BASE.substring(0, 20) + ".../" 
               : VITE_URL_BASE}
           </p>
 

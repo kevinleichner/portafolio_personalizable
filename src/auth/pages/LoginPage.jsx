@@ -182,7 +182,7 @@ export const LoginPage = () => {
                                                 p-2 w-[100%] 
                                                 sm:text-md
                                                 ${registro || recuperar ? "" : "hidden"}`} 
-                                    type="text"
+                                    type="password"
                                     placeholder="Código de seguridad (numérico)" 
                                     name={registro && !recuperar ? "codigoRegistro" : "codigoRecuperar"}
                                     value={registro && !recuperar ? codigoRegistro : codigoRecuperar}
