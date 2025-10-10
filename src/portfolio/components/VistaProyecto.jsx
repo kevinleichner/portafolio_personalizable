@@ -205,7 +205,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                       bg-black/70">      
 
         <div className={`relative gap-3 flex justify-center flex-col items-center bg-[${contenido.colorFondoTexto}]
-                        rounded-sm w-[80%] lg:w-[60%] max-h-[95%]
+                        rounded-sm w-[80%] lg:w-[60%] md:max-h-[95%]
                         shadow-xl`}>         
         
           <button
@@ -300,7 +300,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
               </button>
             )}    
           </div>
-          <p className={`w-[90%] outline-none text-[${contenido.colorTexto}] text-sm sm:text-base`}
+          <p className={`w-[90%] outline-none text-[${contenido.colorTexto}] hidden text-sm sm:text-base md:block`}
               spellCheck={false}
               contentEditable={editar}
               suppressContentEditableWarning={true}
@@ -316,7 +316,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                    href={editar === false ? (b.url.startsWith('http') ? b.url : `https://${b.url}`) : undefined}
                    className={`flex justify-center my-1 sm:my-0 gap-1 items-center relative 
                                 bg-[${b.color}] text-sm md:text-base
-                                p-2 rounded-sm min-w-25 sm:w-[30%] lg:w-auto
+                                p-1 rounded-sm min-w-20 sm:w-[30%] md:min-w-25 md:p-2 lg:w-auto
                                 ${editar == false ? 'hover:brightness-80' : 'cursor-default'} `}>
                   {cargandoImgBotonIndice === indice && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md">
@@ -451,7 +451,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                             });
                           }, {
                             vertical: "abajo",
-                            horizontal: "izquierda"
+                            horizontal: "derecha"
                           })
                         }
                     className={`absolute -left-10 top-0 cursor-pointer flex items-center
@@ -470,8 +470,8 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                               colorFondoTexto: nuevoColor 
                             });
                           }, {
-                            vertical: "abajo",
-                            horizontal: "derecha"
+                            vertical: "arriba",
+                            horizontal: "izquierda"
                           })
                         }
                     className={`absolute -right-10 bottom-30 cursor-pointer flex items-center
