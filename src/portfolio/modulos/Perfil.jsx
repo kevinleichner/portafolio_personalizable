@@ -282,7 +282,8 @@ export const Perfil = ({ config, editar }) => {
               <div className="flex items-start gap-2 justify-center relative
                               md:justify-start">  
                 <p className={`h-auto outline-none text-[${config.colorTexto}]
-                              sm:text-lg 
+                              sm:text-lg
+                              lg:text-sm
                               xl:text-xl`}
                     contentEditable={editar}
                     spellCheck={false}
@@ -485,7 +486,6 @@ export const Perfil = ({ config, editar }) => {
                 h-auto m-2 w-[50%]
                 md:block md:w-[35%] 
                 lg:w-[30%] 
-                xl:w-[20%] 
                 2xl:object-contain">
 
             {cargandoImagen && (
@@ -494,6 +494,7 @@ export const Perfil = ({ config, editar }) => {
               </div>
             )}
 
+            {/* Imagen pantallas grandes */}
             <img
               className="object-cover w-full h-full"
               src={`${config.imagen}`}

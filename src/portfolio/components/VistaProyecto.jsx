@@ -233,7 +233,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
 
           )}
 
-          <div className="flex gap-1 flex-wrap
+          <div className="flex gap-1 flex-wrap justify-center
                         text-sm max-w-[95%]
                         p-1">
             {contenido.etiquetas.map((et, indice) => (
@@ -251,7 +251,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                     <i className="fa-solid fa-trash text-xs" />
                   </button>
                 )}        
-                <h6 className={`p-1 outline-none bg-[${contenido.colorFondoEtiqueta}] text-[${contenido.colorTexto}] 
+                <h6 className={`p-1 outline-none text-xs md:text-base bg-[${contenido.colorFondoEtiqueta}] text-[${contenido.colorTexto}] 
                                 rounded-sm 
                                 2xl:p-2`}
                     spellCheck={false}                 
@@ -300,7 +300,12 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
               </button>
             )}    
           </div>
-          <p className={`w-[90%] outline-none text-[${contenido.colorTexto}] hidden text-sm sm:text-base md:block`}
+          <p className={`w-[90%] outline-none 
+              text-[${contenido.colorTexto}] text-sm sm:text-xs md:text-base 
+              ${contenido.descripcion && contenido.descripcion.length > 300 
+                  ? 'overflow-y-auto max-h-15 sm:max-h-10 md:max-h-20'
+                  : ''
+              }`}
               spellCheck={false}
               contentEditable={editar}
               suppressContentEditableWarning={true}
@@ -323,7 +328,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                       <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
                     </div>
                   )}
-                  <img className="object-cover h-10 w-10 sm:h-11 sm:w-11" src={b.imagen} />
+                  <img className="object-cover h-8 w-8 md:h-11 md:w-11" src={b.imagen} />
                   {editar && (
                     <button
                       title="Cambiar ícono" 
@@ -340,7 +345,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
                     className="hidden"
                     id={'imgBoton-' + indice}
                   />
-                  <p className={`${editar == true ? 'cursor-text' : ''} outline-none text-[${contenido.colorTexto}]`}
+                  <p className={`${editar == true ? 'cursor-text' : ''} outline-none sm:text-xs md:text-base text-[${contenido.colorTexto}]`}
                     contentEditable={editar}
                     spellCheck={false}
                     onInput={(e) => { //Que no pueda tener más de 15 carácteres
@@ -436,7 +441,7 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
               <button title="Agregar botón" onClick={agregarBoton}>
                 <i className="fa-solid fa-plus fa-2x text-gray-500 cursor-pointer
                               rounded-sm border-2
-                              p-2 px-10 ml-1
+                              p-2 sm:p-1 md:p-2 px-10 ml-1
                               hover:text-black" />
               </button>
             )}
