@@ -29,8 +29,6 @@ export const useAuthStore = () => {
     try {
         
         const {data} = await portafolioApi.post('/auth/crear',{usuario, clave, codigoSeguridad:codigo});
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('token-init-date', new Date().getTime() );
         dispatch( registrar(data?.msg) );
         setTimeout(() => {
             dispatch( limpiarMensajeExitosoAuth() );
@@ -48,8 +46,6 @@ export const useAuthStore = () => {
     try {
         
         const {data} = await portafolioApi.put('/auth/restablecer',{usuario, nuevaClave, codigoSeguridad:codigo});
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('token-init-date', new Date().getTime() );
         dispatch( restablecer(data?.msg) );
         setTimeout(() => {
             dispatch( limpiarMensajeExitosoAuth() );
