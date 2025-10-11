@@ -1,6 +1,6 @@
 import {useState} from "react";
 import { SelectorColor } from "../components/SelectorColor";
-import { useSelectorColor, usePortfolioStore, useImagenes } from '../../hooks';
+import { useSelectorColor, usePortfolioStore, useImagenes, usePosiciones } from '../../hooks';
 import { VistaProyecto } from "../components/VistaProyecto";
 import { proyectoDefecto } from "../modulosDefecto";
 import Swal from "sweetalert2";
@@ -18,6 +18,11 @@ export const Proyectos = ({config, editar}) => {
     cerrarSelectorColor,
     manejarCambioColor,
   } = useSelectorColor();
+
+  const { refs: proyectoRefs, obtenerPosicionHorizontal } = usePosiciones(
+        config.proyectos.length, 
+        editar
+    );
 
   const {subirImagen} = useImagenes();
   const [cargandoImgIndice, setCargandoImgIndice] = useState(null);
@@ -161,6 +166,17 @@ export const Proyectos = ({config, editar}) => {
     });
   }
 
+  const obtenerPosicionamientoHorizontal = (indiceProyecto) => {
+      const posicion = obtenerPosicionHorizontal(indiceProyecto);
+      if (posicion === 'izquierda') {
+          return 'derecha';
+      } else if (posicion === 'derecha') {
+          return 'izquierda';
+      } else {
+          return 'izquierda'; 
+      }
+  }
+
 
   return (
     <div className={`relative
@@ -236,157 +252,160 @@ export const Proyectos = ({config, editar}) => {
             </div>
 
             <div className={`flex flex-wrap justify-center gap-6`}>   
-                {config.proyectos.map((p, indice) => (
-                    <div key={indice} className={`relative
-                                    shadow-md 
-                                    mt-3
-                                    w-[100%]
-                                    transition duration-300 
-                                    ${editar == false && 'hover:scale-105'} 
-                                    sm:w-[45%] 
-                                    lg:w-[30%] 
-                                    xl:w-[23%]`}>
-                        {cargandoImgIndice === indice && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md z-20">
-                            <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
-                          </div>
-                        )}
-                        <img className="rounded-md w-full h-80 object-cover" 
-                        
-                            src={p.imagenFondo}/>
-                            {editar && (
-                                <button
-                                title="Cambiar imagen de fondo" 
-                                onClick={() => document.getElementById('imgProyecto-' + indice).click()}
-                                className="flex items-center justify-center absolute -top-7 right-7 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
-                                >
-                                <i className="fa-solid fa-image text-sm" />
-                                </button>
-                            )}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => manejarCambioImagen(e, indice)}
-                                className="hidden"
-                                id={'imgProyecto-' + indice}
-                            />
-                        <div className={`flex flex-col items-center justify-between absolute inset-0
-                                        rounded-md bg-black/50
-                                        py-[10%] px-[5%] 
-                                        ${editar == true ? 'lg:opacity-100' : 'lg:opacity-0 lg:hover:opacity-100'}`}>
-                            <div className="text-center">
-                                <h2 className={`font-semibold text-3xl outline-none text-[${p.colorTexto}]
-                                                mb-2 
-                                                sm:text-xl
-                                                2xl:text-2xl`}
-                                    spellCheck={false}
-                                    contentEditable={editar}
-                                    suppressContentEditableWarning={true}
-                                    onBlur={(e) => cambiarValorProyectos(indice, "titulo", e.currentTarget.textContent)}>
-                                    {p.titulo}
-                                </h2>
-                                <div className={`flex flex-wrap justify-center gap-1 text-[${p.colorTexto}]
-                                                text-[80%] font-sans
-                                                md:text-sm`}>
-                                    {p.etiquetas.map((e, indiceEtiqueta) => (
-                                        <h6 key={indiceEtiqueta} className={`p-1 outline-none
-                                                        bg-[${p.colorFondoEtiqueta}]
-                                                        rounded-sm 
-                                                        2xl:p-2`}
-                                            spellCheck={false}
-                                            contentEditable={editar}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => cambiarTextoEtiqueta(indice, indiceEtiqueta, e.currentTarget.textContent)}>
-                                            {e.texto}
-                                        </h6>
-                                    ))}                                  
-                                </div>
+                {config.proyectos.map((p, indice) => {
+                    const posicionHorizontal = obtenerPosicionamientoHorizontal(indice);
+                    return (
+                      <div key={indice} ref={proyectoRefs.current[indice]} className={`relative
+                                      shadow-md 
+                                      mt-3
+                                      w-[100%]
+                                      transition duration-300 
+                                      ${editar == false && 'hover:scale-105'} 
+                                      sm:w-[45%] 
+                                      lg:w-[30%] 
+                                      xl:w-[23%]`}>
+                          {cargandoImgIndice === indice && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-md z-20">
+                              <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
                             </div>
-                            <button title="Ver más" onClick={() => setIndiceProyectoActivo(indice)}
-                                    className={`font-sans font-semibold text-xl text-[${p.colorTexto}]
-                                                border-2
-                                                px-5 py-1
-                                                ${editar == true ? `bg-[${p.colorBoton}]` : `hover:bg-[${p.colorBoton}]`}
-                                                hover:cursor-pointer     
-                                                sm:px-6 sm:py-2 
-                                                lg:text-lg`}>
-                                Ver más
-                            </button>
-
-
-                            {editar && (
-                              <button
-                              title="Cambiar color de los textos" 
-                              onClick={(e) =>
-                              abrirSelectorColor(e, config.proyectos[indice].colorTexto, (nuevoColor) => {
-                                  actualizarColorProyecto(indice, nuevoColor, "colorTexto");
-                                  }, {
-                                  vertical: "abajo",
-                                  horizontal: "derecha"
-                              })
-                              }
-
-
-                              className="flex items-center justify-center absolute right-13 top-1 cursor-pointer
-                                          bg-white p-1 rounded-full hover:bg-pink-400"
-                              >
-                              <i className="fa-solid fa-palette text-sm" />
+                          )}
+                          <img className="rounded-md w-full h-80 object-cover" 
+                          
+                              src={p.imagenFondo}/>
+                              {editar && (
+                                  <button
+                                  title="Cambiar imagen de fondo" 
+                                  onClick={() => document.getElementById('imgProyecto-' + indice).click()}
+                                  className="flex items-center justify-center absolute -top-7 right-7 bg-white p-1 rounded-full cursor-pointer hover:bg-pink-400"
+                                  >
+                                  <i className="fa-solid fa-image text-sm" />
+                                  </button>
+                              )}
+                              <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => manejarCambioImagen(e, indice)}
+                                  className="hidden"
+                                  id={'imgProyecto-' + indice}
+                              />
+                          <div className={`flex flex-col items-center justify-between absolute inset-0
+                                          rounded-md bg-black/50
+                                          py-[10%] px-[5%] 
+                                          ${editar == true ? 'lg:opacity-100' : 'lg:opacity-0 lg:hover:opacity-100'}`}>
+                              <div className="text-center">
+                                  <h2 className={`font-semibold text-3xl outline-none text-[${p.colorTexto}]
+                                                  mb-2 
+                                                  sm:text-xl
+                                                  2xl:text-2xl`}
+                                      spellCheck={false}
+                                      contentEditable={editar}
+                                      suppressContentEditableWarning={true}
+                                      onBlur={(e) => cambiarValorProyectos(indice, "titulo", e.currentTarget.textContent)}>
+                                      {p.titulo}
+                                  </h2>
+                                  <div className={`flex flex-wrap justify-center gap-1 text-[${p.colorTexto}]
+                                                  text-[80%] font-sans
+                                                  md:text-sm`}>
+                                      {p.etiquetas.map((e, indiceEtiqueta) => (
+                                          <h6 key={indiceEtiqueta} className={`p-1 outline-none
+                                                          bg-[${p.colorFondoEtiqueta}]
+                                                          rounded-sm 
+                                                          2xl:p-2`}
+                                              spellCheck={false}
+                                              contentEditable={editar}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => cambiarTextoEtiqueta(indice, indiceEtiqueta, e.currentTarget.textContent)}>
+                                              {e.texto}
+                                          </h6>
+                                      ))}                                  
+                                  </div>
+                              </div>
+                              <button title="Ver más" onClick={() => setIndiceProyectoActivo(indice)}
+                                      className={`font-sans font-semibold text-xl text-[${p.colorTexto}]
+                                                  border-2
+                                                  px-5 py-1
+                                                  ${editar == true ? `bg-[${p.colorBoton}]` : `bg-[${p.colorBoton}] lg:hover:bg-[${p.colorBoton}]`}
+                                                  hover:cursor-pointer     
+                                                  sm:px-6 sm:py-2 
+                                                  lg:text-lg`}>
+                                  Ver más
                               </button>
-                            )}
-
-                            {editar && (
-                              <button
-                              title="Cambiar color de etiquetas" 
-                              onClick={(e) =>
-                              abrirSelectorColor(e, config.proyectos[indice].colorFondoEtiqueta || "#1a5fad", (nuevoColor) => {
-                                  actualizarColorProyecto(indice, nuevoColor, 'colorFondoEtiqueta');
-                                  }, {
-                                  vertical: "abajo",
-                                  horizontal: "derecha"
-                              })
-                              }
 
 
-                              className="flex items-center justify-center absolute right-7 top-1 cursor-pointer
-                                          bg-white p-1 rounded-full hover:bg-pink-400"
-                              >
-                              <i className="fa-solid fa-tag text-sm" />
-                              </button>
-                            )}
-
-                            {editar && (
-                              <button
-                              title="Cambiar color del botón 'ver más'" 
-                              onClick={(e) =>
-                              abrirSelectorColor(e, config.proyectos[indice].colorBoton, (nuevoColor) => {
-                                  actualizarColorProyecto(indice, nuevoColor, "colorBoton");
-                                  }, {
-                                  vertical: "abajo",
-                                  horizontal: "derecha"
-                              })
-                              }
-
-
-                              className="flex items-center justify-center absolute right-1 top-1 cursor-pointer
-                                          bg-white p-1 rounded-full hover:bg-pink-400"
-                              >
-                              <i className="fa-solid fa-square text-sm" />
-                              </button>
-                            )}
-
-                            {editar && (
+                              {editar && (
                                 <button
-                                title="Eliminar" 
-                                onClick={() => eliminarProyecto(indice)}
-                                className="flex items-center justify-center absolute -top-7 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-500"
+                                title="Cambiar color de los textos" 
+                                onClick={(e) =>
+                                abrirSelectorColor(e, config.proyectos[indice].colorTexto, (nuevoColor) => {
+                                    actualizarColorProyecto(indice, nuevoColor, "colorTexto");
+                                    }, {
+                                    vertical: "arriba",
+                                    horizontal: posicionHorizontal
+                                })
+                                }
+
+
+                                className="flex items-center justify-center absolute right-13 top-1 cursor-pointer
+                                            bg-white p-1 rounded-full hover:bg-pink-400"
                                 >
-                                <i className="fa-solid fa-trash text-sm" />
+                                <i className="fa-solid fa-palette text-sm" />
                                 </button>
-                            )}
-                      
-                        </div>                                                          
-                    </div>
-                ))}
+                              )}
+
+                              {editar && (
+                                <button
+                                title="Cambiar color de etiquetas" 
+                                onClick={(e) =>
+                                abrirSelectorColor(e, config.proyectos[indice].colorFondoEtiqueta || "#1a5fad", (nuevoColor) => {
+                                    actualizarColorProyecto(indice, nuevoColor, 'colorFondoEtiqueta');
+                                    }, {                                  
+                                    vertical: "arriba",
+                                    horizontal: posicionHorizontal
+                                })
+                                }
+
+
+                                className="flex items-center justify-center absolute right-7 top-1 cursor-pointer
+                                            bg-white p-1 rounded-full hover:bg-pink-400"
+                                >
+                                <i className="fa-solid fa-tag text-sm" />
+                                </button>
+                              )}
+
+                              {editar && (
+                                <button
+                                title="Cambiar color del botón 'ver más'" 
+                                onClick={(e) =>
+                                abrirSelectorColor(e, config.proyectos[indice].colorBoton, (nuevoColor) => {
+                                    actualizarColorProyecto(indice, nuevoColor, "colorBoton");
+                                    }, {
+                                    vertical: "arriba",
+                                    horizontal: posicionHorizontal
+                                })
+                                }
+
+
+                                className="flex items-center justify-center absolute right-1 top-1 cursor-pointer
+                                            bg-white p-1 rounded-full hover:bg-pink-400"
+                                >
+                                <i className="fa-solid fa-square text-sm" />
+                                </button>
+                              )}
+
+                              {editar && (
+                                  <button
+                                  title="Eliminar" 
+                                  onClick={() => eliminarProyecto(indice)}
+                                  className="flex items-center justify-center absolute -top-7 right-1 bg-white p-1 rounded-full cursor-pointer hover:bg-red-500"
+                                  >
+                                  <i className="fa-solid fa-trash text-sm" />
+                                  </button>
+                              )}
+                        
+                          </div>                                                          
+                      </div>
+                    )                   
+                  })}
 
                 {editar && (
                   <div className={`w-[100%]

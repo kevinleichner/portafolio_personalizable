@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SelectorColor } from "../components/SelectorColor";
-import { useSelectorColor, usePortfolioStore, useImagenes } from '../../hooks';
+import { useSelectorColor, usePortfolioStore, useImagenes, usePosiciones } from '../../hooks';
 import { conocimientoDefecto } from "../modulosDefecto";
 import Swal from "sweetalert2";
 
@@ -8,6 +8,11 @@ export const Conocimientos = ({config, editar}) => {
 
   const componente = 'conocimientos';
 
+  const { refs: conocimientoRefs, obtenerPosicionHorizontal } = usePosiciones(
+        config.conocimientos.length, 
+        editar
+    );
+    
   const {
       mostrarSelectorColor,
       posicionSelectorColor,
@@ -117,6 +122,17 @@ const agregarConocimiento = () => {
       });
   };
 
+  const obtenerPosicionamientoHorizontal = (indiceConocimiento) => {
+      const posicion = obtenerPosicionHorizontal(indiceConocimiento);
+      if (posicion === 'izquierda') {
+          return 'derecha';
+      } else if (posicion === 'derecha') {
+          return 'izquierda';
+      } else {
+          return 'izquierda'; 
+      }
+  }
+
   return (
     <div className={`relative
                     bg-[${config.colorFondo}]
@@ -165,8 +181,8 @@ const agregarConocimiento = () => {
                         valor: nuevoColor });
                     }, {
                       vertical: "abajo",
-                      horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'
-                    })
+                      horizontal: posicionHorizontal
+                    }) 
                   }
                   className="flex items-center justify-center cursor-pointer
                             bg-white p-1 rounded-full hover:bg-pink-400"
@@ -188,8 +204,10 @@ const agregarConocimiento = () => {
 
             <div className={`flex flex-wrap justify-center gap-2
                             sm:gap-4`}>
-                {config.conocimientos.map((c, indice) => (
-                    <div key={indice} className={`content-center text-center relative
+                {config.conocimientos.map((c, indice) => {
+                  const posicionHorizontal = obtenerPosicionamientoHorizontal(indice);
+                  return (
+                    <div key={indice} ref={conocimientoRefs.current[indice]}  className={`content-center text-center relative
                                     shadow-md bg-[${c.colorFondo}]
                                     text-sm p-4 w-[45%]
                                     sm:text-md sm:w-[150px]`}>
@@ -213,9 +231,10 @@ const agregarConocimiento = () => {
                               abrirSelectorColor(e, config.conocimientos[indice].colorFondo, (nuevoColor) => {
                                 actualizarColorConocimiento(indice, nuevoColor, "colorFondo");
                               }, 
-                              indice < 2 
-                              ? { vertical: "arriba", horizontal: "derecha" } 
-                              : { vertical: "arriba", horizontal: "izquierda" } )
+                              {
+                                vertical: "arriba",
+                                horizontal: posicionHorizontal
+                              })                         
                             }
                             className="flex items-center absolute top-1 right-7 cursor-pointer
                                       bg-white p-1 rounded-full hover:bg-pink-400
@@ -238,9 +257,9 @@ const agregarConocimiento = () => {
                                 abrirSelectorColor(e, config.colorTexto, (nuevoColor) => {
                                   actualizarColorConocimiento(indice, nuevoColor, "colorTexto");
                                 }, {
-                                  vertical: "abajo",
-                                  horizontal: window.innerWidth < 768 ? 'izquierda' : 'derecha'
-                                })
+                                vertical: "abajo",
+                                horizontal: posicionHorizontal
+                              }) 
                               }
                               className="flex items-center absolute top-1 right-19 cursor-pointer
                                       bg-white p-1 rounded-full hover:bg-pink-400
@@ -293,7 +312,8 @@ const agregarConocimiento = () => {
                             {c.texto}
                         </p>
                     </div>
-                ))} 
+                  )
+                })} 
 
                 {editar && (
                   <div className={`content-center text-center relative
@@ -320,8 +340,8 @@ const agregarConocimiento = () => {
                           valor: nuevoColor });
                       }, {
                         vertical: "abajo",
-                        horizontal: "izquierda"
-                      })
+                        horizontal: posicionHorizontal
+                      }) 
                     }
                 className={`absolute right-10 top-3 cursor-pointer flex items-center
                               bg-white rounded-full p-2 
