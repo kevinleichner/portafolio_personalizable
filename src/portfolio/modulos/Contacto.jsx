@@ -291,10 +291,10 @@ export const Contacto = ({config, editar}) => {
 
         {editar === true && (
           <button title="Cambiar dirección de email" onClick={(e) => manejarCambioMail()}
-                  className={`absolute right-18 top-3 cursor-pointer flex items-center
+                  className={`absolute right-19 top-3 cursor-pointer flex items-center
                                 bg-white rounded-full p-2 
                                 hover:bg-blue-400
-                                xl:right-23`}>
+                                xl:right-24`}>
                 <i className="fa-solid fa-at text-sm
                               xl:text-xl"/>
           </button>
