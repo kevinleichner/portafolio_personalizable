@@ -300,18 +300,32 @@ export const VistaProyecto = ({ cerrar, contenido, editar, actualizarProyecto })
               </button>
             )}    
           </div>
-          <p className={`w-[90%] outline-none 
+           <p className={`w-[90%] outline-none text-start
               text-[${contenido.colorTexto}] text-sm sm:text-xs md:text-base 
               ${contenido.descripcion && contenido.descripcion.length > 300 
-                  ? 'overflow-y-auto max-h-15 sm:max-h-10 md:max-h-20'
+                  ? 'overflow-y-auto max-h-30 sm:max-h-10 md:max-h-35'
                   : ''
               }`}
-              spellCheck={false}
-              contentEditable={editar}
-              suppressContentEditableWarning={true}
-              onBlur={(e) => actualizarDescripcion(e.currentTarget.textContent)}>
-            {contenido.descripcion}
-          </p>
+            spellCheck={false}
+            contentEditable={editar}
+            suppressContentEditableWarning={true}
+            onBlur={(e) => {
+              const html = e.currentTarget.innerHTML;
+
+              const limpia = html
+                .replace(/&nbsp;/g, ' ')
+                .replace(/<div>/gi, '<br>')
+                .replace(/<\/div>/gi, '')
+                .trim();
+
+              actualizarDescripcion(limpia);
+            }}
+            dangerouslySetInnerHTML={{
+              __html: contenido.descripcion
+                ? contenido.descripcion.replace(/\n/g, '<br>')
+                : '',
+            }}
+          />
           <div className="flex-column sm:flex justify-center gap-2
                           w-[70%] sm:w-full p-1">
             {contenido.botones.map((b, indice) => (
